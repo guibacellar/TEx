@@ -1,0 +1,14 @@
+[run]
+branch = True
+
+[report]
+omit =
+    *venv*,
+    *.tox*,
+    *OSIxRunner.py,
+    *__init__.py,
+    *__main__.py,
+    *core/chrome_driver_manager.py,
+    *core/constants.py,
+    *core/decorator.py,
+    *core/http_manager.py

@@ -1,0 +1,1 @@
+{"status": 200, "text": "[{\"id\":6998983,\"name\":\"Marcos Silva\",\"username\":\"marcos\",\"state\":\"active\",\"avatar_url\":\"https://gitlab.com/uploads/-/system/user/avatar/6998983/avatar.png\",\"web_url\":\"https://gitlab.com/marcos\"}]", "url": "https://gitlab.com/api/v4/users?username=marcos"}

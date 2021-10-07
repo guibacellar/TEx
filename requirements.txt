@@ -1,0 +1,19 @@
+# Telegram
+Telethon==1.23.0
+
+# DB Deps
+sqlalchemy[asyncio]==1.4.23
+sqlalchemy[mypy]==1.4.23
+aiosqlite==0.17.0
+
+# Report Generation
+Jinja2==3.0.2
+
+# Others
+pytz==2021.1
+urllib3==1.26.3
+requests==2.25.1
+
+# QA
+tox==3.22.0
+pytest==6.2.2

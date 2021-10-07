@@ -1,0 +1,1 @@
+{"status": 200, "text": "{\"valid\":false,\"messages\":[\"That username is taken. If this is you, \\u003Ca href=https:\\/\\/www.chess.com\\/login\\u003Elog in\\u003C\\/a\\u003E!\"],\"usernameSuggestions\":[]}", "url": "https://www.chess.com/callback/user/valid?username=marcos"}

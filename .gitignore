@@ -1,3 +1,17 @@
+
+# Other
+data/
+tests/data/
+reports/
+.idea
+.tox
+session.session
+session.session-journal
+assets/chrome_driver.zip
+assets/chromedriver.exe
+assets/chromedriver.so
+assets/chromedriver
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
