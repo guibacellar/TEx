@@ -5,8 +5,8 @@ from typing import Dict, List
 from configparser import ConfigParser
 import hashlib
 
-from OSIx.modules.gravatar_username_data_digger import GravatarUsernameDataDigger, GravatarDataPrinter
-from OSIx.modules.temp_file_manager import TempFileManager
+from TEx.modules.gravatar_username_data_digger import GravatarUsernameDataDigger, GravatarDataPrinter
+from TEx.modules.temp_file_manager import TempFileManager
 from unittest import mock
 
 

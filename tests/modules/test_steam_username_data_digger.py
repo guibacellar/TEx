@@ -11,10 +11,10 @@ import hashlib
 
 import requests.exceptions
 
-from OSIx.core.temp_file import TempFileHandler
-from OSIx.modules.github_username_data_digger import GithubUsernameDataDigger
-from OSIx.modules.temp_file_manager import TempFileManager
-from OSIx.modules.steam_username_data_digger import SteamUsernameDataDigger, SteamIdFinderDataDigger, SteamDataPrinter
+from TEx.core.temp_file import TempFileHandler
+from TEx.modules.github_username_data_digger import GithubUsernameDataDigger
+from TEx.modules.temp_file_manager import TempFileManager
+from TEx.modules.steam_username_data_digger import SteamUsernameDataDigger, SteamIdFinderDataDigger, SteamDataPrinter
 from unittest import mock
 
 

@@ -1,5 +1,7 @@
 """Telegram Group Scrapper."""
+import asyncio
 import logging
+import threading
 from configparser import ConfigParser
 from time import sleep
 from typing import Dict, List, Optional
@@ -93,7 +95,6 @@ class TelegramGroupMessageScrapper(BaseModule):
             args['target_phone_number'])
         logger.info(f'\t\tFound {len(groups)} Groups')
 
-        # Process Single Groups
         for group in groups:
             try:
                 await self.download_messages(
@@ -101,7 +102,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     client=client,
                     group_name=group.title,
                     download_media=not args['ignore_media']
-                    )
+                )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)

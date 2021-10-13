@@ -8,8 +8,8 @@ import uuid
 from typing import Dict
 from configparser import ConfigParser
 
-from OSIx.core.dir_manager import DirectoryManagerUtils
-from OSIx.modules.state_file_handler import SaveStateFileHandler, LoadStateFileHandler
+from TEx.core.dir_manager import DirectoryManagerUtils
+from TEx.modules.state_file_handler import SaveStateFileHandler, LoadStateFileHandler
 
 
 class StateFileHandlerTest(unittest.TestCase):

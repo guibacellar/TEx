@@ -4,9 +4,9 @@ import unittest
 from typing import Dict
 from configparser import ConfigParser
 
-from OSIx.core.dir_manager import DirectoryManagerUtils
-from OSIx.core.temp_file import TempFileHandler
-from OSIx.modules.bitcoin_wallet import BitcoinWalletInfoDownloader, BitcoinWalletTransactionsDownloader
+from TEx.core.dir_manager import DirectoryManagerUtils
+from TEx.core.temp_file import TempFileHandler
+from TEx.modules.bitcoin_wallet import BitcoinWalletInfoDownloader, BitcoinWalletTransactionsDownloader
 from unittest.mock import patch
 
 

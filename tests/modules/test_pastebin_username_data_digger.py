@@ -5,8 +5,8 @@ from typing import Dict, List
 from configparser import ConfigParser
 import hashlib
 
-from OSIx.modules.pastebin_username_data_digger import PastebinUsernameDataDigger, PastebinDataPrinter
-from OSIx.modules.temp_file_manager import TempFileManager
+from TEx.modules.pastebin_username_data_digger import PastebinUsernameDataDigger, PastebinDataPrinter
+from TEx.modules.temp_file_manager import TempFileManager
 from unittest import mock
 
 

@@ -2,6 +2,7 @@
 import base64
 import datetime
 import logging
+import re
 
 from configparser import ConfigParser
 from typing import Dict, List, Optional, cast
@@ -58,6 +59,13 @@ class TelegramReportGenerator(BaseModule):
             args['target_phone_number'])
         logger.info(f'\t\tFound {len(groups)} Groups')
 
+        # Filter Groups
+        if args['group_id'] != '*':
+            target_group_ids: List = [int(group) for group in str(args['group_id']).split(',')]
+            logger.info(f'\t\tFiltering Groups by {target_group_ids}')
+            groups = list(filter(lambda x: len([tg for tg in target_group_ids if tg == x.id]) > 0, groups))
+            logger.info(f'\t\tFound {len(groups)} after filtering')
+
         # Process Each Group
         for group in groups:
             logger.info(f'\t\tProcessing "{group.title}"')
@@ -74,8 +82,8 @@ class TelegramReportGenerator(BaseModule):
 
         # Filter Messages
         logger.info('\t\t\tFiltering')
-        filter_words: Optional[List[str]] = args['filter'].upper().split(',') if args['filter'] else None
-        messages = self.filter_messages(messages=messages, filter_words=filter_words)
+        filter_words: Optional[List[str]] = args['filter'].split(',') if args['filter'] else None
+        messages = self.filter_messages(messages=messages, filter_words=filter_words, args=args)
 
         # Limits Configuration
         limit_days: int = int(args['limit_days'])
@@ -90,9 +98,10 @@ class TelegramReportGenerator(BaseModule):
             )
 
         logger.info('\t\t\tRendering')
-        with open(f'{report_root_folder}/result_{group.id}.html', 'wb') as file:
+        with open(f'{report_root_folder}/result_{group.group_username}_{group.id}.html', 'wb') as file:
             output = template.render(
                 groupname=group.title,
+                groupusername=group.group_username,
                 messages=render_messages
                 )
             file.write(output.encode('utf-8'))
@@ -133,6 +142,8 @@ class TelegramReportGenerator(BaseModule):
                     'from_id': message.from_id,
                     'to_id': message.to_id,
                     'message': message.message,
+                    'meta_next': message.meta_next,
+                    'meta_previous': message.meta_previous,
                     'to_from_information': self.render_to_from_message_info(message=message, from_user=from_user)
                     }
 
@@ -213,17 +224,96 @@ class TelegramReportGenerator(BaseModule):
 
         return cast(Optional[TelegramUserOrmEntity], TelegramReportGenerator.__USERS_RESOLUTION_CACHE[user_id])
 
-    def filter_messages(self, messages: List[TelegramMessageOrmEntity], filter_words: Optional[List[str]]) -> List[TelegramMessageOrmEntity]:
+    def filter_messages(self, messages: List[TelegramMessageOrmEntity], filter_words: Optional[List[str]], args: Dict) -> List[TelegramMessageOrmEntity]:
         """Filter Messages."""
         if not filter_words or len(filter_words) == 0:
             return messages
 
+        h_messages: List[TelegramMessageOrmEntity] = []
+        h_result: List[TelegramMessageOrmEntity] = []
+
+        # Loop on Messages
+        for message in messages:
+
+            matched: bool = False
+            new_message: TelegramMessageOrmEntity = message
+
+            # Process Each Filter
+            for word in filter_words:
+
+                # Check Filter
+                if word.casefold() in message.raw.casefold():
+                    new_message.message = self.ireplace(word, f'<span class="marker">{word}</span>', new_message.message)
+                    matched = True
+
+            if matched:
+                h_messages.append(new_message)
+
+        # Add the Around Messages
+        for single_result in h_messages:
+
+            single_result.meta_next = False
+            single_result.meta_previous = False
+
+            # Get The Next and Previous Messages
+            previous: List[TelegramMessageOrmEntity] = self.get_previous_messages(id=single_result.id, messages=messages, count=int(args['around_messages']))
+            next: List[TelegramMessageOrmEntity] = self.get_next_messages(id=single_result.id, messages=messages, count=int(args['around_messages']))
+
+            # Place an Color Wrapper Around
+            for item in previous:
+                item.meta_previous = True
+                item.meta_next = False
+
+            for item in next:
+                item.meta_next = True
+                item.meta_previous = False
+
+            h_result.extend(previous)
+            h_result.append(single_result)
+            h_result.extend(next)
+
+        return self.dedup_messages(messages=h_result)
+
+    def ireplace(self, old, repl, text) -> str:
+        """Case Insensitive Replace."""
+        return re.sub('(?i)' + re.escape(old), lambda m: repl, text)
+
+    def get_previous_messages(self, id: int, messages: List[TelegramMessageOrmEntity], count: int) -> List[TelegramMessageOrmEntity]:
+        """Return the (count) messages prior the (id) message."""
+        if count == 0:
+            return []
+
+        target_ix: int = [messages.index(item) for item in messages if item.id == id][0]
+        dest_ix: int = target_ix-count
+
+        if dest_ix > 0:
+            return messages[dest_ix:target_ix]
+        else:
+            return messages[0:target_ix]
+
+    def get_next_messages(self, id: int, messages: List[TelegramMessageOrmEntity], count: int) -> List[TelegramMessageOrmEntity]:
+        """Return the (count) messages after the (id) message."""
+        if count == 0:
+            return []
+
+        target_ix: int = [messages.index(item) for item in messages if item.id == id][0]
+        dest_ix: int = target_ix+count+1
+
+        if dest_ix <= len(messages):
+            return messages[target_ix+1:dest_ix]
+        else:
+            return messages[target_ix:]
+
+    def dedup_messages(self, messages: List[TelegramMessageOrmEntity]) -> List[TelegramMessageOrmEntity]:
+        """Deduplicate the Messages."""
+
+        if len(messages) == 0:
+            return []
+
         h_result: List[TelegramMessageOrmEntity] = []
 
         for message in messages:
-            for word in filter_words:
-                if word in message.raw.upper():
-                    h_result.append(message)
-                    break
+            if len(h_result) == 0 or message.id != h_result[-1].id:
+                h_result.append(message)
 
         return h_result

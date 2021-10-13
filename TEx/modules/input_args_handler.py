@@ -83,7 +83,17 @@ class InputArgsHandler(BaseModule):
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
                     'default': 'reports', 'required': False
-                    }
+                    },
+                'around_messages': {
+                    'param': '--around_messages', 'type': int, 'action': 'store',
+                    'help': 'Number of Messages to be Returned Around (Previous and After) the Message that was been filtered. Works together --filter',
+                    'default': 1, 'required': False
+                    },
+                'group_id': {
+                    'param': '--group_id', 'type': str, 'action': 'store',
+                    'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
+                    'default': '*', 'required': False
+                    },
                 }
             },
         'purge_temp_files': {

@@ -5,8 +5,8 @@ from typing import Dict
 from configparser import ConfigParser
 import hashlib
 
-from OSIx.modules.github_username_data_digger import GithubUsernameDataDigger, GithubDataPrinter
-from OSIx.modules.temp_file_manager import TempFileManager
+from TEx.modules.github_username_data_digger import GithubUsernameDataDigger, GithubDataPrinter
+from TEx.modules.temp_file_manager import TempFileManager
 from unittest import mock
 
 

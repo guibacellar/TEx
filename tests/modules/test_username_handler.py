@@ -9,8 +9,8 @@ import hashlib
 
 import requests.exceptions
 
-from OSIx.modules.temp_file_manager import TempFileManager
-from OSIx.modules.username_handler import UsernameScanner
+from TEx.modules.temp_file_manager import TempFileManager
+from TEx.modules.username_handler import UsernameScanner
 from unittest import mock
 
 

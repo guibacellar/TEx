@@ -1,7 +1,7 @@
 """Temp File Handle Tests."""
 
 import unittest
-from OSIx.core.temp_file import TempFileHandler
+from TEx.core.temp_file import TempFileHandler
 
 
 class TempFileHandlerTest(unittest.TestCase):

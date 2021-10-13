@@ -4,8 +4,8 @@ import unittest
 from typing import Dict
 from configparser import ConfigParser
 
-from OSIx.core.temp_file import TempFileHandler
-from OSIx.modules.http_navigation_manager import HttpNavigationManagerHandler
+from TEx.core.temp_file import TempFileHandler
+from TEx.modules.http_navigation_manager import HttpNavigationManagerHandler
 from unittest.mock import patch
 
 
