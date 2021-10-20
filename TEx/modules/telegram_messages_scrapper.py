@@ -1,7 +1,7 @@
 """Telegram Group Scrapper."""
-import asyncio
+import hashlib
 import logging
-import threading
+import os
 from configparser import ConfigParser
 from time import sleep
 from typing import Dict, List, Optional
@@ -97,17 +97,17 @@ class TelegramGroupMessageScrapper(BaseModule):
 
         for group in groups:
             try:
-                await self.download_messages(
+                await self.__download_messages(
                     group_id=group.id,
                     client=client,
                     group_name=group.title,
                     download_media=not args['ignore_media']
-                )
+                    )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)
 
-    async def download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool) -> None:
+    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool) -> None:
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:
@@ -157,7 +157,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     'message': message.message,
                     'raw': message.raw_text,
                     'to_id': message.to_id.channel_id if message.to_id is not None else None,
-                    'media_id': await self.handle_medias(message) if download_media else None
+                    'media_id': await self.__handle_medias(message) if download_media else None
                     }
 
                 if message.from_id is not None:
@@ -174,8 +174,55 @@ class TelegramGroupMessageScrapper(BaseModule):
             if records == 0:
                 break
 
-    async def handle_medias(self, message: Message) -> Optional[int]:
+    async def __handle_medias(self, message: Message) -> Optional[int]:
         """Handle Message Media, Photo, File, etc."""
+        executor_id: Optional[str] = self.__resolve_executor_id(message=message)
+
+        if executor_id == 'not_defined':
+            return None
+
+        # Retrieve the Executor Spec
+        executor_spec: Dict = {}
+        if executor_id in TelegramGroupMessageScrapper.__MEDIA_HANDLERS:
+            executor_spec = TelegramGroupMessageScrapper.__MEDIA_HANDLERS[executor_id]
+        else:
+            executor_spec = TelegramGroupMessageScrapper.__MEDIA_HANDLERS['application/vnd.generic.binary']
+
+        # Get Media Metadata
+        media_metadata: Optional[Dict] = executor_spec['metadata_handler'](
+            message=message
+            )
+
+        # Handle Unicode Chars on Media File Name - TODO: TO Method
+        if media_metadata and media_metadata['file_name']:
+            try:
+                media_metadata['file_name'].encode('ascii')
+            except UnicodeError:
+                file, ext = os.path.splitext(media_metadata['file_name'])
+                media_metadata['file_name'] = f'{hashlib.md5(file.encode("utf-8")).hexdigest()}{ext}'  # nosec
+
+        # Check Media Size - TODO: TO Method
+        if media_metadata and \
+                'size_bytes' in media_metadata and \
+                media_metadata['size_bytes'] and \
+                media_metadata['size_bytes'] > 256000000:  # 256 MB
+            logger.info('\t\t\t\tMedia too Large. Ignoring...')
+            return None
+
+        # Download Media and Save into DB
+        await executor_spec['downloader'](
+            message=message,
+            media_metadata=media_metadata
+            )
+
+        # Update into DB
+        if media_metadata is not None:
+            return TelegramMediaDatabaseManager.insert(media_metadata)
+
+        return None
+
+    def __resolve_executor_id(self, message: Message) -> Optional[str]:
+        """Resolve the Executor ID."""
         executor_id: str = 'not_defined'
 
         if message.voice is not None:
@@ -200,31 +247,5 @@ class TelegramGroupMessageScrapper(BaseModule):
 
             else:
                 logger.info(f'\t\t\tNot Supported Media Type {type(message.media)}. Ignoring...')
-                return None
 
-        if executor_id == 'not_defined':
-            return None
-
-        # Retrieve the Executor Spec
-        executor_spec: Dict = {}
-        if executor_id in TelegramGroupMessageScrapper.__MEDIA_HANDLERS:
-            executor_spec = TelegramGroupMessageScrapper.__MEDIA_HANDLERS[executor_id]
-        else:
-            executor_spec = TelegramGroupMessageScrapper.__MEDIA_HANDLERS['application/vnd.generic.binary']
-
-        # Get Media Metadata
-        media_metadata: Optional[Dict] = executor_spec['metadata_handler'](
-            message=message
-            )
-
-        # Download Media and Save into DB
-        await executor_spec['downloader'](
-            message=message,
-            media_metadata=media_metadata
-            )
-
-        # Update into DB
-        if media_metadata is not None:
-            return TelegramMediaDatabaseManager.insert(media_metadata)
-
-        return None
+        return executor_id

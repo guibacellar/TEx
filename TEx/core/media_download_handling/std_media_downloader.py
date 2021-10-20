@@ -17,6 +17,9 @@ class StandardMediaDownloader:
         :param media_metadata:
         :return:
         """
+        if not media_metadata:
+            return None
+
         # Download Media
         generated_path: str = await message.download_media(f'data/download/{media_metadata["file_name"]}')
         media_metadata['extension'] = os.path.splitext(generated_path)[1]

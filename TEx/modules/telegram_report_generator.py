@@ -3,8 +3,10 @@ import base64
 import datetime
 import logging
 import re
+import os
 
 from configparser import ConfigParser
+from operator import attrgetter
 from typing import Dict, List, Optional, cast
 
 import pytz
@@ -26,6 +28,10 @@ from TEx.models.database.telegram_db_model import (
     TelegramMessageOrmEntity,
     TelegramUserOrmEntity
     )
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
+    TelegramGroupReportFacadeEntityMapper
+from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
+    TelegramMessageReportFacadeEntityMapper
 
 logger = logging.getLogger()
 
@@ -52,12 +58,19 @@ class TelegramReportGenerator(BaseModule):
             loader=FileSystemLoader("report_templates"),
             autoescape=select_autoescape()
             )
-        template: Template = env.get_template("default_template.html")
+        report_template: Template = env.get_template("default_report.html")
+        index_template: Template = env.get_template("default_index.html")
 
         # Load Groups from DB
-        groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
+        db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
             args['target_phone_number'])
-        logger.info(f'\t\tFound {len(groups)} Groups')
+        logger.info(f'\t\tFound {len(db_groups)} Groups')
+
+        # Map to Facade Entities
+        groups: List[TelegramGroupReportFacadeEntity] = [
+            TelegramGroupReportFacadeEntityMapper.create_from_dbentity(item)
+            for item in db_groups
+            ]
 
         # Filter Groups
         if args['group_id'] != '*':
@@ -66,19 +79,39 @@ class TelegramReportGenerator(BaseModule):
             groups = list(filter(lambda x: len([tg for tg in target_group_ids if tg == x.id]) > 0, groups))
             logger.info(f'\t\tFound {len(groups)} after filtering')
 
+        # Sort Groups by Title
+        groups = sorted(groups, key=attrgetter('title'))
+
         # Process Each Group
         for group in groups:
-            logger.info(f'\t\tProcessing "{group.title}"')
-            await self.draw_report(args, assets_root_folder, group, report_root_folder, template)
+            logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
+            await self.draw_report(args, assets_root_folder, group, report_root_folder, report_template)
 
-    async def draw_report(self, args: Dict, assets_root_folder: str, group: TelegramGroupOrmEntity, report_root_folder: str, template: Template) -> None:
+        # Process Index Page - TODO: Separate in Method
+        # Generate Object to Render
+        logger.info('\t\t\tRendering Index Page')
+        with open(f'{report_root_folder}/index.html', 'wb') as file:
+            output = index_template.render(
+                groups=[group for group in groups if getattr(group, 'meta_message_count', 0) > 0]
+                )
+            file.write(output.encode('utf-8'))
+            file.flush()
+            file.close()
+
+    async def draw_report(self, args: Dict, assets_root_folder: str, group: TelegramGroupReportFacadeEntity, report_root_folder: str, template: Template) -> None:
         """Process the Report for a Single Group Chat."""
         # Download All Messages
         logger.info('\t\t\tRetrieving Messages')
-        messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
+        db_messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
             group_id=group.id,
             order_by_desc=args['order_desc']
             )
+
+        # Convert Messages to Report Facade Entity
+        messages: List[TelegramMessageReportFacadeEntity] = [
+            TelegramMessageReportFacadeEntityMapper.create_from_dbentity(item)
+            for item in db_messages
+            ]
 
         # Filter Messages
         logger.info('\t\t\tFiltering')
@@ -108,7 +141,10 @@ class TelegramReportGenerator(BaseModule):
             file.flush()
             file.close()
 
-    async def process_messages(self, messages: List[TelegramMessageOrmEntity], limit_seconds: int, assets_root_folder: str) -> List[TelegramMediaOrmEntity]:
+        # Add Meta in Group
+        group.meta_message_count = len(render_messages)
+
+    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], limit_seconds: int, assets_root_folder: str) -> List[TelegramMediaOrmEntity]:
         """Process Group Messages."""
         h_result: List = []
 
@@ -142,8 +178,8 @@ class TelegramReportGenerator(BaseModule):
                     'from_id': message.from_id,
                     'to_id': message.to_id,
                     'message': message.message,
-                    'meta_next': message.meta_next,
-                    'meta_previous': message.meta_previous,
+                    'meta_next': getattr(message, 'meta_next', None),
+                    'meta_previous': getattr(message, 'meta_previous', None),
                     'to_from_information': self.render_to_from_message_info(message=message, from_user=from_user)
                     }
 
@@ -154,7 +190,7 @@ class TelegramReportGenerator(BaseModule):
 
         return h_result
 
-    async def get_media(self, message: TelegramMessageOrmEntity, assets_root_folder: str) -> Dict:
+    async def get_media(self, message: TelegramMessageReportFacadeEntity, assets_root_folder: str) -> Dict:
         """Download Media and Return the Metadata."""
         media_file_name: Optional[str] = None
         media_mime_type: Optional[str] = None
@@ -172,16 +208,21 @@ class TelegramReportGenerator(BaseModule):
                     media_geo = media.title.replace('|', ',')
                 else:
 
-                    # Save into assets folder
-                    with open(f'{assets_root_folder}{media.file_name}', 'wb') as file:
-                        if not media.b64_content:
-                            file.write(''.encode())
-                        else:
-                            file.write(base64.b64decode(media.b64_content))
-                        file.flush()
-                        file.close()
+                    media_path: str = f'{assets_root_folder}{media.id}_{media.file_name}'
 
-                    media_file_name = f'assets/{media.file_name}'
+                    # Save only If Media do Not Exists
+                    if not os.path.exists(media_path):
+
+                        # Save into assets folder
+                        with open(media_path, 'wb') as file:
+                            if not media.b64_content:
+                                file.write(''.encode())
+                            else:
+                                file.write(base64.b64decode(media.b64_content))
+                            file.flush()
+                            file.close()
+
+                    media_file_name = f'assets/{media.id}_{media.file_name}'
                     media_title = media.title
 
                 media_mime_type = media.mime_type
@@ -202,7 +243,7 @@ class TelegramReportGenerator(BaseModule):
             'media_is_image': None
             }
 
-    def render_to_from_message_info(self, message: TelegramMessageOrmEntity, from_user: Optional[TelegramUserOrmEntity]) -> str:
+    def render_to_from_message_info(self, message: TelegramMessageReportFacadeEntity, from_user: Optional[TelegramUserOrmEntity]) -> str:
         """Build and Return the TO/FROM Information for Message."""
         # Get Users
         to_user: Optional[TelegramUserOrmEntity] = self.get_user(message.to_id)
@@ -224,19 +265,19 @@ class TelegramReportGenerator(BaseModule):
 
         return cast(Optional[TelegramUserOrmEntity], TelegramReportGenerator.__USERS_RESOLUTION_CACHE[user_id])
 
-    def filter_messages(self, messages: List[TelegramMessageOrmEntity], filter_words: Optional[List[str]], args: Dict) -> List[TelegramMessageOrmEntity]:
+    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_words: Optional[List[str]], args: Dict) -> List[TelegramMessageReportFacadeEntity]:
         """Filter Messages."""
         if not filter_words or len(filter_words) == 0:
             return messages
 
-        h_messages: List[TelegramMessageOrmEntity] = []
-        h_result: List[TelegramMessageOrmEntity] = []
+        h_messages: List[TelegramMessageReportFacadeEntity] = []
+        h_result: List[TelegramMessageReportFacadeEntity] = []
 
         # Loop on Messages
         for message in messages:
 
             matched: bool = False
-            new_message: TelegramMessageOrmEntity = message
+            new_message: TelegramMessageReportFacadeEntity = message
 
             # Process Each Filter
             for word in filter_words:
@@ -256,61 +297,60 @@ class TelegramReportGenerator(BaseModule):
             single_result.meta_previous = False
 
             # Get The Next and Previous Messages
-            previous: List[TelegramMessageOrmEntity] = self.get_previous_messages(id=single_result.id, messages=messages, count=int(args['around_messages']))
-            next: List[TelegramMessageOrmEntity] = self.get_next_messages(id=single_result.id, messages=messages, count=int(args['around_messages']))
+            previous_messages: List[TelegramMessageReportFacadeEntity] = self.get_previous_messages(target_id=single_result.id, messages=messages, count=int(args['around_messages']))
+            next_messages: List[TelegramMessageReportFacadeEntity] = self.get_next_messages(target_id=single_result.id, messages=messages, count=int(args['around_messages']))
 
             # Place an Color Wrapper Around
-            for item in previous:
+            for item in previous_messages:
                 item.meta_previous = True
                 item.meta_next = False
 
-            for item in next:
+            for item in next_messages:
                 item.meta_next = True
                 item.meta_previous = False
 
-            h_result.extend(previous)
+            h_result.extend(previous_messages)
             h_result.append(single_result)
-            h_result.extend(next)
+            h_result.extend(next_messages)
 
         return self.dedup_messages(messages=h_result)
 
-    def ireplace(self, old, repl, text) -> str:
+    def ireplace(self, old: str, repl: str, text: str) -> str:
         """Case Insensitive Replace."""
         return re.sub('(?i)' + re.escape(old), lambda m: repl, text)
 
-    def get_previous_messages(self, id: int, messages: List[TelegramMessageOrmEntity], count: int) -> List[TelegramMessageOrmEntity]:
+    def get_previous_messages(self, target_id: int, messages: List[TelegramMessageReportFacadeEntity], count: int) -> List[TelegramMessageReportFacadeEntity]:
         """Return the (count) messages prior the (id) message."""
         if count == 0:
             return []
 
-        target_ix: int = [messages.index(item) for item in messages if item.id == id][0]
-        dest_ix: int = target_ix-count
+        target_ix: int = [messages.index(item) for item in messages if item.id == target_id][0]
+        dest_ix: int = target_ix - count
 
         if dest_ix > 0:
             return messages[dest_ix:target_ix]
-        else:
-            return messages[0:target_ix]
 
-    def get_next_messages(self, id: int, messages: List[TelegramMessageOrmEntity], count: int) -> List[TelegramMessageOrmEntity]:
+        return messages[0:target_ix]
+
+    def get_next_messages(self, target_id: int, messages: List[TelegramMessageReportFacadeEntity], count: int) -> List[TelegramMessageReportFacadeEntity]:
         """Return the (count) messages after the (id) message."""
         if count == 0:
             return []
 
-        target_ix: int = [messages.index(item) for item in messages if item.id == id][0]
-        dest_ix: int = target_ix+count+1
+        target_ix: int = [messages.index(item) for item in messages if item.id == target_id][0]
+        dest_ix: int = target_ix + count + 1
 
         if dest_ix <= len(messages):
-            return messages[target_ix+1:dest_ix]
-        else:
-            return messages[target_ix:]
+            return messages[target_ix + 1:dest_ix]
 
-    def dedup_messages(self, messages: List[TelegramMessageOrmEntity]) -> List[TelegramMessageOrmEntity]:
+        return messages[target_ix:]
+
+    def dedup_messages(self, messages: List[TelegramMessageReportFacadeEntity]) -> List[TelegramMessageReportFacadeEntity]:
         """Deduplicate the Messages."""
-
         if len(messages) == 0:
             return []
 
-        h_result: List[TelegramMessageOrmEntity] = []
+        h_result: List[TelegramMessageReportFacadeEntity] = []
 
         for message in messages:
             if len(h_result) == 0 or message.id != h_result[-1].id:
