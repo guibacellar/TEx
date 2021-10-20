@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 
 from TEx import DirectoryManagerUtils
 from TEx.core.base_module import BaseModule
-from TEx.database.TelegramGroupDatabase import (
+from TEx.database.telegram_group_database import (
     TelegramGroupDatabaseManager,
     TelegramMediaDatabaseManager,
     TelegramMessageDatabaseManager,

@@ -12,12 +12,10 @@ import types
 from configparser import ConfigParser
 from typing import Dict, List, Optional
 
-from database import SQLALCHEMY_BINDS
+from TEx.database.db_initializer import DbInitializer
 
 from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
-from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase
-from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
 
 logger = logging.getLogger()
 
@@ -54,10 +52,10 @@ class TelegramMonitorRunner:
         if not self.check_python_version():
             return 1
 
-        # create db tables (TODO: Move to Method)
-        TempDataBaseDeclarativeBase.metadata.create_all(SQLALCHEMY_BINDS['temp'])
-        TelegramDataBaseDeclarativeBase.metadata.create_all(SQLALCHEMY_BINDS['data'])
+        # Initialize DB
+        DbInitializer.init()
 
+        # Expire Temp Files
         TempFileHandler.remove_expired_entries()
 
         self.__load_settings()

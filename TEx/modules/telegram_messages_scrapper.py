@@ -24,7 +24,7 @@ from TEx.core.media_metadata_handling.photo_handler import PhotoMediaHandler
 from TEx.core.media_metadata_handling.sticker_handler import MediaStickerHandler
 from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
 from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
-from TEx.database.TelegramGroupDatabase import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, \
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, \
     TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 

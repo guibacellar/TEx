@@ -18,7 +18,7 @@ from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
-from TEx.database.TelegramGroupDatabase import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
     TelegramUserDatabaseManager
 
 logger = logging.getLogger()
