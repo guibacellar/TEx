@@ -1,10 +1,9 @@
-"""OSIx Main Module Tests."""
+"""TEx Main Module Tests."""
 
 import unittest
-import pytest
 
 
-class OSIxTest(unittest.TestCase):
+class TexTest(unittest.TestCase):
 
     def test_foo(self):
         assert True
