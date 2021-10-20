@@ -73,32 +73,70 @@ class TelegramReportGenerator(BaseModule):
             ]
 
         # Filter Groups
-        if args['group_id'] != '*':
-            target_group_ids: List = [int(group) for group in str(args['group_id']).split(',')]
-            logger.info(f'\t\tFiltering Groups by {target_group_ids}')
-            groups = list(filter(lambda x: len([tg for tg in target_group_ids if tg == x.id]) > 0, groups))
-            logger.info(f'\t\tFound {len(groups)} after filtering')
-
-        # Sort Groups by Title
-        groups = sorted(groups, key=attrgetter('title'))
+        groups = self.__filter_groups(
+            args=args,
+            source=groups
+            )
 
         # Process Each Group
         for group in groups:
             logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
-            await self.draw_report(args, assets_root_folder, group, report_root_folder, report_template)
+            await self.__draw_report(
+                args=args,
+                assets_root_folder=assets_root_folder,
+                group=group,
+                report_root_folder=report_root_folder,
+                template=report_template
+                )
 
-        # Process Index Page - TODO: Separate in Method
+        # Render Index
+        await self.__draw_index(
+            args=args,
+            report_root_folder=report_root_folder,
+            template=index_template,
+            groups=groups
+            )
+
+    def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
+        """Apply Filter on Gropus."""
+        groups: List[TelegramGroupReportFacadeEntity] = []
+
+        # Filter Groups
+        if args['group_id'] != '*':
+            target_group_ids: List = [int(group) for group in str(args['group_id']).split(',')]
+            logger.info(f'\t\tFiltering Groups by {target_group_ids}')
+            groups = list(filter(lambda x: len([tg for tg in target_group_ids if tg == x.id]) > 0, source))
+            logger.info(f'\t\tFound {len(groups)} after filtering')
+
+        else:
+            groups.extend(source)
+
+        # Sort Groups by Title
+        return sorted(groups, key=attrgetter('title'))
+
+    async def __draw_index(self, args: Dict, report_root_folder: str, template: Template, groups: List[TelegramGroupReportFacadeEntity]) -> None:
+        """Draw Index Page."""
+        group_filter: str = args['group_id']
+        words_filter: Optional[str] = args['filter']
+
         # Generate Object to Render
         logger.info('\t\t\tRendering Index Page')
+        output = template.render(
+            groups=[group for group in groups if getattr(group, 'meta_message_count', 0) > 0],
+            end=datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S'),
+            start=(datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=int(args['limit_days']) * 24 * 60 * 60)).strftime('%Y-%m-%d %H:%M:%S'),
+            now=datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S'),
+            target_phone=args['target_phone_number'],
+            groups_filter=group_filter if group_filter != '*' else 'All',
+            words_filter=words_filter if words_filter else 'None'
+            )
+
         with open(f'{report_root_folder}/index.html', 'wb') as file:
-            output = index_template.render(
-                groups=[group for group in groups if getattr(group, 'meta_message_count', 0) > 0]
-                )
             file.write(output.encode('utf-8'))
             file.flush()
             file.close()
 
-    async def draw_report(self, args: Dict, assets_root_folder: str, group: TelegramGroupReportFacadeEntity, report_root_folder: str, template: Template) -> None:
+    async def __draw_report(self, args: Dict, assets_root_folder: str, group: TelegramGroupReportFacadeEntity, report_root_folder: str, template: Template) -> None:
         """Process the Report for a Single Group Chat."""
         # Download All Messages
         logger.info('\t\t\tRetrieving Messages')
