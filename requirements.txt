@@ -4,7 +4,7 @@ cryptg==0.2.post4
 telethon-cryptg==0.0.4
 
 # DB Deps
-sqlalchemy[asyncio]==1.4.23
+#sqlalchemy[asyncio]==1.4.23
 sqlalchemy[mypy]==1.4.23
 aiosqlite==0.17.0
 

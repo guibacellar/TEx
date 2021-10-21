@@ -14,7 +14,7 @@ DESCRIPTION = 'Telegram Explorer'
 URL = 'https://github.com/guibacellar/TBD HERE/'
 AUTHOR = 'Th3 0bservator'
 EMAIL = 'th30bservator@gmail.com'
-REQUIRES_PYTHON = '>=3.7.6'
+REQUIRES_PYTHON = '>=3.8'
 VERSION = open('__version__.txt').read()
 
 # What packages are optional?

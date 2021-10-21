@@ -46,6 +46,7 @@ class TelegramConnector(BaseModule):
                     'api_hash' not in data['telegram_connection'] or \
                     'target_phone_number' not in data['telegram_connection']:
                 logger.warning('\t\tNot Authenticated on Telegram. Please use the "connect" command.')
+                return
 
             client = await TelegramClient(
                 'session',

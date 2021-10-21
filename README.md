@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/github/last-commit/guibacellar/TEx)
 ![](https://img.shields.io/github/languages/code-size/guibacellar/TEx)
-![](https://img.shields.io/badge/Python-3.7.6+-green.svg)
+![](https://img.shields.io/badge/Python-3.8+-green.svg)
 ![](https://img.shields.io/badge/maintainer-Th3%200bservator-blue)
 
 <!-- TABLE OF CONTENTS -->
@@ -44,7 +44,7 @@ Created in Python and using a Modular Architecture, the TEx easily allows to add
 
 ### Prerequisites
 
- * Python 3.6.7+
+ * Python 3.8+
 
 ### Installation
 TBD
