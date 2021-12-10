@@ -12,13 +12,13 @@ from TEx.core.temp_file import TempFileHandler
 logger = logging.getLogger()
 
 
-class DatabaseHanbler(BaseModule):
+class DatabaseHandler(BaseModule):
     """Module That Handle the Internal DB."""
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
 
         # Initialize DB
-        DbInitializer.init(args['data_path'])
+        DbInitializer.init(args['data_path'], args)
 
         # Expire Temp Files
         TempFileHandler.remove_expired_entries()

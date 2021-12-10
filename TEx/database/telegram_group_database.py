@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, cast
 from sqlalchemy import desc, insert, select, update
 from sqlalchemy.engine import CursorResult, Row
 from sqlalchemy.sql import Select
+from sqlalchemy.orm import Session
 
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import (
@@ -22,7 +23,7 @@ class TelegramGroupDatabaseManager:
         """Retrieve all Groups using the Source Phone Number."""
         return cast(
             List[TelegramGroupOrmEntity],
-            DbManager.data_session.execute(
+            DbManager.SESSIONS['data'].execute(
                 select(TelegramGroupOrmEntity)
                 .where(TelegramGroupOrmEntity.source == phone_number)
                 ).scalars().all()
@@ -33,7 +34,7 @@ class TelegramGroupDatabaseManager:
         """Retrieve one TelegramGroupOrmEntity by PK."""
         return cast(
             Optional[TelegramGroupOrmEntity],
-            DbManager.data_session.get(TelegramGroupOrmEntity, pk)
+            DbManager.SESSIONS['data'].get(TelegramGroupOrmEntity, pk)
             )
 
     @staticmethod
@@ -46,18 +47,18 @@ class TelegramGroupDatabaseManager:
             is_update = False
 
         if is_update:
-            DbManager.data_session.execute(
+            DbManager.SESSIONS['data'].execute(
                 update(TelegramGroupOrmEntity).
                 where(TelegramGroupOrmEntity.id == entity_values['id']).
                 values(entity_values)
                 )
         else:
-            DbManager.data_session.execute(
+            DbManager.SESSIONS['data'].execute(
                 insert(TelegramGroupOrmEntity).
                 values(entity_values)
                 )
 
-        DbManager.data_session.commit()
+        DbManager.SESSIONS['data'].commit()
 
 
 class TelegramMessageDatabaseManager:
@@ -73,23 +74,22 @@ class TelegramMessageDatabaseManager:
 
         return cast(
             List[TelegramMessageOrmEntity],
-            DbManager.data_session.execute(select_statement).scalars().all()
+            DbManager.SESSIONS['data'].execute(select_statement).scalars().all()
             )
 
     @staticmethod
     def insert(entity_values: Dict) -> None:
         """Insert or Update one Telegram Message."""
-        DbManager.data_session.execute(
+        DbManager.SESSIONS['data'].execute(
             insert(TelegramMessageOrmEntity).
             values(entity_values)
             )
-
-        DbManager.data_session.commit()
+        DbManager.SESSIONS['data'].commit()
 
     @staticmethod
     def get_max_id_from_group(group_id: int) -> Optional[int]:
         """Return the Maximum id from a Group."""
-        row: Optional[Row] = DbManager.data_session.execute(
+        row: Optional[Row] = DbManager.SESSIONS['data'].execute(
             select(TelegramMessageOrmEntity)
             .where(TelegramMessageOrmEntity.group_id == group_id)
             .order_by(desc('id'))
@@ -113,14 +113,14 @@ class TelegramUserDatabaseManager:
 
         return cast(
             Optional[TelegramUserOrmEntity],
-            DbManager.data_session.get(TelegramUserOrmEntity, pk)
+            DbManager.SESSIONS['data'].get(TelegramUserOrmEntity, pk)
             )
 
     @staticmethod
     def insert_or_update(values: Dict) -> None:
         """Insert or Update one Telegram User."""
         TelegramUserDatabaseManager.__insert_or_update_single_entity(values)
-        DbManager.data_session.commit()
+        DbManager.SESSIONS['data'].commit()
 
     @staticmethod
     def insert_or_update_batch(values: Optional[List[Dict]]) -> None:
@@ -129,7 +129,7 @@ class TelegramUserDatabaseManager:
             return
 
         _ = [TelegramUserDatabaseManager.__insert_or_update_single_entity(item) for item in values]
-        DbManager.data_session.commit()
+        DbManager.SESSIONS['data'].commit()
 
     @staticmethod
     def __insert_or_update_single_entity(entity_values: Dict) -> None:
@@ -141,13 +141,13 @@ class TelegramUserDatabaseManager:
             is_update = False
 
         if is_update:
-            DbManager.data_session.execute(
+            DbManager.SESSIONS['data'].execute(
                 update(TelegramUserOrmEntity).
                 where(TelegramUserOrmEntity.id == entity_values['id']).
                 values(entity_values)
                 )
         else:
-            DbManager.data_session.execute(
+            DbManager.SESSIONS['data'].execute(
                 insert(TelegramUserOrmEntity).
                 values(entity_values)
                 )
@@ -157,24 +157,26 @@ class TelegramMediaDatabaseManager:
     """Telegram Media Database Manager."""
 
     @staticmethod
-    def get_by_id(pk: Optional[int]) -> Optional[TelegramMediaOrmEntity]:
+    def get_by_id(pk: Optional[int], group_id: int) -> Optional[TelegramMediaOrmEntity]:
         """Retrieve one TelegramUserOrmEntity by PK."""
         if pk is None:
             return None
 
         return cast(
             Optional[TelegramMediaOrmEntity],
-            DbManager.data_session.get(TelegramMediaOrmEntity, pk)
+            DbManager.SESSIONS[f'media_{str(group_id)}'].get(TelegramMediaOrmEntity, pk)
             )
 
     @staticmethod
-    def insert(entity_values: Dict) -> int:
+    def insert(entity_values: Dict, group_id: int) -> int:
         """Insert or Update one Telegram User."""
-        cursor: CursorResult = DbManager.data_session.execute(  # type:ignore
+
+        session: Session = DbManager.SESSIONS[f'media_{str(group_id)}']
+
+        cursor: CursorResult = session.execute(  # type:ignore
             insert(TelegramMediaOrmEntity).
             values(entity_values)
             )
-
-        DbManager.data_session.commit()
+        session.commit()
 
         return int(cursor.inserted_primary_key[0])

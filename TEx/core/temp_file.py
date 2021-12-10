@@ -20,7 +20,7 @@ class TempFileHandler:
         :param path: File Path
         :return:
         """
-        return bool(DbManager.temp_session.query(TempDataOrmEntity).filter_by(path=path).count() > 0)
+        return bool(DbManager.SESSIONS['temp'].query(TempDataOrmEntity).filter_by(path=path).count() > 0)
 
     @staticmethod
     def read_file_text(path: str) -> str:
@@ -29,28 +29,28 @@ class TempFileHandler:
         :param path: File Path
         :return: File Content
         """
-        entity: TempDataOrmEntity = cast(TempDataOrmEntity, DbManager.temp_session.query(TempDataOrmEntity).filter_by(path=path).first())
+        entity: TempDataOrmEntity = cast(TempDataOrmEntity, DbManager.SESSIONS['temp'].query(TempDataOrmEntity).filter_by(path=path).first())
         return str(entity.data)
 
     @staticmethod
     def remove_expired_entries() -> int:
         """Remove all Expired Entries."""
-        total: int = DbManager.temp_session.execute(  # type:ignore
+        total: int = DbManager.SESSIONS['temp'].execute(  # type:ignore
             TempDataOrmEntity.__table__.delete().where(
                 TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp())
                 )
             ).rowcount
 
-        DbManager.temp_session.flush()
-        DbManager.temp_session.commit()
+        DbManager.SESSIONS['temp'].flush()
+        DbManager.SESSIONS['temp'].commit()
         return total
 
     @staticmethod
     def purge() -> int:
         """Remove all Entries."""
         total: int = temp_session.execute(TempDataOrmEntity.__table__.delete()).rowcount  # type:ignore
-        DbManager.temp_session.flush()
-        DbManager.temp_session.commit()
+        DbManager.SESSIONS['temp'].flush()
+        DbManager.SESSIONS['temp'].commit()
         return total
 
     @staticmethod
@@ -64,7 +64,7 @@ class TempFileHandler:
         :return: None
         """
         # Delete if Exists
-        DbManager.temp_session.execute(
+        DbManager.SESSIONS['temp'].execute(
             TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path)
             )
 
@@ -74,8 +74,8 @@ class TempFileHandler:
             created_at=int(datetime.now(tz=pytz.UTC).timestamp()),
             valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds
             )
-        DbManager.temp_session.add(entity)
+        DbManager.SESSIONS['temp'].add(entity)
 
         # Execute
-        DbManager.temp_session.flush()
-        DbManager.temp_session.commit()
+        DbManager.SESSIONS['temp'].flush()
+        DbManager.SESSIONS['temp'].commit()

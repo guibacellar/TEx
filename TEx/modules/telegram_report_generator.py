@@ -13,7 +13,7 @@ import pytz
 
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 
-from TEx import DirectoryManagerUtils
+from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.core.base_module import BaseModule
 from TEx.database.telegram_group_database import (
     TelegramGroupDatabaseManager,

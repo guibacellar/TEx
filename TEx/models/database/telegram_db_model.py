@@ -6,6 +6,7 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 TelegramDataBaseDeclarativeBase = declarative_base()
+TelegramMediaDataBaseDeclarativeBase = declarative_base()
 
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -55,7 +56,7 @@ class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
     to_id: int = Column(Integer)
 
 
-class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
+class TelegramMediaOrmEntity(TelegramMediaDataBaseDeclarativeBase):
     """Telegram Media ORM Model."""
 
     __bind_key__ = 'data'

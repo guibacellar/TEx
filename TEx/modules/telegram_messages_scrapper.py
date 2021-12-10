@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 import pytz
 from telethon import TelegramClient
 from telethon.tl.types import (Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage,
-                               MessageService, PeerUser)
+                               MessageService, PeerUser, PeerChannel)
 
 from TEx.core.base_module import BaseModule
 from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
@@ -127,7 +127,7 @@ class TelegramGroupMessageScrapper(BaseModule):
             # Get all Chats from a Single Group
             # https://docs.telethon.dev/en/latest/modules/client.html#telethon.client.messages.MessageMethods.iter_messages
             async for message in client.iter_messages(
-                    group_id,
+                    PeerChannel(group_id),
                     reverse=True,
                     limit=500,
                     min_id=last_offset if last_offset is not None else -1
@@ -157,7 +157,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     'message': message.message,
                     'raw': message.raw_text,
                     'to_id': message.to_id.channel_id if message.to_id is not None else None,
-                    'media_id': await self.__handle_medias(message) if download_media else None
+                    'media_id': await self.__handle_medias(message, group_id) if download_media else None
                     }
 
                 if message.from_id is not None:
@@ -174,7 +174,7 @@ class TelegramGroupMessageScrapper(BaseModule):
             if records == 0:
                 break
 
-    async def __handle_medias(self, message: Message) -> Optional[int]:
+    async def __handle_medias(self, message: Message, group_id: int) -> Optional[int]:
         """Handle Message Media, Photo, File, etc."""
         executor_id: Optional[str] = self.__resolve_executor_id(message=message)
 
@@ -217,7 +217,7 @@ class TelegramGroupMessageScrapper(BaseModule):
 
         # Update into DB
         if media_metadata is not None:
-            return TelegramMediaDatabaseManager.insert(media_metadata)
+            return TelegramMediaDatabaseManager.insert(entity_values=media_metadata, group_id=group_id)
 
         return None
 
