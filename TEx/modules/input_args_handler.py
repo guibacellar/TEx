@@ -28,7 +28,11 @@ class InputArgsHandler(BaseModule):
                 'target_phone_number': {
                     'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
                     'default': None, 'required': True
-                    }
+                    },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
                 }
             },
         'load_groups': {
@@ -41,7 +45,11 @@ class InputArgsHandler(BaseModule):
                 'refresh_profile_photos': {
                     'param': '--refresh_profile_photos', 'type': str, 'action': 'store_true', 'help': 'Force to Refresh all Profile Photos',
                     'default': False, 'required': False
-                    }
+                    },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
                 }
             },
         'download_messages': {
@@ -54,7 +62,11 @@ class InputArgsHandler(BaseModule):
                 'ignore_media': {
                     'param': '--ignore_media', 'type': str, 'action': 'store_true', 'help': 'Set to do not Download Media from Messages',
                     'default': False, 'required': False
-                    }
+                    },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
                 }
             },
         'report': {
@@ -94,6 +106,10 @@ class InputArgsHandler(BaseModule):
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
                     'default': '*', 'required': False
                     },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
                 }
             },
         'purge_temp_files': {
@@ -103,7 +119,12 @@ class InputArgsHandler(BaseModule):
             'help': 'Force Delete All Temporary Files',
             'default': False,
             'required': False,
-            'sub_args': {}
+            'sub_args': {
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
+                }
             }
         }
 

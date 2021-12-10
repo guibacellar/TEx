@@ -12,10 +12,8 @@ import types
 from configparser import ConfigParser
 from typing import Dict, List, Optional
 
-from TEx.database.db_initializer import DbInitializer
 
 from TEx.core.base_module import BaseModule
-from TEx.core.temp_file import TempFileHandler
 
 logger = logging.getLogger()
 
@@ -51,12 +49,6 @@ class TelegramMonitorRunner:
 
         if not self.check_python_version():
             return 1
-
-        # Initialize DB
-        DbInitializer.init()
-
-        # Expire Temp Files
-        TempFileHandler.remove_expired_entries()
 
         self.__load_settings()
         self.__list_modules()
