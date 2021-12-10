@@ -1,7 +1,7 @@
 """Standard Media Downloader."""
 import base64
 import os
-from typing import Dict
+from typing import Dict, List
 
 from telethon.tl.types import Message
 
@@ -21,7 +21,7 @@ class StandardMediaDownloader:
             return None
 
         # Download Media
-        generated_path: str = await message.download_media(f'data/download/{media_metadata["file_name"]}')
+        generated_path: str = await message.download_media(f'data/download/{StandardMediaDownloader.sanitize_media_filename(media_metadata["file_name"])}')
         media_metadata['extension'] = os.path.splitext(generated_path)[1]
 
         # Get File Content
@@ -31,3 +31,15 @@ class StandardMediaDownloader:
 
         # Remove File
         os.remove(generated_path)
+
+    @staticmethod
+    def sanitize_media_filename(filename: str) -> str:
+        """Sanitize Media Filename."""
+
+        sanit_charts: List[str] = [char for char in filename if not char.isalpha() and not char.isspace() and not char.isalnum() and char != '.' and char != '-']
+        h_result: str = filename
+
+        for sanit_item in sanit_charts:
+            h_result = h_result.replace(sanit_item, '_')
+
+        return h_result
