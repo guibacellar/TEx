@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from typing import Dict
 
 from telethon import TelegramClient
-
+from telethon.sessions import StringSession
 from TEx.core.base_module import BaseModule
 
 logger = logging.getLogger()
@@ -25,17 +25,19 @@ class TelegramConnector(BaseModule):
             logger.info('\t\tAuthorizing on Telegram...')
 
             # Connect
-            client = await TelegramClient(
-                'session',
+            client = TelegramClient(
+                StringSession(),
                 args['api_id'],
                 args['api_hash'],
-                ).start(phone=args['target_phone_number'])
+                )
+            await client.start(phone=args['target_phone_number'])
 
             # Save Data into State File
             data['telegram_connection'] = {
                 'api_id': args['api_id'],
                 'api_hash': args['api_hash'],
-                'target_phone_number': args['target_phone_number']
+                'target_phone_number': args['target_phone_number'],
+                'session_code': client.session.save()
                 }
 
         else:  # Reuse Previous Connection
@@ -49,7 +51,7 @@ class TelegramConnector(BaseModule):
                 return
 
             client = await TelegramClient(
-                'session',
+                StringSession(data['telegram_connection']['session_code']),
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
                 ).start(phone=data['telegram_connection']['target_phone_number'])
