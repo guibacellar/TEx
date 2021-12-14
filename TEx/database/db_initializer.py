@@ -21,6 +21,12 @@ class DbInitializer:
         TempDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['temp'])
         TelegramDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['data'])
 
+        DbInitializer.init_media_dbs(data_path=data_path, args=args)
+
+    @staticmethod
+    def init_media_dbs(data_path: str, args: Dict):
+        """Initialize the Media DB's."""
+
         # Initialize Media Databases
         if 'target_phone_number' in args and args['target_phone_number']:
             for group in TelegramGroupDatabaseManager.get_all_by_phone_number(args['target_phone_number']):

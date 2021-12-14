@@ -8,8 +8,16 @@ from typing import Dict, List, Optional
 
 import pytz
 from telethon import TelegramClient
-from telethon.tl.types import (Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage,
-                               MessageService, PeerUser, PeerChannel)
+from telethon.tl.types import (
+    Message,
+    MessageMediaDocument,
+    MessageMediaGeo,
+    MessageMediaPhoto,
+    MessageMediaWebPage,
+    MessageService,
+    PeerUser,
+    PeerChannel
+)
 
 from TEx.core.base_module import BaseModule
 from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
@@ -153,7 +161,7 @@ class TelegramGroupMessageScrapper(BaseModule):
 
                 values: Dict = {
                     'id': message.id,
-                    'group_id': group_id,
+                    'group_id': 1,
                     'date_time': message.date.astimezone(tz=pytz.utc),
                     'message': message.message,
                     'raw': message.raw_text,

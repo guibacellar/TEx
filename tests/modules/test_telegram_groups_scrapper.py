@@ -7,7 +7,8 @@ from configparser import ConfigParser
 from typing import Dict
 from unittest import mock
 
-from sqlalchemy import select
+from sqlalchemy import select, insert, delete
+
 from telethon.tl.functions.messages import GetDialogsRequest
 
 from TEx.core.dir_manager import DirectoryManagerUtils
@@ -15,13 +16,13 @@ from TEx.database.db_initializer import DbInitializer
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
-    TelegramUserOrmEntity,
+    TelegramMessageOrmEntity, TelegramUserOrmEntity,
 )
 from TEx.modules.telegram_groups_scrapper import TelegramGroupScrapper
 from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_users_mockup_data
 
 
-class TelegramConnectorTest(unittest.TestCase):
+class TelegramGroupScrapperTest(unittest.TestCase):
 
     def setUp(self) -> None:
 
@@ -32,6 +33,9 @@ class TelegramConnectorTest(unittest.TestCase):
         DirectoryManagerUtils.ensure_dir_struct('_data/resources')
 
         DbInitializer.init(data_path='_data/', args={})
+        DbManager.SESSIONS['data'].execute(delete(TelegramGroupOrmEntity))
+        DbManager.SESSIONS['data'].execute(delete(TelegramMessageOrmEntity))
+        DbManager.SESSIONS['data'].commit()
 
     def test_run_download_groups(self):
         """Test Run Method for Scrap Telegram Groups."""
