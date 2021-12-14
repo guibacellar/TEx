@@ -23,7 +23,7 @@ class TelegramConnectorTest(unittest.TestCase):
         started_telegram_client_mockup = mock.AsyncMock()
 
         telegram_client_mockup.start = mock.AsyncMock(return_value=started_telegram_client_mockup)
-        started_telegram_client_mockup.is_user_authorized = mock.AsyncMock(return_value=True)
+        telegram_client_mockup.is_user_authorized = mock.AsyncMock(return_value=True)
 
         """Run Test for Connection to Telegram Servers."""
         target: TelegramConnector = TelegramConnector()
@@ -57,7 +57,7 @@ class TelegramConnectorTest(unittest.TestCase):
         self.assertEqual('MyTestApiID', data['telegram_connection']['api_id'])
         self.assertEqual('MyTestApiHash', data['telegram_connection']['api_hash'])
         self.assertEqual('MyTestPhoneNumber', data['telegram_connection']['target_phone_number'])
-        self.assertEqual(started_telegram_client_mockup, data['telegram_client'])
+        self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse(self):
         """Test Run Method with Reused Connection."""
@@ -67,7 +67,7 @@ class TelegramConnectorTest(unittest.TestCase):
         started_telegram_client_mockup = mock.AsyncMock()
 
         telegram_client_mockup.start = mock.AsyncMock(return_value=started_telegram_client_mockup)
-        started_telegram_client_mockup.is_user_authorized = mock.AsyncMock(return_value=False)
+        telegram_client_mockup.is_user_authorized = mock.AsyncMock(return_value=False)
 
         """Run Test for Connection to Telegram Servers."""
         target: TelegramConnector = TelegramConnector()
@@ -80,8 +80,8 @@ class TelegramConnectorTest(unittest.TestCase):
             'telegram_connection': {
                 'api_id': 'MyTestApiID2',
                 'api_hash': 'MyTestApiHash2',
-                'target_phone_number': 'MyTestPhoneNumber2'
-
+                'target_phone_number': 'MyTestPhoneNumber2',
+                'session_code': '1AZWarxxBu1K7H_xk4-uACJYt3R_zyEPdZGd6t6nyAIxH8r6yVxMrMBP2xRyKhQAT3-KyR2T4BpLicQR6_54yvYatWV0WN2nAZMpyHGdJ-GXCyeiDxhAf4vFWb_eaw8fN4FeNPygq6VGQxOs56H_yO47zVYrwF4OZNBfe8rZISG2YLer43zwJ8fCySlrf8pswx0huRC-ntDWMNrR60_B61SX3_tQYcA1OGujHc6SjCGINxnOqltL0L359iG-CdDvde2-ZWAPLYutR1Q4T48h_GEI_vHhB0DPob9NsQyrLR6QuYO5UnhgbJIs2Fs0ysJfkGBAHsYnFPzDfpKCusC8ubl1phtcyTqg='
             }
         }
 
@@ -107,7 +107,7 @@ class TelegramConnectorTest(unittest.TestCase):
         self.assertEqual('MyTestApiID2', data['telegram_connection']['api_id'])
         self.assertEqual('MyTestApiHash2', data['telegram_connection']['api_hash'])
         self.assertEqual('MyTestPhoneNumber2', data['telegram_connection']['target_phone_number'])
-        self.assertEqual(started_telegram_client_mockup, data['telegram_client'])
+        self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse_without_authentication(self):
         """Test Run Method with Reused Connection without Previous Connection."""

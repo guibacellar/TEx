@@ -22,13 +22,13 @@ class StateFileHandlerTest(unittest.TestCase):
 
         DirectoryManagerUtils.ensure_dir_struct('data/')
 
-        DbInitializer.init()
+        DbInitializer.init(data_path='data/', args={})
 
     def test_run(self):
 
         target_load: LoadStateFileHandler = LoadStateFileHandler()
         target_save: SaveStateFileHandler = SaveStateFileHandler()
-        args: Dict = {'target_phone_number': '+886598352144'}
+        args: Dict = {'target_phone_number': '+886598352144', 'data_path': '_data'}
         save_data: Dict = {'demo': 1}
 
         loop = asyncio.get_event_loop()

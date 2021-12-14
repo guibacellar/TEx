@@ -22,6 +22,7 @@ class DbInitializer:
         TelegramDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['data'])
 
         # Initialize Media Databases
-        for group in TelegramGroupDatabaseManager.get_all_by_phone_number(args['target_phone_number']):
-            DbManager.init_media_db(group_id=str(group.id), data_path=data_path)
-            TelegramMediaDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS[f'media_{str(group.id)}'])
+        if 'target_phone_number' in args and args['target_phone_number']:
+            for group in TelegramGroupDatabaseManager.get_all_by_phone_number(args['target_phone_number']):
+                DbManager.init_media_db(group_id=str(group.id), data_path=data_path)
+                TelegramMediaDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS[f'media_{str(group.id)}'])

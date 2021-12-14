@@ -2,6 +2,7 @@
 # Other
 data/
 tests/data/
+tests/_data/
 reports/
 .idea
 .tox

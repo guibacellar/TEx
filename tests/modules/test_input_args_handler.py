@@ -26,7 +26,8 @@ class InputArgsHandlerTest(unittest.TestCase):
             '--filter', 'filter1, "Filter 2", Filter3',
             '--report_folder', 'reports/ut01',
             '--around_messages', '7',
-            '--group_id', '99,5,78,56987'
+            '--group_id', '99,5,78,56987',
+            '--data_path', '_data'
             ]
 
         target: InputArgsHandler = InputArgsHandler()
@@ -55,8 +56,9 @@ class InputArgsHandlerTest(unittest.TestCase):
         sys.argv = [
             '__main__.py',
             'report',
-            '--phone_number', '+98765123456'
-            ]
+            '--phone_number', '+98765123456',
+            '--data_path', '_data'
+        ]
 
         target: InputArgsHandler = InputArgsHandler()
         args: Dict = {}
