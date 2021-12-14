@@ -56,7 +56,7 @@ class TelegramGroupScrapper(BaseModule):
             values: Dict = {
                 'id': chat.id,
                 'constructor_id': chat.CONSTRUCTOR_ID,
-                'access_hash': chat.access_hash,
+                'access_hash': str(chat.access_hash),
                 'fake': chat.fake,
                 'gigagroup': chat.gigagroup,
                 'has_geo': chat.has_geo,
@@ -75,6 +75,7 @@ class TelegramGroupScrapper(BaseModule):
                 photo_name, photo_base64 = await self.get_profile_pic_b64(
                     client=client,
                     channel=chat,
+                    data_path=args['data_path'],
                     force_reload=args['refresh_profile_photos']
                     )
 
@@ -146,7 +147,7 @@ class TelegramGroupScrapper(BaseModule):
 
         return h_result
 
-    async def get_profile_pic_b64(self, client: TelegramClient, channel: telethon.tl.types.Channel, force_reload: bool = False) -> Tuple[str, str]:
+    async def get_profile_pic_b64(self, client: TelegramClient, channel: telethon.tl.types.Channel, data_path: str, force_reload: bool = False) -> Tuple[str, str]:
         """
         Download the Profile Picture and Returns as Base64 Image.
 
@@ -155,7 +156,7 @@ class TelegramGroupScrapper(BaseModule):
         :param force_reload:
         :return: File Name and File Base64 Content
         """
-        target_path: str = f'data/profile_pic/{channel.id}.jpg'   # TODO: Fix to use --data_path
+        target_path: str = f'{data_path}/profile_pic/{channel.id}.jpg'
         temp_file: str = f'profile_pic/{channel.id}.bin'
 
         # Check Temporary Folder
