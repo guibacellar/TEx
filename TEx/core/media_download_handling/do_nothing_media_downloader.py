@@ -8,7 +8,7 @@ class DoNothingMediaDownloader:
     """Do Nothing Media Downloader."""
 
     @staticmethod
-    async def download(message: Message, media_metadata: Dict) -> None:  # pylint: disable=W0613
+    async def download(message: Message, media_metadata: Dict, data_path: str) -> None:  # pylint: disable=W0613
         """Download the Media, Update MetadaInfo and Return the ID from DB Record.
 
         :param message:

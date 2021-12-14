@@ -101,13 +101,14 @@ class TelegramGroupMessageScrapper(BaseModule):
                     group_id=group.id,
                     client=client,
                     group_name=group.title,
-                    download_media=not args['ignore_media']
+                    download_media=not args['ignore_media'],
+                    data_path=args['data_path']
                     )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)
 
-    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool) -> None:
+    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str) -> None:
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:
@@ -157,7 +158,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     'message': message.message,
                     'raw': message.raw_text,
                     'to_id': message.to_id.channel_id if message.to_id is not None else None,
-                    'media_id': await self.__handle_medias(message, group_id) if download_media else None
+                    'media_id': await self.__handle_medias(message, group_id, data_path) if download_media else None
                     }
 
                 if message.from_id is not None:
@@ -174,7 +175,7 @@ class TelegramGroupMessageScrapper(BaseModule):
             if records == 0:
                 break
 
-    async def __handle_medias(self, message: Message, group_id: int) -> Optional[int]:
+    async def __handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[int]:
         """Handle Message Media, Photo, File, etc."""
         executor_id: Optional[str] = self.__resolve_executor_id(message=message)
 
@@ -212,7 +213,8 @@ class TelegramGroupMessageScrapper(BaseModule):
         # Download Media and Save into DB
         await executor_spec['downloader'](
             message=message,
-            media_metadata=media_metadata
+            media_metadata=media_metadata,
+            data_path=data_path
             )
 
         # Update into DB

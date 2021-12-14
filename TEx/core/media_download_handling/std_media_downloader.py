@@ -10,7 +10,7 @@ class StandardMediaDownloader:
     """Standard Media Downloader."""
 
     @staticmethod
-    async def download(message: Message, media_metadata: Dict) -> None:
+    async def download(message: Message, media_metadata: Dict, data_path: str) -> None:
         """Download the Media and Update MetadaInfo.
 
         :param message:
@@ -21,7 +21,7 @@ class StandardMediaDownloader:
             return None
 
         # Download Media
-        generated_path: str = await message.download_media(f'data/download/{StandardMediaDownloader.sanitize_media_filename(media_metadata["file_name"])}')
+        generated_path: str = await message.download_media(f'{data_path}/download/{StandardMediaDownloader.sanitize_media_filename(media_metadata["file_name"])}')
         media_metadata['extension'] = os.path.splitext(generated_path)[1]
 
         # Get File Content

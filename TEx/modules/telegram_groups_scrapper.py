@@ -155,7 +155,7 @@ class TelegramGroupScrapper(BaseModule):
         :param force_reload:
         :return: File Name and File Base64 Content
         """
-        target_path: str = f'data/profile_pic/{channel.id}.jpg'
+        target_path: str = f'data/profile_pic/{channel.id}.jpg'   # TODO: Fix to use --data_path
         temp_file: str = f'profile_pic/{channel.id}.bin'
 
         # Check Temporary Folder
