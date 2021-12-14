@@ -50,11 +50,12 @@ class TelegramConnector(BaseModule):
                 logger.warning('\t\tNot Authenticated on Telegram. Please use the "connect" command.')
                 return
 
-            client = await TelegramClient(
+            client = TelegramClient(
                 StringSession(data['telegram_connection']['session_code']),
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
-                ).start(phone=data['telegram_connection']['target_phone_number'])
+                )
+            await client.start(phone=data['telegram_connection']['target_phone_number'])
 
         data['telegram_client'] = client
         logger.info(f'\t\tUser Authorized on Telegram: {await client.is_user_authorized()}')
