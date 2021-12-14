@@ -1,6 +1,6 @@
 """Generic Binary Media Handler."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from telethon.tl.types import DocumentAttributeFilename, Message, MessageMediaPhoto
 
@@ -12,9 +12,10 @@ class GenericBinaryMediaHandler:
     def handle_metadata(message: Message) -> Optional[Dict]:
         """Handle Media Metadata."""
         media: MessageMediaPhoto = message.media
+        fn_attr: List = [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)]
 
         return {
-            'file_name': [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)][0].file_name,
+            'file_name': fn_attr[0].file_name if len(fn_attr) > 0 else "unknow.bin",
             'telegram_id': media.document.id,
             'extension': None,
             'height': None,

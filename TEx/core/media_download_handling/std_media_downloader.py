@@ -36,7 +36,7 @@ class StandardMediaDownloader:
     def sanitize_media_filename(filename: str) -> str:
         """Sanitize Media Filename."""
 
-        sanit_charts: List[str] = [char for char in filename if not char.isalpha() and not char.isspace() and not char.isalnum() and char != '.' and char != '-']
+        sanit_charts: List[str] = [char for char in filename if not char.isalpha() and char != ' ' and not char.isalnum() and char != '.' and char != '-']
         h_result: str = filename
 
         for sanit_item in sanit_charts:
