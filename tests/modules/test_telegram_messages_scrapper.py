@@ -125,7 +125,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[1].message)
             self.assertEqual('			Downloading Photo from Message 183018', captured.records[2].message)
             self.assertEqual('			Downloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive', captured.records[3].message)
-            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183644', captured.records[4].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183649', captured.records[4].message)
             self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[5].message)
 
         # Check all Messages in SQLlite DB
@@ -133,7 +133,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1)
         ).scalars().all()
 
-        self.assertEqual(3, len(all_messages))
+        self.assertEqual(4, len(all_messages))
 
         # Check Message 1
         self.assertEqual(183017, all_messages[0].id)
@@ -173,6 +173,16 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             DbManager.SESSIONS['media_1'].execute(select(TelegramMediaOrmEntity).where(TelegramMediaOrmEntity.telegram_id==5042163520989298878).limit(1)).one()[0].id,
             all_messages[2].media_id
         )
+
+        # Check Message 4
+        self.assertEqual(183649, all_messages[3].id)
+        self.assertEqual(1, all_messages[3].group_id)
+        self.assertEqual(datetime.datetime(2020, 5, 17, 20, 22, 54), all_messages[3].date_time)
+        self.assertEqual('Message 4', all_messages[3].message)
+        self.assertEqual('Message 4', all_messages[3].raw)
+        self.assertIsNone(all_messages[3].from_id)
+        self.assertIsNone(all_messages[3].from_type)
+        self.assertEqual(1148953179, all_messages[3].to_id)
 
     def run_connect_side_effect(self, param):
 
