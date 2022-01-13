@@ -96,6 +96,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         # Add the Async Mocks to Messages
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
         [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_binary)
+        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
 
         # Call Test Target Method
         target: TelegramGroupMessageScrapper = TelegramGroupMessageScrapper()
@@ -120,69 +121,78 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(6, len(captured.records))
+            self.assertEqual(7, len(captured.records))
             self.assertEqual('		Found 2 Groups', captured.records[0].message)
             self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[1].message)
             self.assertEqual('			Downloading Photo from Message 183018', captured.records[2].message)
             self.assertEqual('			Downloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive', captured.records[3].message)
-            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183649', captured.records[4].message)
-            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[5].message)
+            self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[4].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183659', captured.records[5].message)
+            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[6].message)
 
         # Check all Messages in SQLlite DB
         all_messages = DbManager.SESSIONS['data'].execute(
             select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1)
         ).scalars().all()
 
-        self.assertEqual(4, len(all_messages))
+        self.assertEqual(5, len(all_messages))
 
         # Check Message 1
-        self.assertEqual(183017, all_messages[0].id)
-        self.assertEqual(1, all_messages[0].group_id)
-        self.assertIsNone(all_messages[0].media_id)
-        self.assertEqual(datetime.datetime(2020, 5, 12, 21, 19, 22), all_messages[0].date_time)
-        self.assertEqual('Message Content', all_messages[0].message)
-        self.assertEqual('Message Content', all_messages[0].raw)
-        self.assertEqual(5566, all_messages[0].from_id)
-        self.assertEqual('User', all_messages[0].from_type)
-        self.assertEqual(1148953179, all_messages[0].to_id)
-
-        # Check Message 2
-        self.assertEqual(183018, all_messages[1].id)
-        self.assertEqual(1, all_messages[1].group_id)
-        self.assertEqual(datetime.datetime(2020, 5, 12, 21, 22, 35), all_messages[1].date_time)
-        self.assertEqual('Message 2', all_messages[1].message)
-        self.assertEqual('Message 2', all_messages[1].raw)
-        self.assertIsNone(all_messages[1].from_id)
-        self.assertIsNone(all_messages[1].from_type)
-        self.assertEqual(1148953179, all_messages[1].to_id)
-        self.assertEqual(
-            DbManager.SESSIONS['media_1'].execute(select(TelegramMediaOrmEntity).where(TelegramMediaOrmEntity.telegram_id==5032983114749683815).limit(1)).one()[0].id,
-            all_messages[1].media_id
+        self.verify_single_message(
+            message_obj=all_messages[0], message_id=183017, group_id=1, datetime=datetime.datetime(2020, 5, 12, 21, 19, 22),
+            message_content='Message Content', raw_message_content='Message Content',
+            to_id=1148953179, from_type='User', from_id=5566, expected_media_id=None
         )
 
-        # Check Message 3
-        self.assertEqual(183644, all_messages[2].id)
-        self.assertEqual(1, all_messages[2].group_id)
-        self.assertEqual(datetime.datetime(2020, 5, 17, 19, 20, 13), all_messages[2].date_time)
-        self.assertEqual('Message 3', all_messages[2].message)
-        self.assertEqual('Message 3', all_messages[2].raw)
-        self.assertIsNone(all_messages[2].from_id)
-        self.assertIsNone(all_messages[2].from_type)
-        self.assertEqual(1148953179, all_messages[2].to_id)
-        self.assertEqual(
-            DbManager.SESSIONS['media_1'].execute(select(TelegramMediaOrmEntity).where(TelegramMediaOrmEntity.telegram_id==5042163520989298878).limit(1)).one()[0].id,
-            all_messages[2].media_id
+        # Check Message 2 - With a Photo
+        self.verify_single_message(
+            message_obj=all_messages[1], message_id=183018, group_id=1, datetime=datetime.datetime(2020, 5, 12, 21, 22, 35),
+            message_content='Message 2 - With Photo', raw_message_content='Message 2 - With Photo',
+            to_id=1148953179, from_type=None, from_id=None,
+            expected_media_id=5032983114749683815
         )
 
-        # Check Message 4
-        self.assertEqual(183649, all_messages[3].id)
-        self.assertEqual(1, all_messages[3].group_id)
-        self.assertEqual(datetime.datetime(2020, 5, 17, 20, 22, 54), all_messages[3].date_time)
-        self.assertEqual('Message 4', all_messages[3].message)
-        self.assertEqual('Message 4', all_messages[3].raw)
-        self.assertIsNone(all_messages[3].from_id)
-        self.assertIsNone(all_messages[3].from_type)
-        self.assertEqual(1148953179, all_messages[3].to_id)
+        # Check Message 3 - With Binary File
+        self.verify_single_message(
+            message_obj=all_messages[2], message_id=183644, group_id=1, datetime=datetime.datetime(2020, 5, 17, 19, 20, 13),
+            message_content='Message 3 - With Binary File', raw_message_content='Message 3 - With Binary File',
+            to_id=1148953179, from_type=None, from_id=None,
+            expected_media_id=5042163520989298878
+        )
+
+        # Check Message 4 - For DoNothing Media Download
+        self.verify_single_message(
+            message_obj=all_messages[3], message_id=183649, group_id=1, datetime=datetime.datetime(2020, 5, 17, 20, 22, 54),
+            message_content='Message 4 - Do Nothing', raw_message_content='Message 4 - Do Nothing',
+            to_id=1148953179, from_type=None, from_id=None,
+            expected_media_id=None
+        )
+
+        # Check Message 5 - With WebSticker
+        self.verify_single_message(
+            message_obj=all_messages[4], message_id=183659, group_id=1, datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
+            message_content='Message 5 - WebSticker', raw_message_content='Message 5 - WebSticker',
+            to_id=1148953179, from_type=None, from_id=None,
+            expected_media_id=771772508893348459
+        )
+
+    def verify_single_message(self, message_obj, message_id, group_id, datetime, message_content, raw_message_content, to_id, from_id, from_type, expected_media_id) -> None:
+        self.assertEqual(message_id, message_obj.id)
+        self.assertEqual(group_id, message_obj.group_id)
+        self.assertEqual(datetime, message_obj.date_time)
+        self.assertEqual(message_content, message_obj.message)
+        self.assertEqual(raw_message_content, message_obj.raw)
+        self.assertEqual(from_id, message_obj.from_id)
+        self.assertEqual(from_type, message_obj.from_type)
+        self.assertEqual(to_id, message_obj.to_id)
+
+        if expected_media_id:
+            self.assertEqual(
+                DbManager.SESSIONS['media_1'].execute(
+                    select(TelegramMediaOrmEntity).where(TelegramMediaOrmEntity.telegram_id == expected_media_id).limit(1)).one()[0].id,
+                    message_obj.media_id
+                )
+
 
     def run_connect_side_effect(self, param):
 
@@ -207,3 +217,12 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
 
         # Return the Path
         return '_data/resources/demo.apk'
+
+    async def coroutine_download_websticker(self, path) -> str:
+
+        # Copy Resources
+        shutil.copyfile('resources/sticker.webp', '_data/resources/sticker.webp')
+
+        # Return the Path
+        return '_data/resources/sticker.webp'
+
