@@ -1,6 +1,7 @@
 """Telegram Group Database Manager."""
 from typing import Dict, List, Optional, cast
 
+import sqlalchemy.exc
 from sqlalchemy import desc, insert, select, update
 from sqlalchemy.engine import CursorResult, Row
 from sqlalchemy.sql import Select
@@ -80,15 +81,24 @@ class TelegramMessageDatabaseManager:
     @staticmethod
     def insert(entity_values: Dict) -> None:
         """Insert or Update one Telegram Message."""
-        DbManager.SESSIONS['data'].execute(
-            insert(TelegramMessageOrmEntity).
-            values(entity_values)
-            )
-        DbManager.SESSIONS['data'].commit()
+        try:
+            DbManager.SESSIONS['data'].execute(
+                insert(TelegramMessageOrmEntity).
+                values(entity_values)
+                )
+
+            DbManager.SESSIONS['data'].commit()
+
+        except sqlalchemy.exc.IntegrityError as exc:
+            if 'UNIQUE' in exc.orig.args[0]:
+                return
+
+            raise exc
+
 
     @staticmethod
     def get_max_id_from_group(group_id: int) -> Optional[int]:
-        """Return the Maximum id from a Group."""
+        """Return the Maximum id from a Group (AKA: Last Offset)."""
         row: Optional[Row] = DbManager.SESSIONS['data'].execute(
             select(TelegramMessageOrmEntity)
             .where(TelegramMessageOrmEntity.group_id == group_id)
