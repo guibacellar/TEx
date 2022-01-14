@@ -11,4 +11,5 @@ omit =
     *core/chrome_driver_manager.py,
     *core/constants.py,
     *core/decorator.py,
-    *core/http_manager.py
+    *core/http_manager.py,
+    *models/facade/*.py
