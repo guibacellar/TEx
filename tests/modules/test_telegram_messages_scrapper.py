@@ -97,6 +97,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
         [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_binary)
         [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
+        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
 
         # Call Test Target Method
         target: TelegramGroupMessageScrapper = TelegramGroupMessageScrapper()
@@ -121,21 +122,22 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(7, len(captured.records))
+            self.assertEqual(8, len(captured.records))
             self.assertEqual('		Found 2 Groups', captured.records[0].message)
             self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[1].message)
             self.assertEqual('			Downloading Photo from Message 183018', captured.records[2].message)
             self.assertEqual('			Downloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive', captured.records[3].message)
             self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[4].message)
-            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183659', captured.records[5].message)
-            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[6].message)
+            self.assertEqual('			Downloading Media from Message 183771 (2258.64 Kbytes) as video/mp4', captured.records[5].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183771', captured.records[6].message)
+            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[7].message)
 
         # Check all Messages in SQLlite DB
         all_messages = DbManager.SESSIONS['data'].execute(
             select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1)
         ).scalars().all()
 
-        self.assertEqual(5, len(all_messages))
+        self.assertEqual(6, len(all_messages))
 
         # Check Message 1
         self.verify_single_message(
@@ -168,12 +170,20 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             expected_media_id=None
         )
 
-        # Check Message 5 - With WebSticker
+        # Check Message 5 - With WebImage
         self.verify_single_message(
             message_obj=all_messages[4], message_id=183659, group_id=1, datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
-            message_content='Message 5 - WebSticker', raw_message_content='Message 5 - WebSticker',
+            message_content='Message 5 - WebImage', raw_message_content='Message 5 - WebImage',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=771772508893348459
+        )
+
+        # Check Message 6 - With MP4
+        self.verify_single_message(
+            message_obj=all_messages[5], message_id=183771, group_id=1, datetime=datetime.datetime(2020, 5, 18, 19, 41, 47),
+            message_content='Message 6 - With MP4', raw_message_content='Message 6 - With MP4',
+            to_id=1148953179, from_type='User', from_id=6699,
+            expected_media_id=5050896937553756442
         )
 
     def verify_single_message(self, message_obj, message_id, group_id, datetime, message_content, raw_message_content, to_id, from_id, from_type, expected_media_id) -> None:
@@ -225,4 +235,12 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
 
         # Return the Path
         return '_data/resources/sticker.webp'
+
+    async def coroutine_download_mp4(self, path) -> str:
+
+        # Copy Resources
+        shutil.copyfile('resources/unknow.mp4', '_data/resources/unknow.mp4')
+
+        # Return the Path
+        return '_data/resources/unknow.mp4'
 
