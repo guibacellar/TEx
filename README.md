@@ -1,6 +1,6 @@
 # TEx - **T**elegram **E**xplorer
 
-![](https://img.shields.io/github/last-commit/guibacellar/TEx)
+![](https://img.shields.io/github/last-conao cmmit/guibacellar/TEx)
 ![](https://img.shields.io/github/languages/code-size/guibacellar/TEx)
 ![](https://img.shields.io/badge/Python-3.8+-green.svg)
 ![](https://img.shields.io/badge/maintainer-Th3%200bservator-blue)
@@ -52,8 +52,35 @@ TBD
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+There's 1 initial step to use and that is to connect to telegram.
+
 ### Command Line
-TBD
+#### Connect to Telegram Servers
+```bash
+python3 -m TEx connect --api_id TELEGRAM_API_ID --api_hash TELEGRAM_API_HASH --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
+```
+  * **api_id** > Required - Telegram API ID. From https://my.telegram.org/ > login > API development tools 
+  * **api_hash** > Required - Telegram API Hash. From https://my.telegram.org/ > login > API development tools
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
+
+#### Update Groups List
+```bash
+python3 -m TEx load_groups --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --refresh_profile_photos
+```
+
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
+  * **refresh_profile_photos** > Optional - If present, forces the Download and Update all Channels Members Profile Photo
+
+#### Download Message
+```bash
+python3 -m TEx download_messages --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
+```
+
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
+  * **ignore_media** > Optional - If present, don't Download any Media
 
 <!-- ROADMAP -->
 ## Roadmap

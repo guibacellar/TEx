@@ -1,10 +1,10 @@
-"""Main Executor for python -m OSIx."""
+"""Main Executor for python -m TEx."""
 
 import sys
 import os
 
 # If we are running from a wheel, add the wheel to sys.path
-if __package__ == "Tex":
+if __package__ == "TEx":
 
     # __file__ is OSIx/__main__.py
     # first dirname call strips of '/__main__.py'

@@ -17,6 +17,7 @@ class GeoMediaHandler:
         # Create Data Dict
         return {
             'file_name': None,
+
             'telegram_id': None,
             'extension': None,
             'height': None,
