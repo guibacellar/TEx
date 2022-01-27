@@ -87,13 +87,17 @@ class TelegramGroupScrapper(BaseModule):
                 values['photo_name'] = None
 
             # Get Members - TODO: Separate in Method
-            members = await self.get_members(
-                client=client,
-                channel=chat
+            try:
+                members = await self.get_members(
+                    client=client,
+                    channel=chat
                 )
 
-            # Sync with DB
-            TelegramUserDatabaseManager.insert_or_update_batch(members)
+                # Sync with DB
+                TelegramUserDatabaseManager.insert_or_update_batch(members)
+
+            except telethon.errors.rpcerrorlist.ChannelPrivateError as _ex:
+                logger.info('\t\t\t...Unable to Download Chat Participants due Private Chat Restrictions...')
 
             # Add Group to DB
             TelegramGroupDatabaseManager.insert_or_update(values)
