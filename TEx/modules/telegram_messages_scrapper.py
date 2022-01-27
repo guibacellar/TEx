@@ -110,7 +110,6 @@ class TelegramGroupMessageScrapper(BaseModule):
 
             logger.info(f'\t\tApplied Groups Filtering... {len(groups)} remaining')
 
-
         for group in groups:
             try:
                 await self.__download_messages(
@@ -124,7 +123,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)
 
-    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str) -> None:
+    async def  __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str) -> None:
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:
@@ -169,7 +168,7 @@ class TelegramGroupMessageScrapper(BaseModule):
 
                 values: Dict = {
                     'id': message.id,
-                    'group_id': 1,
+                    'group_id': group_id,
                     'date_time': message.date.astimezone(tz=pytz.utc),
                     'message': message.message,
                     'raw': message.raw_text,
