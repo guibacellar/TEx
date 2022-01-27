@@ -76,6 +76,11 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         DbManager.SESSIONS['media_2'].execute(delete(TelegramMediaOrmEntity))
         DbManager.SESSIONS['data'].commit()
 
+    def tearDown(self) -> None:
+        DbManager.SESSIONS['media_1'].close()
+        DbManager.SESSIONS['media_2'].close()
+        DbManager.SESSIONS['data'].close()
+
     def test_run_download_messages(self):
         """Test Run Method for Scrap Telegram Groups."""
 

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap Styles -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+        <style>
+            .marker {
+                background-color: yellow;
+            }
+
+            .previous {
+                background-color: lightcyan;
+            }
+
+           .next {
+                background-color: lightyellow;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container" style="width: 99%">
+            <div class="row">
+                <h1>TEx - Telegram Explorer - {{groupname}} ({{groupusername}})</h1>
+            </div>
+
+            <div class="row">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <td>Messages</td>
+                    </tr>
+                    {% for item in messages %}
+                    <tr>
+                        <td class="{{ 'next' if item.meta_next else '' }}{{ 'previous' if item.meta_previous else '' }}">
+                            <!-- MimeType: {{item.media_mime_type}} -->
+                            <!-- Is Next: {{item.meta_next}} -->
+                            <!-- Is Previous: {{item.meta_previous}} -->
+
+                            {% autoescape false %}
+                            <b>{{item.date_time}} UTC {{item.to_from_information}}</b>
+                            <br/>{{item.message|replace("\r\n", "<br/>")|replace("\n", "<br/>")}}
+                            {% endautoescape %}
+
+                            {% if item.media_is_image +%}
+                                {% autoescape false %}
+                                    <br/><b><a href="{{item.media_filename}}" target="_media"><img src="{{item.media_filename}}" width="25%" height="25%"></a></b>
+                                {% endautoescape %}
+                            {% elif item.media_mime_type == 'application/vnd.geo' +%}
+                                <br/><b><a href="https://www.google.com/maps/@{{item.media_geo}},15z" target="_geo">GeoLocation: {{item.media_geo}}</a></b>
+                            {% elif item.media_mime_type == 'video/mp4' +%}
+                                <br/>
+                                <video controls width="250">
+                                    <source src="{{item.media_filename}}" type="video/mp4">
+                                    Sorry, your browser doesn't support embedded videos.
+                                </video>
+                                <br/><b><a href="{{item.media_filename}}" target="_media_download">Download: {{item.media_filename.split('/')[1]}}</a></b>
+                            {% elif item.media_mime_type +%}
+                                <br/><b><a href="{{item.media_filename}}" target="_media_download">Download: {{item.media_filename.split('/')[1]}}</a></b>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    </body>
+
+</html>
