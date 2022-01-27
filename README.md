@@ -73,14 +73,23 @@ python3 -m TEx load_groups --phone_number TARGET_PHONE_NUMBER --data_path DATA_F
   * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
   * **refresh_profile_photos** > Optional - If present, forces the Download and Update all Channels Members Profile Photo
 
+#### List Groups
+```bash
+python3 -m TEx list_groups --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
+```
+
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
+
 #### Download Message
 ```bash
-python3 -m TEx download_messages --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
+python3 -m TEx download_messages --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --group_id 1234,5678
 ```
 
   * **phone_number** > Required - Target Phone Number
   * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
   * **ignore_media** > Optional - If present, don't Download any Media
+  * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
 
 <!-- ROADMAP -->
 ## Roadmap

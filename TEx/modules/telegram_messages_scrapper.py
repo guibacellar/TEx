@@ -103,6 +103,14 @@ class TelegramGroupMessageScrapper(BaseModule):
             args['target_phone_number'])
         logger.info(f'\t\tFound {len(groups)} Groups')
 
+        # Filter Groups
+        if args['group_id'] and args['group_id'] != '*':
+            group_ids: List[int] = [int(group_id) for group_id in args['group_id'].split(',')]
+            groups = [group for group in groups if group.id in group_ids]
+
+            logger.info(f'\t\tApplied Groups Filtering... {len(groups)} remaining')
+
+
         for group in groups:
             try:
                 await self.__download_messages(
