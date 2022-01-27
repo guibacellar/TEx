@@ -140,9 +140,15 @@ class TelegramReportGenerator(BaseModule):
         """Process the Report for a Single Group Chat."""
         # Download All Messages
         logger.info('\t\t\tRetrieving Messages')
+
+        # Apply Date/Time Limits
+        limit_days: int = int(args['limit_days'])
+        limit_seconds: int = limit_days * 24 * 60 * 60
+
         db_messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
             group_id=group.id,
-            order_by_desc=args['order_desc']
+            order_by_desc=args['order_desc'],
+            message_datetime_limit_seconds=limit_seconds
             )
 
         # Convert Messages to Report Facade Entity
@@ -156,15 +162,11 @@ class TelegramReportGenerator(BaseModule):
         filter_words: Optional[List[str]] = args['filter'].split(',') if args['filter'] else None
         messages = self.filter_messages(messages=messages, filter_words=filter_words, args=args)
 
-        # Limits Configuration
-        limit_days: int = int(args['limit_days'])
-        limit_seconds: int = limit_days * 24 * 60 * 60
         logger.info('\t\t\tProcessing Messages')
 
         # Generate Object to Render
         render_messages: List = await self.process_messages(
             messages=messages,
-            limit_seconds=limit_seconds,
             assets_root_folder=assets_root_folder
             )
 
@@ -182,17 +184,12 @@ class TelegramReportGenerator(BaseModule):
         # Add Meta in Group
         group.meta_message_count = len(render_messages)
 
-    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], limit_seconds: int, assets_root_folder: str) -> List[TelegramMediaOrmEntity]:
+    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], assets_root_folder: str) -> List[TelegramMediaOrmEntity]:
         """Process Group Messages."""
         h_result: List = []
 
         # Process Each Message
         for message in messages:
-
-            # Check Message Limit
-            delta_seconds: datetime.timedelta = datetime.datetime.now(tz=pytz.utc) - pytz.utc.localize(message.date_time)
-            if delta_seconds.total_seconds() > limit_seconds:
-                continue
 
             # Get the From Message User
             from_user: Optional[TelegramUserOrmEntity] = self.get_user(message.from_id)
@@ -239,7 +236,10 @@ class TelegramReportGenerator(BaseModule):
         if message.media_id:
 
             # Get Media from DB
-            media: Optional[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_by_id(message.media_id)
+            media: Optional[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_by_id(
+                pk=message.media_id,
+                group_id=message.group_id
+                )
 
             if media:
                 if media.mime_type == 'application/vnd.geo':

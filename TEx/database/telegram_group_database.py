@@ -1,6 +1,9 @@
 """Telegram Group Database Manager."""
 from typing import Dict, List, Optional, cast
 
+import datetime
+
+import pytz
 import sqlalchemy.exc
 from sqlalchemy import desc, insert, select, update
 from sqlalchemy.engine import CursorResult, Row
@@ -66,9 +69,15 @@ class TelegramMessageDatabaseManager:
     """Telegram Message Database Manager."""
 
     @staticmethod
-    def get_all_messages_from_group(group_id: int, order_by_desc: bool = False) -> List[TelegramMessageOrmEntity]:
+    def get_all_messages_from_group(group_id: int, order_by_desc: bool = False, message_datetime_limit_seconds: int = None) -> List[TelegramMessageOrmEntity]:
         """Return all Messages from a Single Group."""
         select_statement: Select = select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == group_id)
+
+        if message_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMessageOrmEntity.date_time >=
+                datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds)
+            )
 
         if order_by_desc:
             select_statement = select_statement.order_by(desc('date_time'))
