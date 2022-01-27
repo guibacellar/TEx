@@ -60,15 +60,33 @@ class InputArgsHandler(BaseModule):
                     'default': None, 'required': True
                     },
                 'ignore_media': {
-                    'param': '--ignore_media', 'type': str, 'action': 'store_true', 'help': 'Set to do not Download Media from Messages',
+                    'param': '--ignore_media', 'type': str, 'action': 'store_true', 'help': 'Set to not Download Media from Messages',
                     'default': False, 'required': False
                     },
                 'data_path': {
                     'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
                     'default': None, 'required': True
                     },
+                'group_id': {
+                    'param': '--group_id', 'type': str, 'action': 'store',
+                    'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
+                    'default': '*', 'required': False
+                    },
                 }
             },
+        'list_groups': {
+            'help': 'List all Downloaded Groups',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                },
+            }
+        },
         'report': {
             'help': 'Generate the Report with all Messages and Medias',
             'sub_args': {
