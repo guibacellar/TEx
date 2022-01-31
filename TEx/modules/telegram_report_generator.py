@@ -4,14 +4,18 @@ import datetime
 import logging
 import re
 import os
+import zipfile
+import shutil
 
 from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
+from os.path import basename
 
 import pytz
 
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
+from telethon import TelegramClient
 
 from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.core.base_module import BaseModule
@@ -50,6 +54,12 @@ class TelegramReportGenerator(BaseModule):
         # Check Report and Assets Folder
         report_root_folder: str = args['report_folder']
         assets_root_folder: str = f'{report_root_folder}/assets/'
+
+        # Purge Report Folder
+        if os.path.exists(report_root_folder):
+            shutil.rmtree(report_root_folder)
+
+        # Create Dir Structure
         DirectoryManagerUtils.ensure_dir_struct(report_root_folder)
         DirectoryManagerUtils.ensure_dir_struct(assets_root_folder)
 
@@ -161,6 +171,10 @@ class TelegramReportGenerator(BaseModule):
         logger.info('\t\t\tFiltering')
         filter_words: Optional[List[str]] = args['filter'].split(',') if args['filter'] else None
         messages = self.filter_messages(messages=messages, filter_words=filter_words, args=args)
+
+        # if Has 0 Messages, Get Out
+        if len(messages) == 0:
+            return 0
 
         logger.info('\t\t\tProcessing Messages')
 
@@ -395,3 +409,55 @@ class TelegramReportGenerator(BaseModule):
                 h_result.append(message)
 
         return h_result
+
+
+class TelegramReportSentViaTelegram(BaseModule):
+    """Sent the Report to a Telegram user."""
+
+    __USERS_RESOLUTION_CACHE: Dict = {}
+
+    async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
+        """Execute Module."""
+        if not args['sent_report_telegram']:
+            logger.info('\t\tModule is Not Enabled...')
+            return
+
+        # Check Report and Assets Folder
+        report_root_folder: str = args['report_folder']
+
+        # Create Report File Name
+        report_filename: str = os.path.join(report_root_folder, 'report.zip')
+        logger.info(f'\t\t\tTarget Report Filename: {report_filename}')
+
+        # Create a Zip File
+        logger.info('\t\t\tGenerating Report ZIP File')
+        with zipfile.ZipFile(report_filename, 'w') as zipObj:
+            # Iterate over all the files in directory
+            for folderName, subfolders, filenames in os.walk(report_root_folder):
+                for filename in filenames:
+                    filePath = os.path.join(folderName, filename)
+
+                    if filePath == report_filename:
+                            continue
+
+                    zipObj.write(filePath, basename(filePath))
+
+        # Sent via Telegram
+        client: TelegramClient = data['telegram_client']
+        receiver = await client.get_input_entity(args['destination_username'])
+
+        # Sent Message
+        logger.info('\t\t\tSending Message')
+        await client.send_message(
+                receiver,
+                args['title'].replace(
+                    '@@now@@',
+                    datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S')
+                ).replace('\\n', '\n')
+            )
+
+        # Sent the Report
+        await client.send_file(receiver, f'{report_root_folder}/report.zip')
+
+        # Remove Report File
+        os.remove(report_filename)

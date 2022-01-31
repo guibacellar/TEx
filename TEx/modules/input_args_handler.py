@@ -127,9 +127,36 @@ class InputArgsHandler(BaseModule):
                 'data_path': {
                     'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
                     'default': None, 'required': True
-                    },
+                    }
                 }
             },
+        'sent_report_telegram': {
+            'help': 'Sent the Current Report to a Telegram User using the Username',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                },
+                'destination_username': {
+                    'param': '--destination_username', 'type': str, 'action': 'store', 'help': 'Telegram Account Username',
+                    'default': None, 'required': True
+                },
+                'report_folder': {
+                    'param': '--report_folder', 'type': str, 'action': 'store',
+                    'help': 'Set the Report Output Folder',
+                    'default': 'reports', 'required': False
+                },
+                'title': {
+                    'param': '--title', 'type': str, 'action': 'store',
+                    'help': 'Report Title',
+                    'default': 'TEx Report @@now@@', 'required': True
+                },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    }
+            }
+        },
         'purge_temp_files': {
             'param': '--purge_temp_files',
             'type': str,

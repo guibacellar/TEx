@@ -98,6 +98,11 @@ class TelegramGroupScrapper(BaseModule):
 
             except telethon.errors.rpcerrorlist.ChannelPrivateError as _ex:
                 logger.info('\t\t\t...Unable to Download Chat Participants due Private Chat Restrictions...')
+            except ValueError as _ex:
+                if 'PeerChannel' in _ex.args[0]:
+                    logger.info('\t\t\t...Unable to Download Chat Participants due PerChannel Restrictions...')
+                    return
+                raise _ex
 
             # Add Group to DB
             TelegramGroupDatabaseManager.insert_or_update(values)
@@ -170,11 +175,17 @@ class TelegramGroupScrapper(BaseModule):
             return temp_data['path'], temp_data['content']
 
         # Download Photo
-        generated_path: str = await client.download_profile_photo(
-            entity=channel,
-            file=target_path,
-            download_big=True
+        try:
+            generated_path: str = await client.download_profile_photo(
+                entity=channel,
+                file=target_path,
+                download_big=True
             )
+        except ValueError as ex:
+            if 'PeerChannel' in ex.args[0]:
+                return None, None
+
+            raise ex
 
         # Get the Base64
         base_64_content: str = ''

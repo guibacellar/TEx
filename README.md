@@ -91,6 +91,20 @@ python3 -m TEx download_messages --phone_number TARGET_PHONE_NUMBER --data_path 
   * **ignore_media** > Optional - If present, don't Download any Media
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
 
+
+#### Generate Report
+```bash
+python3 -m TEx report --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
+```
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
+  * **report_folder** > Optional - Defines the Report Files Folder
+  * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
+  * **around_messages** > Optional - Number of messages around (Before and After) the Filtered Message
+  * **order_desc** > Optional - If present, sort all messages descending. Otherwise, sort Ascending.
+  * **limit_days** > Optional - Number of Days of past to filter the Messages
+  * **filter** > Optional - Simple (Comma Separated) String Terms Filter. Ex: hacking,"Car Hacking",foo
+
 <!-- ROADMAP -->
 ## Roadmap
 
