@@ -431,7 +431,7 @@ class TelegramReportSentViaTelegram(BaseModule):
 
         # Create a Zip File
         logger.info('\t\t\tGenerating Report ZIP File')
-        with zipfile.ZipFile(report_filename, 'w') as zipObj:
+        with zipfile.ZipFile(report_filename, 'w', compresslevel=9, compression=zipfile.ZIP_DEFLATED) as zipObj:
             # Iterate over all the files in directory
             for folderName, subfolders, filenames in os.walk(report_root_folder):
                 for filename in filenames:
