@@ -4,6 +4,7 @@ import datetime
 import logging
 import re
 import os
+import time
 import zipfile
 import shutil
 
@@ -440,7 +441,7 @@ class TelegramReportSentViaTelegram(BaseModule):
                     if filePath == report_filename:
                             continue
 
-                    zipObj.write(filePath, basename(filePath))
+                    zipObj.write(filePath, os.path.join(basename(folderName), filename))
 
         # Sent via Telegram
         client: TelegramClient = data['telegram_client']
@@ -455,7 +456,7 @@ class TelegramReportSentViaTelegram(BaseModule):
                     datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S')
                 ).replace('\\n', '\n')
             )
-
+        time.sleep(1)
         # Sent the Report
         await client.send_file(receiver, f'{report_root_folder}/report.zip')
 
