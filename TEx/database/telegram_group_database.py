@@ -7,7 +7,8 @@ import pytz
 import sqlalchemy.exc
 from sqlalchemy import desc, insert, select, update
 from sqlalchemy.engine import CursorResult, Row
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import Select, or_
+from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.orm import Session
 
 from TEx.database.db_manager import DbManager
@@ -199,3 +200,38 @@ class TelegramMediaDatabaseManager:
         session.commit()
 
         return int(cursor.inserted_primary_key[0])
+
+    @staticmethod
+    def get_all_medias_from_group_and_mimetype(group_id: int, mime_type: str, file_datetime_limit_seconds: int = None, file_name_part: List[str] = None) -> CursorResult:
+        """
+        Return all Messages from a Single Group.
+
+        :param group_id: Target Group ID
+        :param mime_type: Target Mime_Type
+        :param file_datetime_limit_seconds: Age of File in Seconds
+        :param file_name_part: Filter with Filename Part (Optional, use None for All Files)
+        :return:
+        """
+
+        select_statement: Select = select(TelegramMediaOrmEntity)
+
+        # File Age
+        if file_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMediaOrmEntity.date_time >=
+                datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=file_datetime_limit_seconds)
+            )
+
+        # MimeType
+        select_statement = select_statement.where(TelegramMediaOrmEntity.mime_type == mime_type)
+
+        # Filename Filtering
+        if file_name_part:
+            parts_or_filter: List[BinaryExpression] = []
+
+            for name_part in file_name_part:
+                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))
+
+            select_statement = select_statement.where(or_(*parts_or_filter))
+
+        return DbManager.SESSIONS[f'media_{str(group_id)}'].execute(select_statement)

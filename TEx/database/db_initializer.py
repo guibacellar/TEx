@@ -1,4 +1,6 @@
 """TEx Database Initializer."""
+import sqlalchemy
+
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase, TelegramMediaDataBaseDeclarativeBase
 from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
@@ -32,3 +34,8 @@ class DbInitializer:
             for group in TelegramGroupDatabaseManager.get_all_by_phone_number(args['target_phone_number']):
                 DbManager.init_media_db(group_id=str(group.id), data_path=data_path)
                 TelegramMediaDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS[f'media_{str(group.id)}'])
+
+                # Upgrade Table Schema - idx_dt_mt
+                DbManager.SQLALCHEMY_BINDS[f'media_{str(group.id)}'].execute(
+                    sqlalchemy.DDL('''CREATE INDEX IF NOT EXISTS idx_dt_mt ON telegram_media (date_time, mime_type);''')
+                )

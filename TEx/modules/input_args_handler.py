@@ -130,6 +130,82 @@ class InputArgsHandler(BaseModule):
                     }
                 }
             },
+        'export_text': {
+            'help': 'Export all Messages using Regex Filters',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                },
+                'order_desc': {
+                    'param': '--order_desc', 'type': str, 'action': 'store_true',
+                    'help': 'Set the Date/Time Order to Descending',
+                    'default': False, 'required': False
+                },
+                'regex': {
+                    'param': '--regex', 'type': str, 'action': 'store',
+                    'help': 'Filter Terms',
+                    'default': None, 'required': False
+                },
+                'limit_days': {
+                    'param': '--limit_days', 'type': int, 'action': 'store',
+                    'help': 'Limit Messages Period in Days',
+                    'default': 3650, 'required': False
+                },
+                'report_folder': {
+                    'param': '--report_folder', 'type': str, 'action': 'store',
+                    'help': 'Set the Report Output Folder',
+                    'default': 'reports', 'required': False
+                },
+                'group_id': {
+                    'param': '--group_id', 'type': str, 'action': 'store',
+                    'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
+                    'default': '*', 'required': False
+                },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                }
+            }
+        },
+        'export_file': {
+            'help': 'Export all Files by Mime Type',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                },
+                'mime_type': {
+                    'param': '--mime_type', 'type': str, 'action': 'store',
+                    'help': 'Mimetype to be Exported',
+                    'default': None, 'required': False
+                },
+                'limit_days': {
+                    'param': '--limit_days', 'type': int, 'action': 'store',
+                    'help': 'Limit Messages Period in Days',
+                    'default': 3650, 'required': False
+                },
+                'report_folder': {
+                    'param': '--report_folder', 'type': str, 'action': 'store',
+                    'help': 'Set the Report Output Folder',
+                    'default': 'reports', 'required': False
+                },
+                'group_id': {
+                    'param': '--group_id', 'type': str, 'action': 'store',
+                    'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
+                    'default': '*', 'required': False
+                },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                },
+                'filter': {
+                    'param': '--filter', 'type': str, 'action': 'store',
+                    'help': 'Filter by File Name parts. Ex: --filter my_apk,"My APK 2"',
+                    'default': '*', 'required': False
+                }
+            }
+        },
         'sent_report_telegram': {
             'help': 'Sent the Current Report to a Telegram User using the Username',
             'sub_args': {
@@ -150,6 +226,11 @@ class InputArgsHandler(BaseModule):
                     'param': '--title', 'type': str, 'action': 'store',
                     'help': 'Report Title',
                     'default': 'TEx Report @@now@@', 'required': True
+                },
+                'attachment_name': {
+                    'param': '--attachment_name', 'type': str, 'action': 'store',
+                    'help': 'Report Attachment FileName',
+                    'default': 'report_@@now@@', 'required': True
                 },
                 'data_path': {
                     'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',

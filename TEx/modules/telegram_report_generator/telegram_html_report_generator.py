@@ -2,39 +2,30 @@
 import base64
 import datetime
 import logging
-import re
 import os
-import time
-import zipfile
+import re
 import shutil
-import hashlib
-
 from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
-from os.path import basename
 
 import pytz
-
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
-from sqlalchemy.engine import ChunkedIteratorResult, CursorResult
-from telethon import TelegramClient
 
-from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.core.base_module import BaseModule
+from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.database.telegram_group_database import (
     TelegramGroupDatabaseManager,
     TelegramMediaDatabaseManager,
     TelegramMessageDatabaseManager,
     TelegramUserDatabaseManager
-    )
-
+)
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
     TelegramMediaOrmEntity,
     TelegramMessageOrmEntity,
     TelegramUserOrmEntity
-    )
+)
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \

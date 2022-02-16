@@ -21,7 +21,8 @@ class StandardMediaDownloader:
             return None
 
         # Download Media
-        generated_path: str = await message.download_media(f'{data_path}/download/{StandardMediaDownloader.sanitize_media_filename(media_metadata["file_name"])}')
+        target_path: str = os.path.join(data_path, 'download', StandardMediaDownloader.sanitize_media_filename(media_metadata["file_name"]))
+        generated_path: str = await message.download_media(target_path)
         media_metadata['extension'] = os.path.splitext(generated_path)[1]
 
         # Get File Content

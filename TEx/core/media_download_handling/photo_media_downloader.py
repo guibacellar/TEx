@@ -18,7 +18,7 @@ class PhotoMediaDownloader:
         :return:
         """
         # Download Media
-        generated_path: str = await message.download_media(f'{data_path}/download/')
+        generated_path: str = await message.download_media(os.path.join(data_path, 'download'))
         media_metadata['extension'] = os.path.splitext(generated_path)[1]
         media_metadata['file_name'] = os.path.basename(generated_path)
         media_metadata['mime_type'] = f'image/{media_metadata["extension"][1:]}'
