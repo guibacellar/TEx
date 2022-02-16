@@ -5,8 +5,8 @@ import logging
 import os
 import re
 import shutil
-from hashlib import md5
 from configparser import ConfigParser
+from hashlib import md5
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
 
@@ -20,13 +20,13 @@ from TEx.database.telegram_group_database import (
     TelegramMediaDatabaseManager,
     TelegramMessageDatabaseManager,
     TelegramUserDatabaseManager
-)
+    )
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
     TelegramMediaOrmEntity,
     TelegramMessageOrmEntity,
     TelegramUserOrmEntity
-)
+    )
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
@@ -169,7 +169,7 @@ class TelegramReportGenerator(BaseModule):
 
         # if Has 0 Messages, Get Out
         if len(messages) == 0:
-            return 0
+            return
 
         logger.info('\t\t\tProcessing Messages')
 
@@ -203,7 +203,7 @@ class TelegramReportGenerator(BaseModule):
         for message in messages:
 
             if suppress_repeating_messages:
-                message_hash: str = md5(message.message.encode('utf-8')).hexdigest()
+                message_hash: str = md5(message.message.encode('utf-8')).hexdigest()  # nosec
                 if message_hash in reppeating_messages_signatures:
                     continue
                 reppeating_messages_signatures.append(message_hash)

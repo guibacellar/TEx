@@ -8,16 +8,8 @@ from typing import Dict, List, Optional
 
 import pytz
 from telethon import TelegramClient
-from telethon.tl.types import (
-    Message,
-    MessageMediaDocument,
-    MessageMediaGeo,
-    MessageMediaPhoto,
-    MessageMediaWebPage,
-    MessageService,
-    PeerUser,
-    PeerChannel
-)
+from telethon.tl.types import (Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage,
+                               MessageService, PeerChannel, PeerUser)
 
 from TEx.core.base_module import BaseModule
 from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
@@ -124,7 +116,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)
 
-    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:
+    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:  # pylint: disable=R0913
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:

@@ -6,20 +6,18 @@ import logging
 import os
 import pathlib
 from configparser import ConfigParser
-from time import sleep
 from typing import Dict, List, Optional, Tuple
 
 import telethon.tl.types
 from telethon import TelegramClient
 from telethon.errors import ChatAdminRequiredError
 from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.tl.types import ChatPhoto, InputPeerEmpty, Message, MessageService, PeerUser
+from telethon.tl.types import ChatPhoto, InputPeerEmpty
 from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
-    TelegramUserDatabaseManager
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
 
 logger = logging.getLogger()
 
@@ -91,12 +89,12 @@ class TelegramGroupScrapper(BaseModule):
                 members = await self.get_members(
                     client=client,
                     channel=chat
-                )
+                    )
 
                 # Sync with DB
                 TelegramUserDatabaseManager.insert_or_update_batch(members)
 
-            except telethon.errors.rpcerrorlist.ChannelPrivateError as _ex:
+            except telethon.errors.rpcerrorlist.ChannelPrivateError:
                 logger.info('\t\t\t...Unable to Download Chat Participants due Private Chat Restrictions...')
             except ValueError as _ex:
                 if 'PeerChannel' in _ex.args[0]:
@@ -161,7 +159,7 @@ class TelegramGroupScrapper(BaseModule):
 
         return h_result
 
-    async def get_profile_pic_b64(self, client: TelegramClient, channel: telethon.tl.types.Channel, data_path: str, force_reload: bool = False) -> Tuple[str, str]:
+    async def get_profile_pic_b64(self, client: TelegramClient, channel: telethon.tl.types.Channel, data_path: str, force_reload: bool = False) -> Tuple[Optional[str], Optional[str]]:
         """
         Download the Profile Picture and Returns as Base64 Image.
 
@@ -185,7 +183,7 @@ class TelegramGroupScrapper(BaseModule):
                 entity=channel,
                 file=target_path,
                 download_big=True
-            )
+                )
         except ValueError as ex:
             if 'PeerChannel' in ex.args[0]:
                 return None, None

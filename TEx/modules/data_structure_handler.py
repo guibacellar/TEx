@@ -15,7 +15,7 @@ class DataStructureHandler(BaseModule):
     """Handle the Basic Directory Structure."""
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
-
+        """Execute."""
         if 'data_path' not in args:
             return
 
@@ -23,5 +23,3 @@ class DataStructureHandler(BaseModule):
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'download'))
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'profile_pic'))
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'media'))
-
-

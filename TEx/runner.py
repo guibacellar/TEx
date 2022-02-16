@@ -17,11 +17,14 @@ from TEx.core.base_module import BaseModule
 
 logger = logging.getLogger()
 
+with open("../__version__.txt", "r", encoding="utf-8") as version_file:
+    VERSION: str = version_file.read()
+
 BANNER: str = f'''
 TEx - Telegram Explorer
-Version {open("../__version__.txt").read()}
+Version {VERSION}
 By: Th3 0bservator
-'''
+'''  # pylint: disable=R1732
 
 
 class TelegramMonitorRunner:

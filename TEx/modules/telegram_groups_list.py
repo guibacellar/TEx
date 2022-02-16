@@ -1,25 +1,11 @@
 """Telegram Group List."""
 
-import base64
-import json
 import logging
-import os
-import pathlib
 from configparser import ConfigParser
-from time import sleep
-from typing import Dict, List, Optional, Tuple
-
-import telethon.tl.types
-from telethon import TelegramClient
-from telethon.errors import ChatAdminRequiredError
-from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.tl.types import ChatPhoto, InputPeerEmpty, Message, MessageService, PeerUser
-from telethon.tl.types.messages import Dialogs
+from typing import Dict, List
 
 from TEx.core.base_module import BaseModule
-from TEx.core.temp_file import TempFileHandler
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
-    TelegramUserDatabaseManager
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 
 logger = logging.getLogger()
@@ -54,7 +40,7 @@ class TelegramGroupList(BaseModule):
         # Get the Bigger Title Size
         max_title_size: int = max(
             [len(item.title) if item.title is not None else 0 for item in db_groups]
-        )
+            )
 
         # Print Groups
         logger.info(f'\t\tID       \t{"Username".ljust(max_username_size)}\t{"Title".ljust(max_title_size)}')

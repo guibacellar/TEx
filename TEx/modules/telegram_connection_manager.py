@@ -5,6 +5,7 @@ from typing import Dict
 
 from telethon import TelegramClient
 from telethon.sessions import StringSession
+
 from TEx.core.base_module import BaseModule
 
 logger = logging.getLogger()

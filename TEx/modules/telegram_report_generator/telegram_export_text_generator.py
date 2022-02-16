@@ -12,11 +12,11 @@ from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.database.telegram_group_database import (
     TelegramGroupDatabaseManager,
     TelegramMessageDatabaseManager
-)
+    )
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
     TelegramMessageOrmEntity
-)
+    )
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
@@ -115,16 +115,16 @@ class TelegramExportTextGenerator(BaseModule):
         # Filter Messages
         logger.info('\t\t\tFiltering')
         filter_regexs: Optional[List[str]] = args['regex'].split(',') if args['regex'] else None
-        messages = self.filter_messages(messages=messages, filter_regexs=filter_regexs, args=args)
+        filtered_messages: List[str] = self.filter_messages(messages=messages, filter_regexs=filter_regexs)
 
         # if Has 0 Messages, Get Out
-        if len(messages) == 0:
-            return 0
+        if len(filtered_messages) == 0:
+            return
 
         logger.info('\t\t\tRendering')
         with open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
 
-            for message in messages:
+            for message in filtered_messages:
                 file.write(message.encode('utf-8'))
                 file.write('\r\n'.encode('utf-8'))
 
@@ -132,23 +132,20 @@ class TelegramExportTextGenerator(BaseModule):
             file.close()
 
         # Add Meta in Group
-        group.meta_message_count = len(messages)
+        group.meta_message_count = len(filtered_messages)
 
-    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regexs: Optional[List[str]], args: Dict) -> List[TelegramMessageReportFacadeEntity]:
+    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regexs: Optional[List[str]]) -> List[str]:
         """Filter Messages."""
         if not filter_regexs or len(filter_regexs) == 0:
-            return messages
+            return [item.raw for item in messages]
 
-        h_messages: List[TelegramMessageReportFacadeEntity] = []
+        h_messages: List[str] = []
 
         # Compile all Regex
-        compiled_regex = [re.compile(item, flags=re.IGNORECASE|re.MULTILINE) for item in filter_regexs]
+        compiled_regex = [re.compile(item, flags=re.IGNORECASE | re.MULTILINE) for item in filter_regexs]
 
         # Loop on Messages
         for message in messages:
-
-            matched: bool = False
-            new_message: TelegramMessageReportFacadeEntity = message
 
             # Process Each Filter
             for rgx in compiled_regex:

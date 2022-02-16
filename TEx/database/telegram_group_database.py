@@ -6,7 +6,7 @@ import datetime
 import pytz
 import sqlalchemy.exc
 from sqlalchemy import desc, insert, select, update
-from sqlalchemy.engine import CursorResult, Row
+from sqlalchemy.engine import ChunkedIteratorResult, CursorResult, Row
 from sqlalchemy.sql import Select, or_
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.orm import Session
@@ -76,9 +76,8 @@ class TelegramMessageDatabaseManager:
 
         if message_datetime_limit_seconds:
             select_statement = select_statement.where(
-                TelegramMessageOrmEntity.date_time >=
-                datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds)
-            )
+                TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
+                )
 
         if order_by_desc:
             select_statement = select_statement.order_by(desc('date_time'))
@@ -104,7 +103,6 @@ class TelegramMessageDatabaseManager:
                 return
 
             raise exc
-
 
     @staticmethod
     def get_max_id_from_group(group_id: int) -> Optional[int]:
@@ -190,7 +188,6 @@ class TelegramMediaDatabaseManager:
     @staticmethod
     def insert(entity_values: Dict, group_id: int) -> int:
         """Insert or Update one Telegram User."""
-
         session: Session = DbManager.SESSIONS[f'media_{str(group_id)}']
 
         cursor: CursorResult = session.execute(  # type:ignore
@@ -202,7 +199,7 @@ class TelegramMediaDatabaseManager:
         return int(cursor.inserted_primary_key[0])
 
     @staticmethod
-    def get_all_medias_from_group_and_mimetype(group_id: int, mime_type: str, file_datetime_limit_seconds: int = None, file_name_part: List[str] = None) -> CursorResult:
+    def get_all_medias_from_group_and_mimetype(group_id: int, mime_type: str, file_datetime_limit_seconds: int = None, file_name_part: List[str] = None) -> ChunkedIteratorResult:
         """
         Return all Messages from a Single Group.
 
@@ -212,15 +209,13 @@ class TelegramMediaDatabaseManager:
         :param file_name_part: Filter with Filename Part (Optional, use None for All Files)
         :return:
         """
-
         select_statement: Select = select(TelegramMediaOrmEntity)
 
         # File Age
         if file_datetime_limit_seconds:
             select_statement = select_statement.where(
-                TelegramMediaOrmEntity.date_time >=
-                datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=file_datetime_limit_seconds)
-            )
+                TelegramMediaOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=file_datetime_limit_seconds))
+                )
 
         # MimeType
         select_statement = select_statement.where(TelegramMediaOrmEntity.mime_type == mime_type)
@@ -230,8 +225,8 @@ class TelegramMediaDatabaseManager:
             parts_or_filter: List[BinaryExpression] = []
 
             for name_part in file_name_part:
-                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))
+                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))  # type: ignore
 
             select_statement = select_statement.where(or_(*parts_or_filter))
 
-        return DbManager.SESSIONS[f'media_{str(group_id)}'].execute(select_statement)
+        return DbManager.SESSIONS[f'media_{str(group_id)}'].execute(select_statement)  # type:ignore

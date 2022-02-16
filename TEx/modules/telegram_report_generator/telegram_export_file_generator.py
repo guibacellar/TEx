@@ -15,10 +15,10 @@ from TEx.core.dir_manager import DirectoryManagerUtils
 from TEx.database.telegram_group_database import (
     TelegramGroupDatabaseManager,
     TelegramMediaDatabaseManager
-)
+    )
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity
-)
+    )
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 
@@ -111,7 +111,7 @@ class TelegramExportFileGenerator(BaseModule):
             file_datetime_limit_seconds=limit_seconds,
             mime_type=args['mime_type'],
             file_name_part=filter_by_filename
-        )
+            )
 
         # if Has 0 Messages, Get Out
         for media in medias.yield_per(1):
@@ -123,7 +123,7 @@ class TelegramExportFileGenerator(BaseModule):
             bin_content = base64.b64decode(media[0].b64_content)
 
             # Compute FileHash
-            f_hash: str = hashlib.md5(bin_content).hexdigest()
+            f_hash: str = hashlib.md5(bin_content).hexdigest()  # nosec
 
             # Check if Hash alread Exists in this Session
             if f_hash in TelegramExportFileGenerator.__HASH_CACHE:

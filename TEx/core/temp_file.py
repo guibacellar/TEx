@@ -35,7 +35,7 @@ class TempFileHandler:
     @staticmethod
     def remove_expired_entries() -> int:
         """Remove all Expired Entries."""
-        total: int = DbManager.SESSIONS['temp'].execute(  # type:ignore
+        total: int = DbManager.SESSIONS['temp'].execute(
             TempDataOrmEntity.__table__.delete().where(
                 TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp())
                 )
@@ -48,7 +48,7 @@ class TempFileHandler:
     @staticmethod
     def purge() -> int:
         """Remove all Entries."""
-        total: int = temp_session.execute(TempDataOrmEntity.__table__.delete()).rowcount  # type:ignore
+        total: int = DbManager.SESSIONS['temp'].execute(TempDataOrmEntity.__table__.delete()).rowcount
         DbManager.SESSIONS['temp'].flush()
         DbManager.SESSIONS['temp'].commit()
         return total

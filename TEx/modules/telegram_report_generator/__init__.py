@@ -1,2 +1,1 @@
 """Telegram Report Modules."""
-

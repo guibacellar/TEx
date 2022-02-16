@@ -15,6 +15,7 @@ from TEx.core.base_module import BaseModule
 
 logger = logging.getLogger()
 
+
 class TelegramReportSentViaTelegram(BaseModule):
     """Sent the Report to a Telegram user."""
 
@@ -36,16 +37,16 @@ class TelegramReportSentViaTelegram(BaseModule):
 
         # Create a Zip File
         logger.info('\t\t\tGenerating Report ZIP File')
-        with zipfile.ZipFile(report_filename, 'w', compresslevel=9, compression=zipfile.ZIP_DEFLATED) as zipObj:
+        with zipfile.ZipFile(report_filename, 'w', compresslevel=9, compression=zipfile.ZIP_DEFLATED) as zip_obj:
             # Iterate over all the files in directory
-            for folderName, subfolders, filenames in os.walk(report_root_folder):
+            for folder_name, _subfolders, filenames in os.walk(report_root_folder):
                 for filename in filenames:
-                    filePath = os.path.join(folderName, filename)
+                    file_path = os.path.join(folder_name, filename)
 
-                    if filePath == report_filename:
-                            continue
+                    if file_path == report_filename:
+                        continue
 
-                    zipObj.write(filePath, os.path.join(basename(folderName), filename))
+                    zip_obj.write(file_path, os.path.join(basename(folder_name), filename))
 
         # Sent via Telegram
         client: TelegramClient = data['telegram_client']
@@ -54,10 +55,10 @@ class TelegramReportSentViaTelegram(BaseModule):
         # Sent Message
         logger.info('\t\t\tSending Message')
         await client.send_message(
-                receiver,
-                args['title'].replace(
-                    '@@now@@',
-                    datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S')
+            receiver,
+            args['title'].replace(
+                '@@now@@',
+                datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S')
                 ).replace('\\n', '\n')
             )
         time.sleep(1)
