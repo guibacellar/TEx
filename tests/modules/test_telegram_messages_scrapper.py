@@ -222,6 +222,95 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             extension='.mp4', mime_type='application/x-tgsticker', name=None, height=512, width=512, size_bytes=20611
         )
 
+    def test_run_download_messages_filtered(self):
+        """Test Run Method for Scrap Telegram Groups with Filter."""
+
+        # Setup Mock
+        telegram_client_mockup = mock.AsyncMock(side_effect=self.run_connect_side_effect)
+
+        # Setup the IterParticipants Mockup
+        async def async_generator_side_effect(items):
+            for item in items:
+                yield item
+
+        # Mock the the Message Iterator Async Method
+        telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+
+        # Add the Async Mocks to Messages
+        [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
+        [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_binary)
+        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
+        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
+
+        # Call Test Target Method
+        target: TelegramGroupMessageScrapper = TelegramGroupMessageScrapper()
+        args: Dict = {
+            'target_phone_number': 'UT-PHONE',  # TODO: Make a new Test when the target_phone_number has no Groups
+            'data_path': '_data',
+            'download_messages': True,
+            'ignore_media': False,
+            'group_id': '1'
+        }
+        data: Dict = {
+            'telegram_client': telegram_client_mockup
+        }
+
+        with self.assertLogs() as captured:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                target.run(
+                    config=self.config,
+                    args=args,
+                    data=data
+                )
+            )
+
+            # Check Logs
+            self.assertEqual(9, len(captured.records))
+            self.assertEqual('		Found 2 Groups', captured.records[0].message)
+            self.assertEqual('		Applied Groups Filtering... 1 remaining', captured.records[1].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[2].message)
+            self.assertEqual('			Downloading Photo from Message 183018', captured.records[3].message)
+            self.assertEqual('			Downloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive', captured.records[4].message)
+            self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[5].message)
+            self.assertEqual('			Downloading Media from Message 183771 (2258.64 Kbytes) as video/mp4', captured.records[6].message)
+            self.assertEqual('			Downloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker', captured.records[7].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183771', captured.records[8].message)
+
+    def test_run_download_messages_disabled(self):
+        """Test Run Method for Scrap Telegram Groups - Module Disabled."""
+
+        # Setup Mock
+        telegram_client_mockup = mock.AsyncMock(side_effect=self.run_connect_side_effect)
+
+        # Call Test Target Method
+        target: TelegramGroupMessageScrapper = TelegramGroupMessageScrapper()
+        args: Dict = {
+            'target_phone_number': 'UT-PHONE',  # TODO: Make a new Test when the target_phone_number has no Groups
+            'data_path': '_data',
+            'download_messages': False,
+            'ignore_media': False,
+            'group_id': '*'
+        }
+        data: Dict = {
+            'telegram_client': telegram_client_mockup
+        }
+
+        with self.assertLogs() as captured:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                target.run(
+                    config=self.config,
+                    args=args,
+                    data=data
+                )
+            )
+
+            # Check Logs
+            self.assertEqual(1, len(captured.records))
+            self.assertEqual('		Module is Not Enabled...', captured.records[0].message)
+
     def verify_single_message(self, message_obj, message_id, group_id, datetime, message_content, raw_message_content, to_id, from_id, from_type, expected_media_id) -> None:
         self.assertEqual(message_id, message_obj.id)
         self.assertEqual(group_id, message_obj.group_id)
