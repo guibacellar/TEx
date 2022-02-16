@@ -1,9 +1,10 @@
 # TEx - **T**elegram **E**xplorer
 
-![](https://img.shields.io/github/last-conao cmmit/guibacellar/TEx)
+![](https://img.shields.io/github/last-commit/guibacellar/TEx)
 ![](https://img.shields.io/github/languages/code-size/guibacellar/TEx)
 ![](https://img.shields.io/badge/Python-3.8+-green.svg)
 ![](https://img.shields.io/badge/maintainer-Th3%200bservator-blue)
+[![](https://github.com/guibacellar/TEx/actions/workflows/cy.yml/badge.svg?branch=main)](https://github.com/guibacellar/TEx/actions/workflows/cy.yml)
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
