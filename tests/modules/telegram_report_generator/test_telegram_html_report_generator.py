@@ -66,6 +66,21 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'message': 'Message 1', 'raw': 'Raw Message 1', 'from_id': None, 'from_type': None,
             'to_id': None, 'media_id': None
         })
+        TelegramMessageDatabaseManager.insert({
+            'id': 56, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc),
+            'message': 'Message 2', 'raw': 'Raw Message 2', 'from_id': None, 'from_type': None,
+            'to_id': None, 'media_id': None
+        })
+        TelegramMessageDatabaseManager.insert({
+            'id': 57, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc),
+            'message': 'Message 2', 'raw': 'Raw Message 2', 'from_id': None, 'from_type': None,
+            'to_id': None, 'media_id': None
+        })
+        TelegramMessageDatabaseManager.insert({
+            'id': 58, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc),
+            'message': 'Message 3', 'raw': 'Raw Message 3', 'from_id': None, 'from_type': None,
+            'to_id': None, 'media_id': None
+        })
 
         # Initialize the Medias Groups
         DbInitializer.init_media_dbs(data_path='_data/', args={'target_phone_number': 'UT-PHONE'})
@@ -119,10 +134,11 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'report_folder': '_report',
             'group_id': '*',
             'order_desc': True,
-            'filter': None,
+            'filter': 'Message',
             'limit_days': 30,
             'report': True,
-            'suppress_repeating_messages': True
+            'suppress_repeating_messages': True,
+            'around_messages': 2
         }
         data: Dict = {}
 
