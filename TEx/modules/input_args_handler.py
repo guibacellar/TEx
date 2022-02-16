@@ -255,7 +255,11 @@ class InputArgsHandler(BaseModule):
                     'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
                     'default': None, 'required': True
                     },
-                }
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                    },
+                },
             }
         }
 
