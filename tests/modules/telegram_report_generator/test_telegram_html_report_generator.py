@@ -80,33 +80,33 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         DbManager.SESSIONS['media_2'].close()
         DbManager.SESSIONS['data'].close()
 
-        def test_run_generate_report_disabled(self):
-            """Test Run Method for Scrap Telegram Groups as Disabled."""
+    def test_run_generate_report_disabled(self):
+        """Test Run Method for Scrap Telegram Groups as Disabled."""
 
-            # Call Test Target Method
-            target: TelegramReportGenerator = TelegramReportGenerator()
-            args: Dict = {
-                'target_phone_number': 'UT-PHONE',
-                'data_path': '_data',
-                'report_folder': '_report',
-                'group_id': '*',
-                'order_desc': True,
-                'filter': None,
-                'limit_days': 30,
-                'report': False,
-                'suppress_repeating_messages': True
-            }
-            data: Dict = {}
+        # Call Test Target Method
+        target: TelegramReportGenerator = TelegramReportGenerator()
+        args: Dict = {
+            'target_phone_number': 'UT-PHONE',
+            'data_path': '_data',
+            'report_folder': '_report',
+            'group_id': '*',
+            'order_desc': True,
+            'filter': None,
+            'limit_days': 30,
+            'report': False,
+            'suppress_repeating_messages': True
+        }
+        data: Dict = {}
 
-            with self.assertLogs() as captured:
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(
-                    target.run(
-                        config=self.config,
-                        args=args,
-                        data=data
-                    )
+        with self.assertLogs() as captured:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                target.run(
+                    config=self.config,
+                    args=args,
+                    data=data
                 )
+            )
 
     def test_run_generate_report(self):
         """Test Run Method for Scrap Telegram Groups."""
