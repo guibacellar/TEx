@@ -21,7 +21,7 @@ from TEx.models.database.telegram_db_model import (
     TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramUserOrmEntity,
 )
 from TEx.modules.telegram_messages_scrapper import TelegramGroupMessageScrapper
-from TEx.modules.telegram_report_generator import TelegramReportGenerator
+from TEx.modules.telegram_report_generator.telegram_html_report_generator import TelegramReportGenerator
 from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data, \
     base_users_mockup_data
 
@@ -93,7 +93,8 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'order_desc': True,
             'filter': None,
             'limit_days': 30,
-            'report': True
+            'report': True,
+            'suppress_repeating_messages': True
         }
         data: Dict = {}
 
