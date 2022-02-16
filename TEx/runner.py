@@ -88,8 +88,8 @@ class TelegramMonitorRunner:
             logger.info(f'\t[+] {pipeline_item}')
             pipeline_item_meta: List[str] = pipeline_item.split('.')
 
-            osix_module: types.ModuleType = importlib.import_module(f'modules.{pipeline_item_meta[0]}')
-            module_instance: BaseModule = getattr(osix_module, pipeline_item_meta[1])()
+            osix_module: types.ModuleType = importlib.import_module(f'modules.{".".join(pipeline_item_meta[:-1])}')
+            module_instance: BaseModule = getattr(osix_module, pipeline_item_meta[-1])()
 
             loop.run_until_complete(
                 module_instance.run(
