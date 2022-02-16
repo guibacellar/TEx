@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import shutil
+from hashlib import md5
 from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
@@ -175,7 +176,8 @@ class TelegramReportGenerator(BaseModule):
         # Generate Object to Render
         render_messages: List = await self.process_messages(
             messages=messages,
-            assets_root_folder=assets_root_folder
+            assets_root_folder=assets_root_folder,
+            suppress_repeating_messages=args['suppress_repeating_messages']
             )
 
         logger.info('\t\t\tRendering')
@@ -192,12 +194,19 @@ class TelegramReportGenerator(BaseModule):
         # Add Meta in Group
         group.meta_message_count = len(render_messages)
 
-    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], assets_root_folder: str) -> List[TelegramMediaOrmEntity]:
+    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], assets_root_folder: str, suppress_repeating_messages: bool) -> List[TelegramMediaOrmEntity]:
         """Process Group Messages."""
         h_result: List = []
+        reppeating_messages_signatures: List[str] = []
 
         # Process Each Message
         for message in messages:
+
+            if suppress_repeating_messages:
+                message_hash: str = md5(message.message.encode('utf-8')).hexdigest()
+                if message_hash in reppeating_messages_signatures:
+                    continue
+                reppeating_messages_signatures.append(message_hash)
 
             # Get the From Message User
             from_user: Optional[TelegramUserOrmEntity] = self.get_user(message.from_id)

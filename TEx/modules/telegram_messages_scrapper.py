@@ -117,13 +117,14 @@ class TelegramGroupMessageScrapper(BaseModule):
                     client=client,
                     group_name=group.title,
                     download_media=not args['ignore_media'],
-                    data_path=args['data_path']
+                    data_path=args['data_path'],
+                    iter_message_type=PeerChannel
                     )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
                 logger.error(ex)
 
-    async def  __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str) -> None:
+    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:
@@ -143,7 +144,7 @@ class TelegramGroupMessageScrapper(BaseModule):
             # Get all Chats from a Single Group
             # https://docs.telethon.dev/en/latest/modules/client.html#telethon.client.messages.MessageMethods.iter_messages
             async for message in client.iter_messages(
-                    PeerChannel(group_id),
+                    iter_message_type(group_id),
                     reverse=True,
                     limit=500,
                     min_id=last_offset if last_offset is not None else -1

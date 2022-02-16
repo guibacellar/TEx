@@ -127,7 +127,12 @@ class InputArgsHandler(BaseModule):
                 'data_path': {
                     'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
                     'default': None, 'required': True
-                    }
+                    },
+                'suppress_repeating_messages': {
+                    'param': '--suppress_repeating_messages', 'type': str, 'action': 'store_true',
+                    'help': 'Set the Date/Time Order to Descending',
+                    'default': False, 'required': False
+                    },
                 }
             },
         'export_text': {

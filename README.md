@@ -104,6 +104,7 @@ python3 -m TEx report --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER
   * **order_desc** > Optional - If present, sort all messages descending. Otherwise, sort Ascending.
   * **limit_days** > Optional - Number of Days of past to filter the Messages
   * **filter** > Optional - Simple (Comma Separated) String Terms Filter. Ex: hacking,"Car Hacking",foo
+  * **suppress_repeating_messages** > Optional - If present, suppress all repeating messages in the same report
 
 <!-- ROADMAP -->
 ## Roadmap
