@@ -104,6 +104,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
         [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
         [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
 
         # Call Test Target Method
         target: TelegramGroupMessageScrapper = TelegramGroupMessageScrapper()
@@ -129,7 +130,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(9, len(captured.records))
+            self.assertEqual(10, len(captured.records))
             self.assertEqual('		Found 2 Groups', captured.records[0].message)
             self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[1].message)
             self.assertEqual('			Downloading Photo from Message 183018', captured.records[2].message)
@@ -137,15 +138,16 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[4].message)
             self.assertEqual('			Downloading Media from Message 183771 (2258.64 Kbytes) as video/mp4', captured.records[5].message)
             self.assertEqual('			Downloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker', captured.records[6].message)
-            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183771', captured.records[7].message)
-            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[8].message)
+            self.assertEqual('			Downloading Media from Message 4622199 (11.3203 Kbytes) as text/plain', captured.records[7].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 4622199', captured.records[8].message)
+            self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[9].message)
 
         # Check all Messages in SQLlite DB
         all_messages = DbManager.SESSIONS['data'].execute(
             select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1)
         ).scalars().all()
 
-        self.assertEqual(7, len(all_messages))
+        self.assertEqual(8, len(all_messages))
 
         # Check Message 1
         self.verify_single_message(
@@ -222,6 +224,18 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             extension='.mp4', mime_type='application/x-tgsticker', name=None, height=512, width=512, size_bytes=20611
         )
 
+        # Check Message 8 - With text/plain
+        self.verify_single_message(
+            message_obj=all_messages[7], message_id=4622199, group_id=1, datetime=datetime.datetime(2022, 2, 16, 15, 15, 1),
+            message_content='Message 8 - With text/plain', raw_message_content='Message 8 - With text/plain',
+            to_id=1287139915, from_type='User', from_id=881571585,
+            expected_media_id=4929432170046423539
+        )
+        self.verify_media_data(
+            expected_media_id=4929432170046423539, filename='1645024499642.txt',
+            extension='.txt', mime_type='text/plain', name=None, height=None, width=None, size_bytes=11592
+        )
+
     def test_run_download_messages_filtered(self):
         """Test Run Method for Scrap Telegram Groups with Filter."""
 
@@ -267,7 +281,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(9, len(captured.records))
+            self.assertEqual(10, len(captured.records))
             self.assertEqual('		Found 2 Groups', captured.records[0].message)
             self.assertEqual('		Applied Groups Filtering... 1 remaining', captured.records[1].message)
             self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[2].message)
@@ -276,7 +290,8 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[5].message)
             self.assertEqual('			Downloading Media from Message 183771 (2258.64 Kbytes) as video/mp4', captured.records[6].message)
             self.assertEqual('			Downloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker', captured.records[7].message)
-            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183771', captured.records[8].message)
+            self.assertEqual('			Downloading Media from Message 4622199 (11.3203 Kbytes) as text/plain', captured.records[8].message)
+            self.assertEqual('		Download Messages from "UT-01" > Last Offset: 4622199', captured.records[9].message)
 
     def test_run_download_messages_disabled(self):
         """Test Run Method for Scrap Telegram Groups - Module Disabled."""
@@ -339,6 +354,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         self.assertEqual(media_obj.mime_type, mime_type)
         self.assertEqual(media_obj.name, name)
         self.assertEqual(media_obj.height, height)
+        self.assertEqual(media_obj.width, width)
         self.assertEqual(media_obj.size_bytes, size_bytes)
 
     def run_connect_side_effect(self, param):
@@ -380,6 +396,15 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
 
         # Return the Path
         return '_data/resources/unknow.mp4'
+
+    async def coroutine_download_text_plain(self, path) -> str:
+
+        # Copy Resources
+        shutil.copyfile('resources/1645024499642.txt', '_data/resources/1645024499642.txt')
+
+        # Return the Path
+        return '_data/resources/1645024499642.txt'
+
 
     async def coroutine_download_sticker(self, path) -> str:
 
