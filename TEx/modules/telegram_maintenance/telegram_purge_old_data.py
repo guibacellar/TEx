@@ -7,7 +7,6 @@ from time import sleep
 from typing import Dict, List, Optional
 
 import pytz
-import telethon.errors.rpcerrorlist
 from telethon import TelegramClient
 from telethon.tl.types import (Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage,
                                MessageService, PeerChannel, PeerUser)
@@ -115,9 +114,6 @@ class TelegramGroupMessageScrapper(BaseModule):
                     )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
-                logger.error(ex)
-            except telethon.errors.rpcerrorlist.ChannelPrivateError as ex:
-                logger.info('\t\t\tUnable to Download dua a Channel Private Error Restriction...')
                 logger.error(ex)
 
     async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:  # pylint: disable=R0913
