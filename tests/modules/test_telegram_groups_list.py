@@ -107,4 +107,4 @@ class TelegramGroupListTest(unittest.TestCase):
 
             # Check Logs
             self.assertEqual(1, len(captured.records))
-            self.assertEqual('		Module is Not Enabled', captured.records[0].message)
+            self.assertEqual('		Module is Not Enabled...', captured.records[0].message)
