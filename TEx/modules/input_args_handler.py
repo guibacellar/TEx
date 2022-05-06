@@ -3,7 +3,7 @@
 import argparse
 import logging
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, List
 
 from TEx.core.base_module import BaseModule
 
@@ -243,6 +243,47 @@ class InputArgsHandler(BaseModule):
                     }
                 }
             },
+        'stats': {
+            'help': 'Show Stats from a Phone Number Groups, Messages, Assets',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                    },
+                'report_folder': {
+                    'param': '--report_folder', 'type': str, 'action': 'store',
+                    'help': 'Set the Report Output Folder',
+                    'default': 'reports', 'required': False
+                    },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
+                'limit_days': {
+                    'param': '--limit_days', 'type': int, 'action': 'store',
+                    'help': 'Limit Statistics Period in Days',
+                    'default': 3650, 'required': False
+                    },
+                }
+            },
+        'purge_old_data': {
+            'help': 'Purge old Messages, Media, etc',
+            'sub_args': {
+                'target_phone_number': {
+                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
+                    'default': None, 'required': True
+                    },
+                'data_path': {
+                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
+                    'default': None, 'required': True
+                    },
+                'limit_days': {
+                    'param': '--limit_days', 'type': int, 'action': 'store',
+                    'help': 'Limit Media Age Period in Days',
+                    'default': 365, 'required': False
+                    },
+                }
+            },
         'purge_temp_files': {
             'param': '--purge_temp_files',
             'type': str,
@@ -283,7 +324,7 @@ class InputArgsHandler(BaseModule):
                     )
 
         # Parse Args
-        input_args = parent_parser.parse_args()
+        input_args: argparse.Namespace = parent_parser.parse_args()
 
         # Add to Result Args
         for arg in InputArgsHandler.__ARGS:  # pylint: disable=C0206
@@ -294,10 +335,20 @@ class InputArgsHandler(BaseModule):
 
             if args[arg]:  # Parse Only If the Action was True
                 for sub_arg in InputArgsHandler.__ARGS[arg]['sub_args']:
-                    args.update(
-                        {sub_arg: getattr(input_args, sub_arg)}
-                        )
+                    sub_args: List[Dict] = await self._handle_sub_arg(input_args, sub_arg)
+                    _ = [args.update(sub_arg) for sub_arg in sub_args]
 
         # Print Settings
         for key, value in args.items():
             logger.info(f'\t\t{key} = {value}')
+
+    async def _handle_sub_arg(self, input_args: argparse.Namespace, sub_arg: str) -> List[Dict]:
+        """Handle SubArgs."""
+        if sub_arg == 'limit_days':
+            return [
+                {sub_arg: getattr(input_args, sub_arg)},
+                {'start_at': ''},
+                {'end_at': ''}
+                ]
+
+        return [{sub_arg: getattr(input_args, sub_arg)}]

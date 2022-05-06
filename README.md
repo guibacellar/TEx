@@ -107,6 +107,21 @@ python3 -m TEx report --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER
   * **filter** > Optional - Simple (Comma Separated) String Terms Filter. Ex: hacking,"Car Hacking",foo
   * **suppress_repeating_messages** > Optional - If present, suppress all repeating messages in the same report
 
+#### Sent Report to Telegram User
+TBD
+
+#### Get Statistics
+TBD
+
+#### Export Text
+TBD
+
+#### Export Files
+TBD
+
+#### Maintenance - Purge Old Data
+TBD
+
 <!-- ROADMAP -->
 ## Roadmap
 

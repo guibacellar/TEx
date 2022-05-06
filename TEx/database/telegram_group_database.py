@@ -5,9 +5,10 @@ import datetime
 
 import pytz
 import sqlalchemy.exc
-from sqlalchemy import desc, insert, select, update
+from sqlalchemy import delete, desc, insert, select, update
+from sqlalchemy.sql.expression import func
 from sqlalchemy.engine import ChunkedIteratorResult, CursorResult, Row
-from sqlalchemy.sql import Select, or_
+from sqlalchemy.sql import Delete, Select, distinct, or_
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.orm import Session
 
@@ -118,6 +119,68 @@ class TelegramMessageDatabaseManager:
             return None
 
         return int(row[0].id)
+
+    @staticmethod
+    def count_messages_from_group(group_id: int, message_datetime_limit_seconds: int = None) -> int:
+        """Count all Messages from a Single Group."""
+        select_statement: Select = select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == group_id)
+
+        if message_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
+                )
+
+        select_statement = select_statement.with_only_columns([func.count()])
+
+        return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
+
+    @staticmethod
+    def count_active_users_from_group(group_id: int, message_datetime_limit_seconds: int = None) -> int:
+        """Count all Active Users from a Single Group."""
+        select_statement: Select = select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == group_id)
+
+        if message_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
+                )
+
+        select_statement = select_statement.with_only_columns([func.count(distinct(TelegramMessageOrmEntity.from_id))])
+
+        return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
+
+    @staticmethod
+    def count_active_users(message_datetime_limit_seconds: int = None) -> int:
+        """Count all Users from a Single Group."""
+        select_statement: Select = select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id > 0)
+
+        if message_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
+                )
+
+        select_statement = select_statement.with_only_columns([func.count(distinct(TelegramMessageOrmEntity.from_id))])
+
+        return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
+
+    @staticmethod
+    def remove_all_messages_by_age(group_id: int, limit_days: int) -> int:
+        """
+        Remove all Messages older that Age in Seconds.
+
+        :param group_id: Target Group ID
+        :param limit_days: Age of Messages in Days
+        :return: Number of Messages Removed
+        """
+        statement: Delete = delete(TelegramMessageOrmEntity)\
+            .where(TelegramMessageOrmEntity.group_id == group_id)\
+            .where(
+                TelegramMessageOrmEntity.date_time <= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(days=limit_days))
+                )
+
+        total_messages: int = cast(int, DbManager.SESSIONS['data'].execute(statement).rowcount)
+        DbManager.SESSIONS['data'].commit()
+
+        return total_messages
 
 
 class TelegramUserDatabaseManager:
@@ -230,3 +293,67 @@ class TelegramMediaDatabaseManager:
             select_statement = select_statement.where(or_(*parts_or_filter))
 
         return DbManager.SESSIONS[f'media_{str(group_id)}'].execute(select_statement)  # type:ignore
+
+    @staticmethod
+    def stats_all_medias_from_group_by_mimetype(group_id: int, file_datetime_limit_seconds: int = None) -> Dict:
+        """
+        Generate Statistics of all Medias from a Single Group and Grouped by MimeType.
+
+        :param group_id: Target Group ID
+        :param file_datetime_limit_seconds: Age of File in Seconds
+        :return: A List with Mime-Type, Number of Entries and Total Size in Bytes
+        """
+        select_statement: Select = select(TelegramMediaOrmEntity)
+
+        # File Age
+        if file_datetime_limit_seconds:
+            select_statement = select_statement.where(
+                TelegramMediaOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=file_datetime_limit_seconds))
+                )
+
+        # Group Clause
+        select_statement = select_statement.with_only_columns([
+            distinct(TelegramMediaOrmEntity.mime_type),
+            func.count(TelegramMediaOrmEntity.mime_type),
+            func.sum(TelegramMediaOrmEntity.size_bytes)
+            ])
+        select_statement = select_statement.group_by(TelegramMediaOrmEntity.mime_type)
+
+        medias: ChunkedIteratorResult = DbManager.SESSIONS[f'media_{str(group_id)}'].execute(select_statement).all()
+
+        h_result: Dict = {}
+
+        # Group Results
+        for media in medias:
+            h_result[media[0]] = {'count': media[1], 'size_bytes': media[2]}
+
+        return h_result
+
+    @staticmethod
+    def remove_all_medias_by_age(group_id: int, media_limit_days: int) -> int:
+        """
+        Remove all Medias older that Age in Seconds.
+
+        :param group_id: Target Group ID
+        :param media_limit_days: Age of Media in Days
+        :return: Number of Medias Removed
+        """
+        statement: Delete = delete(TelegramMediaOrmEntity).where(
+            TelegramMediaOrmEntity.date_time <= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(days=media_limit_days))
+            )
+
+        total_medias: int = cast(int, DbManager.SESSIONS[f'media_{str(group_id)}'].execute(statement).rowcount)
+        DbManager.SESSIONS[f'media_{str(group_id)}'].commit()
+
+        return total_medias
+
+    @staticmethod
+    def apply_db_maintenance(group_id: int) -> None:
+        """
+        Remove all Medias older that Age in Seconds.
+
+        :param group_id: Target Group ID
+        :param file_datetime_limit_seconds: Age of File in Seconds
+        :return: Number of Medias Removed
+        """
+        DbManager.SESSIONS[f'media_{str(group_id)}'].execute("vacuum")
