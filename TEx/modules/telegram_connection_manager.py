@@ -17,7 +17,7 @@ class TelegramConnector(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         # Check if Need a Connection
-        need_connection: bool = args['connect'] or args['load_groups'] or args['download_messages'] or args['sent_report_telegram']
+        need_connection: bool = args['connect'] or args['load_groups'] or args['download_messages'] or args['sent_report_telegram'] or args['listen']
         if not need_connection:
             return
 
