@@ -55,6 +55,9 @@ class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
     from_type: str = Column(String(10))
     to_id: int = Column(Integer)
 
+    is_reply: bool = Column(Boolean)
+    reply_to_msg_id: int = Column(Integer)
+
 
 class TelegramMediaOrmEntity(TelegramMediaDataBaseDeclarativeBase):
     """Telegram Media ORM Model."""
