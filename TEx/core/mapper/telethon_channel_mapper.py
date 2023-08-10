@@ -25,6 +25,6 @@ class TelethonChannelEntiyMapper:
             'verified': channel.verified,
             'title': channel.title,
             'source': target_phone_numer
-        }
+            }
 
         return values

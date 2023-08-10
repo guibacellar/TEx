@@ -43,7 +43,7 @@ class InputArgsHandlerTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual('+98765123456', args['target_phone_number'])
+        self.assertEqual('+98765123456', args['phone_number'])
         self.assertTrue(args['order_desc'])
         self.assertEqual('filter1, "Filter 2", Filter3', args['filter'])
         self.assertEqual(8, int(args['limit_days']))
@@ -73,7 +73,7 @@ class InputArgsHandlerTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual('+98765123456', args['target_phone_number'])
+        self.assertEqual('+98765123456', args['phone_number'])
         self.assertFalse(args['order_desc'])
         self.assertIsNone(args['filter'])
         self.assertEqual(3650, int(args['limit_days']))

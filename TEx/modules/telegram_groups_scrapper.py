@@ -55,8 +55,8 @@ class TelegramGroupScrapper(BaseModule):
 
             values: Dict = TelethonChannelEntiyMapper.to_database_dict(
                 channel=chat,
-                target_phone_numer=args['target_phone_number']
-            )
+                target_phone_numer=config['CONFIGURATION']['phone_number']
+                )
 
             # Get Photo - TODO: Refactory - Separate in Method
             if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
@@ -64,7 +64,7 @@ class TelegramGroupScrapper(BaseModule):
                 photo_name, photo_base64 = await self.get_profile_pic_b64(
                     client=client,
                     channel=chat,
-                    data_path=args['data_path'],
+                    data_path=config['CONFIGURATION']['data_path'],
                     force_reload=args['refresh_profile_photos']
                     )
 

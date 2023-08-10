@@ -17,55 +17,35 @@ class InputArgsHandler(BaseModule):
         'connect': {
             'help': 'Create the Connection to the Telegram Servers and Store the Authentication',
             'sub_args': {
-                'api_id': {
-                    'param': '--api_id', 'type': str, 'action': 'store', 'help': 'Telegram API ID.',
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
                     'default': None, 'required': True,
-                    },
-                'api_hash': {
-                    'param': '--api_hash', 'type': str, 'action': 'store', 'help': 'Telegram API Hash.',
-                    'default': None, 'required': True
-                    },
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
                     },
                 }
             },
         'load_groups': {
             'help': 'Download and Refresh Groups and Members List',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'refresh_profile_photos': {
                     'param': '--refresh_profile_photos', 'type': str, 'action': 'store_true', 'help': 'Force to Refresh all Profile Photos',
                     'default': False, 'required': False
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
                     },
                 }
             },
         'download_messages': {
             'help': 'Download Message History',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'ignore_media': {
                     'param': '--ignore_media', 'type': str, 'action': 'store_true', 'help': 'Set to not Download Media from Messages',
                     'default': False, 'required': False
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
@@ -77,45 +57,37 @@ class InputArgsHandler(BaseModule):
         'listen': {
             'help': 'Actively Listen all Chats',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
-                },
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
+                    },
                 'ignore_media': {
                     'param': '--ignore_media', 'type': str, 'action': 'store_true',
                     'help': 'Set to not Download Media from Messages',
                     'default': False, 'required': False
-                },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
-                },
+                    },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
                     'default': '*', 'required': False
-                },
-            }
-        },
+                    },
+                }
+            },
         'list_groups': {
             'help': 'List all Downloaded Groups',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 }
             },
         'report': {
             'help': 'Generate the Report with all Messages and Medias',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'order_desc': {
                     'param': '--order_desc', 'type': str, 'action': 'store_true',
@@ -147,10 +119,6 @@ class InputArgsHandler(BaseModule):
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
                     'default': '*', 'required': False
                     },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
-                    },
                 'suppress_repeating_messages': {
                     'param': '--suppress_repeating_messages', 'type': str, 'action': 'store_true',
                     'help': 'Set the Date/Time Order to Descending',
@@ -161,9 +129,9 @@ class InputArgsHandler(BaseModule):
         'export_text': {
             'help': 'Export all Messages using Regex Filters',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'order_desc': {
                     'param': '--order_desc', 'type': str, 'action': 'store_true',
@@ -190,18 +158,14 @@ class InputArgsHandler(BaseModule):
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
                     'default': '*', 'required': False
                     },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
-                    }
                 }
             },
         'export_file': {
             'help': 'Export all Files by Mime Type',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'mime_type': {
                     'param': '--mime_type', 'type': str, 'action': 'store',
@@ -223,10 +187,6 @@ class InputArgsHandler(BaseModule):
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
                     'default': '*', 'required': False
                     },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
-                    },
                 'filter': {
                     'param': '--filter', 'type': str, 'action': 'store',
                     'help': 'Filter by File Name parts. Ex: --filter my_apk,"My APK 2"',
@@ -237,9 +197,9 @@ class InputArgsHandler(BaseModule):
         'sent_report_telegram': {
             'help': 'Sent the Current Report to a Telegram User using the Username',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'destination_username': {
                     'param': '--destination_username', 'type': str, 'action': 'store', 'help': 'Telegram Account Username',
@@ -260,27 +220,19 @@ class InputArgsHandler(BaseModule):
                     'help': 'Report Attachment FileName',
                     'default': 'report_@@now@@', 'required': True
                     },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
-                    }
                 }
             },
         'stats': {
             'help': 'Show Stats from a Phone Number Groups, Messages, Assets',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
                     'default': 'reports', 'required': False
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
@@ -292,13 +244,9 @@ class InputArgsHandler(BaseModule):
         'purge_old_data': {
             'help': 'Purge old Messages, Media, etc',
             'sub_args': {
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
-                    },
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
@@ -315,15 +263,11 @@ class InputArgsHandler(BaseModule):
             'default': False,
             'required': False,
             'sub_args': {
-                'data_path': {
-                    'param': '--data_path', 'type': str, 'action': 'store', 'help': 'Database Location Path',
-                    'default': None, 'required': True
+                'config': {
+                    'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
+                    'default': None, 'required': True,
                     },
-                'target_phone_number': {
-                    'param': '--phone_number', 'type': str, 'action': 'store', 'help': 'Telegram Account Phone Number',
-                    'default': None, 'required': True
-                    },
-                },
+                }
             }
         }
 

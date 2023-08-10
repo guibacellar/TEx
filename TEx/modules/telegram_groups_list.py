@@ -29,16 +29,16 @@ class TelegramGroupList(BaseModule):
 
         # Get all Groups from DB
         db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['phone_number'])
         logger.info(f'\t\tFound {len(db_groups)} Groups')
 
         # Get the Bigger Username Size
-        max_username_size: int = max(
+        max_username_size: int = max(  # pylint: disable=R1728
             [len(item.group_username) if item.group_username is not None else 0 for item in db_groups]
             )
 
         # Get the Bigger Title Size
-        max_title_size: int = max(
+        max_title_size: int = max(  # pylint: disable=R1728
             [len(item.title) if item.title is not None else 0 for item in db_groups]
             )
 

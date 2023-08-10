@@ -12,7 +12,7 @@ from sqlalchemy.sql import Delete, Select, distinct, or_
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.orm import Session
 
-from cachetools import cached, TTLCache
+from cachetools import Cache, TTLCache, cached
 
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import (
@@ -26,10 +26,10 @@ from TEx.models.database.telegram_db_model import (
 class NoneSupportedTTLCache(TTLCache):
     """Cache Customization to not Save None Values in Memory."""
 
-    def __setitem__(self, key, value) -> None:  # type: ignore
+    def __setitem__(self, key, value, cache_setitem=Cache.__setitem__) -> None:  # type: ignore
         """Customize __setitem__  to do not save nullable values."""
         if value:
-            super().__setitem__(key, value)
+            super().__setitem__(key, value, cache_setitem)  # type: ignore
 
 
 class TelegramGroupDatabaseManager:
@@ -251,7 +251,7 @@ class TelegramMediaDatabaseManager:
     """Telegram Media Database Manager."""
 
     @staticmethod
-    def get_by_id(pk: Optional[int], group_id: int) -> Optional[TelegramMediaOrmEntity]:
+    def get_by_id(pk: Optional[int]) -> Optional[TelegramMediaOrmEntity]:
         """Retrieve one TelegramUserOrmEntity by PK."""
         if pk is None:
             return None
@@ -262,7 +262,7 @@ class TelegramMediaDatabaseManager:
             )
 
     @staticmethod
-    def insert(entity_values: Dict, group_id: int) -> int:
+    def insert(entity_values: Dict) -> int:
         """Insert or Update one Telegram User."""
         session: Session = DbManager.SESSIONS['data']
 
@@ -295,6 +295,7 @@ class TelegramMediaDatabaseManager:
 
         # MimeType
         select_statement = select_statement.where(TelegramMediaOrmEntity.mime_type == mime_type)
+        select_statement = select_statement.where(TelegramMediaOrmEntity.group_id == group_id)
 
         # Filename Filtering
         if file_name_part:
@@ -331,6 +332,7 @@ class TelegramMediaDatabaseManager:
             func.sum(TelegramMediaOrmEntity.size_bytes)
             ])
         select_statement = select_statement.group_by(TelegramMediaOrmEntity.mime_type)
+        select_statement = select_statement.group_by(TelegramMediaOrmEntity.group_id == group_id)
 
         medias: ChunkedIteratorResult = DbManager.SESSIONS['data'].execute(select_statement).all()
 
@@ -342,8 +344,9 @@ class TelegramMediaDatabaseManager:
 
         return h_result
 
+    # TO_DO - REFACTORY - NEED TO DELETE THE FILES FROM DISK
     @staticmethod
-    def remove_all_medias_by_age(group_id: int, media_limit_days: int) -> int:
+    def remove_all_medias_by_age(group_id: int, media_limit_days: int) -> int:  # pylint: disable=W0613
         """
         Remove all Medias older that Age in Seconds.
 
@@ -361,7 +364,7 @@ class TelegramMediaDatabaseManager:
         return total_medias
 
     @staticmethod
-    def apply_db_maintenance(group_id: int) -> None:
+    def apply_db_maintenance() -> None:
         """
         Remove all Medias older that Age in Seconds.
 

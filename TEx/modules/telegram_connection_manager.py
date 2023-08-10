@@ -30,20 +30,20 @@ class TelegramConnector(BaseModule):
 
             # Connect
             client = TelegramClient(
-                os.path.join(args["data_path"], 'session', args['target_phone_number']),
+                os.path.join(args["data_path"], 'session', config['CONFIGURATION']['phone_number']),
                 args['api_id'],
                 args['api_hash'],
                 catch_up=True,
                 device_model='TeX'
-            )
-            await client.start(phone=args['target_phone_number'])
+                )
+            await client.start(phone=config['CONFIGURATION']['phone_number'])
             client.session.save()
 
             # Save Data into State File
             data['telegram_connection'] = {
-                'api_id': args['api_id'],
-                'api_hash': args['api_hash'],
-                'target_phone_number': args['target_phone_number']
+                'api_id': config['CONFIGURATION'],
+                'api_hash': config['CONFIGURATION'],
+                'target_phone_number': config['CONFIGURATION']['phone_number']
                 }
 
         else:  # Reuse Previous Connection
@@ -57,7 +57,7 @@ class TelegramConnector(BaseModule):
                 return
 
             client = TelegramClient(
-                os.path.join(args["data_path"], 'session', args['target_phone_number']),
+                os.path.join(config['CONFIGURATION']['data_path'], 'session', config['CONFIGURATION']['phone_number']),
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
                 catch_up=True,

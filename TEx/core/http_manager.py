@@ -26,7 +26,7 @@ class HttpNavigationManager:
         :return:
         """
         if not HttpNavigationManager.__INSTANCE:
-            raise Exception("HttpNavigationManager not Initialized.")
+            raise Exception("HttpNavigationManager not Initialized.")  # pylint: disable=W0719
 
         return HttpNavigationManager.__INSTANCE.get(uri).text
 
@@ -39,7 +39,7 @@ class HttpNavigationManager:
         :return:
         """
         if not HttpNavigationManager.__INSTANCE:
-            raise Exception("HttpNavigationManager not Initialized.")
+            raise Exception("HttpNavigationManager not Initialized.")  # pylint: disable=W0719
 
         with open(target_path, 'wb') as file:
             file.write(

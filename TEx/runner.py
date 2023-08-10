@@ -81,7 +81,7 @@ class TelegramMonitorRunner:
 
         if self.config is None:
             logger.fatal('[?] Unknown Config Parser')
-            raise Exception("Unknown Config Parser")
+            raise Exception("Unknown Config Parser")  # pylint: disable=W0719
 
         for pipeline_item in sequence_spec:
 

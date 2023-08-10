@@ -1,6 +1,4 @@
 """TEx Database Initializer."""
-from typing import Dict
-
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase
 from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
 
@@ -11,7 +9,7 @@ class DbInitializer:
     """Central Database Initializer."""
 
     @staticmethod
-    def init(data_path: str, args: Dict) -> None:
+    def init(data_path: str) -> None:
         """Initialize DB and Structure."""
         # Initialize Main DB
         DbManager.init_db(data_path=data_path)

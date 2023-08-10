@@ -16,7 +16,7 @@ class LoadStateFileHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        state_file_name: str = config['MODULE_LoadStateFileHandler']['file_name'].replace("{0}", args['target_phone_number'])
+        state_file_name: str = config['MODULE_LoadStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
 
         if StateFileHandler.file_exist(state_file_name):
             data.update(
@@ -30,7 +30,7 @@ class SaveStateFileHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        state_file_name: str = config['MODULE_SaveStateFileHandler']['file_name'].replace("{0}", args['target_phone_number'])
+        state_file_name: str = config['MODULE_SaveStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
 
         StateFileHandler.write_file_text(
             state_file_name,

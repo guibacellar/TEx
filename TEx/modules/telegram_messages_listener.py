@@ -40,7 +40,7 @@ class TelegramGroupMessageListener(BaseModule):
             return
 
         if event and not event.chat:
-            return  # TODO: Need to Be Handled in Future Version
+            return  # TO_DO: Need to Be Handled in Future Version
 
         # Ensure Group Exists on DB
         await self.__ensure_group_exists(event=event)
@@ -57,7 +57,7 @@ class TelegramGroupMessageListener(BaseModule):
                                                                self.data_path) if self.download_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None
-        }
+            }
 
         # Process Sender ID
         if message.from_id is not None:
@@ -115,7 +115,7 @@ class TelegramGroupMessageListener(BaseModule):
                 group_dict_data: Dict = TelethonChannelEntiyMapper.to_database_dict(
                     channel=result,
                     target_phone_numer=self.target_phone_number
-                )
+                    )
 
                 TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
 
@@ -126,9 +126,9 @@ class TelegramGroupMessageListener(BaseModule):
             return
 
         # Update Module Global Info
-        self.download_media = not args['ignore_media'],  # type: ignore
-        self.data_path = args['data_path']
-        self.target_phone_number = args['target_phone_number']
+        self.download_media = not args['ignore_media']
+        self.data_path = config['CONFIGURATION']['data_path']
+        self.target_phone_number = config['CONFIGURATION']['phone_number']
 
         # Update Module Group Filtering Info
         if args['group_id'] and args['group_id'] != '*':

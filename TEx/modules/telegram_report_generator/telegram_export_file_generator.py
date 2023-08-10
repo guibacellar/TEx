@@ -1,5 +1,4 @@
 """Telegram Report Generator."""
-import base64
 import hashlib
 import logging
 import os
@@ -7,6 +6,8 @@ import shutil
 from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List
+
+from _hashlib import HASH
 
 from sqlalchemy.engine import ChunkedIteratorResult
 
@@ -51,7 +52,7 @@ class TelegramExportFileGenerator(BaseModule):
 
         # Load Groups from DB
         db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['phone_number'])
         logger.info(f'\t\tFound {len(db_groups)} Groups')
 
         # Map to Facade Entities
@@ -70,6 +71,7 @@ class TelegramExportFileGenerator(BaseModule):
         for group in groups:
             logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
             await self.__export_data(
+                config=config,
                 args=args,
                 group=group,
                 report_root_folder=report_root_folder
@@ -92,7 +94,7 @@ class TelegramExportFileGenerator(BaseModule):
         # Sort Groups by Title
         return sorted(groups, key=attrgetter('title'))
 
-    async def __export_data(self, args: Dict, group: TelegramGroupReportFacadeEntity, report_root_folder: str) -> None:
+    async def __export_data(self, args: Dict, config: ConfigParser, group: TelegramGroupReportFacadeEntity, report_root_folder: str) -> None:
         """Process the Export for a Single Group Chat."""
         # Get Medias
         logger.info('\t\t\tRetrieving Messages')
@@ -116,27 +118,27 @@ class TelegramExportFileGenerator(BaseModule):
         # if Has 0 Messages, Get Out
         for media in medias.yield_per(1):
 
-            # Calculate Filename
-            file_name: str = f'G_{group.id}_MID_{media[0].id}_' + "".join(char for char in media[0].file_name if char not in "%:/,\\\n\t\r[]<>*?;")
+            souce_media_path: str = os.path.join(config['CONFIGURATION']['data_path'], 'media', str(media[0].group_id), media[0].file_name)
+            destination_media_path: str = os.path.join(report_root_folder, f'{media[0].group_id}_{media[0].file_name}')
 
-            # Get Binary Content
-            bin_content = base64.b64decode(media[0].b64_content)
-
-            # Compute FileHash
-            f_hash: str = hashlib.md5(bin_content).hexdigest()  # nosec
+            # Compute Source File Hash
+            file_hash: str = ''
+            with open(souce_media_path, "rb") as f:
+                tmp_hash: HASH = hashlib.md5()  # nosec
+                while chunk := f.read(8192):
+                    tmp_hash.update(chunk)
+                file_hash = tmp_hash.hexdigest()
 
             # Check if Hash alread Exists in this Session
-            if f_hash in TelegramExportFileGenerator.__HASH_CACHE:
-                logger.info(f'\t\t\tFile Already Write - Same Hash - ({file_name}) > ID: {media[0].id} at {media[0].date_time}')
+            if file_hash in TelegramExportFileGenerator.__HASH_CACHE:
+                logger.info(f'\t\t\tFile Already Write - Same Hash - ({file_hash}) > ID: {media[0].id} at {media[0].date_time}')
                 continue
 
             # Write
-            logger.info(f'\t\t\tWriting - ({file_name}) > ID: {media[0].id} at {media[0].date_time}')
+            logger.info(f'\t\t\tWriting - ({media[0].file_name}) > ID: {media[0].id} at {media[0].date_time}')
 
-            with open(os.path.join(report_root_folder, file_name), 'wb') as file:
-                file.write(bin_content)
-                file.flush()
-                file.close()
+            # Copy from Media Folder into Report Assets Folder
+            shutil.copy(souce_media_path, destination_media_path)
 
             # Update Hash Table
-            TelegramExportFileGenerator.__HASH_CACHE.append(f_hash)
+            TelegramExportFileGenerator.__HASH_CACHE.append(file_hash)

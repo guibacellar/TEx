@@ -35,7 +35,7 @@ class TelegramGroupMessageScrapper(BaseModule):
 
         # Load Groups from DB
         groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['phone_number'])
         logger.info(f'\t\tFound {len(groups)} Groups')
 
         # Filter Groups
@@ -52,7 +52,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     client=client,
                     group_name=group.title,
                     download_media=not args['ignore_media'],
-                    data_path=args['data_path'],
+                    data_path=config['CONFIGURATION']['data_path'],
                     iter_message_type=PeerChannel
                     )
             except ValueError as ex:
@@ -113,7 +113,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     'raw': message.raw_text,
                     'to_id': message.to_id.channel_id if message.to_id is not None else None,
                     'media_id': await self.media_handler.handle_medias(message, group_id, data_path) if download_media else None
-                }
+                    }
 
                 if message.from_id is not None:
                     if isinstance(message.from_id, PeerUser):

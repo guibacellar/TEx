@@ -17,7 +17,7 @@ class DatabaseHandler(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute."""
         # Initialize DB
-        DbInitializer.init(args['data_path'], args)
+        DbInitializer.init(config['CONFIGURATION']['data_path'])
 
         # Expire Temp Files
         TempFileHandler.remove_expired_entries()

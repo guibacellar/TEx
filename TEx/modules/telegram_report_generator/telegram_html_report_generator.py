@@ -1,5 +1,4 @@
 """Telegram Report Generator."""
-import base64
 import datetime
 import logging
 import os
@@ -68,7 +67,7 @@ class TelegramReportGenerator(BaseModule):
 
         # Load Groups from DB
         db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['phone_number'])
         logger.info(f'\t\tFound {len(db_groups)} Groups')
 
         # Map to Facade Entities
@@ -87,6 +86,7 @@ class TelegramReportGenerator(BaseModule):
         for group in groups:
             logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
             await self.__draw_report(
+                config=config,
                 args=args,
                 assets_root_folder=assets_root_folder,
                 group=group,
@@ -96,6 +96,7 @@ class TelegramReportGenerator(BaseModule):
 
         # Render Index
         await self.__draw_index(
+            config=config,
             args=args,
             report_root_folder=report_root_folder,
             template=index_template,
@@ -119,7 +120,7 @@ class TelegramReportGenerator(BaseModule):
         # Sort Groups by Title
         return sorted(groups, key=attrgetter('title'))
 
-    async def __draw_index(self, args: Dict, report_root_folder: str, template: Template, groups: List[TelegramGroupReportFacadeEntity]) -> None:
+    async def __draw_index(self, config: ConfigParser, args: Dict, report_root_folder: str, template: Template, groups: List[TelegramGroupReportFacadeEntity]) -> None:
         """Draw Index Page."""
         group_filter: str = args['group_id']
         words_filter: Optional[str] = args['filter']
@@ -131,7 +132,7 @@ class TelegramReportGenerator(BaseModule):
             end=datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S'),
             start=(datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=int(args['limit_days']) * 24 * 60 * 60)).strftime('%Y-%m-%d %H:%M:%S'),
             now=datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S'),
-            target_phone=args['target_phone_number'],
+            target_phone=config['CONFIGURATION']['phone_number'],
             groups_filter=group_filter if group_filter != '*' else 'All',
             words_filter=words_filter if words_filter else 'None'
             )
@@ -141,7 +142,14 @@ class TelegramReportGenerator(BaseModule):
             file.flush()
             file.close()
 
-    async def __draw_report(self, args: Dict, assets_root_folder: str, group: TelegramGroupReportFacadeEntity, report_root_folder: str, template: Template) -> None:
+    # pylint: disable=R0913
+    async def __draw_report(self,
+                            config: ConfigParser,
+                            args: Dict,
+                            assets_root_folder: str,
+                            group: TelegramGroupReportFacadeEntity,
+                            report_root_folder: str,
+                            template: Template) -> None:
         """Process the Report for a Single Group Chat."""
         # Download All Messages
         logger.info('\t\t\tRetrieving Messages')
@@ -178,7 +186,7 @@ class TelegramReportGenerator(BaseModule):
             messages=messages,
             assets_root_folder=assets_root_folder,
             suppress_repeating_messages=args['suppress_repeating_messages'],
-            data_path=args['data_path']
+            data_path=config['CONFIGURATION']['data_path']
             )
 
         logger.info('\t\t\tRendering')
@@ -259,8 +267,7 @@ class TelegramReportGenerator(BaseModule):
 
             # Get Media from DB
             media: Optional[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_by_id(
-                pk=message.media_id,
-                group_id=message.group_id
+                pk=message.media_id
                 )
 
             if media:

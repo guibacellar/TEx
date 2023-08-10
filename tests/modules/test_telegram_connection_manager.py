@@ -56,7 +56,7 @@ class TelegramConnectorTest(unittest.TestCase):
         # Validate Data Result Dict
         self.assertEqual('MyTestApiID', data['telegram_connection']['api_id'])
         self.assertEqual('MyTestApiHash', data['telegram_connection']['api_hash'])
-        self.assertEqual('MyTestPhoneNumber', data['telegram_connection']['target_phone_number'])
+        self.assertEqual('MyTestPhoneNumber', data['telegram_connection']['phone_number'])
         self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse(self):
@@ -106,7 +106,7 @@ class TelegramConnectorTest(unittest.TestCase):
         # Validate Data Result Dict
         self.assertEqual('MyTestApiID2', data['telegram_connection']['api_id'])
         self.assertEqual('MyTestApiHash2', data['telegram_connection']['api_hash'])
-        self.assertEqual('MyTestPhoneNumber2', data['telegram_connection']['target_phone_number'])
+        self.assertEqual('MyTestPhoneNumber2', data['telegram_connection']['phone_number'])
         self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse_without_authentication(self):

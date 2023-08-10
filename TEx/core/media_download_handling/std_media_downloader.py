@@ -24,7 +24,6 @@ class StandardMediaDownloader:
         generated_path: str = await message.download_media(target_path)
         media_metadata['extension'] = os.path.splitext(generated_path)[1]
 
-
     @staticmethod
     def __sanitize_media_filename(filename: str) -> str:
         """Sanitize Media Filename."""

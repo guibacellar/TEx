@@ -22,7 +22,6 @@
     </li>
     <li><a href="#available-modules">Available Modules</a></li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#command-line">Command Line</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -37,7 +36,7 @@
 
 TEx is a Telegram Explorer tool created to help Researchers, Investigators and Law Enforcement Agents to Collect and Process the Huge Amount of Data Generated from Criminal, Fraud, Security and Others Telegram Groups.
 
-  the available functionalities.
+Created in Python and using a Modular Architecture, the TEx easily allows to add new modules to enrich the available functionalities.
 
 
 <!-- GETTING STARTED -->
@@ -49,93 +48,57 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
  * Python 3.8+
 
 ### Installation
-pip install TEx
-
-### Configuration
-TEx need on at least, one configuration file. On reality, TEx need one configuration file for each *phone number* you want to use.
-
-```editorconfig
-[CONFIGURATION]
-api_id=my_api_id
-api_hash=my_api_hash
-phone_number=my_phone_number
-data_path=my_data_path
-```
-
-* **api_id** > Required - Telegram API ID. From https://my.telegram.org/ > login > API development tools 
-* **api_hash** > Required - Telegram API Hash. From https://my.telegram.org/ > login > API development tools
-* **phone_number** > Required - Target Phone Number
-* **data_path** > Optional - Defines the Path Folder for the SQLite Databases and Dowloaded Files
+pip install TeX
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-Basic TEx Usage.
 
-Considering a *my_TEx_config.config* file created at */usr/my_TEx_config.config* with follow:
+There's 1 initial step to use and that is to connect to telegram.
 
-```editorconfig
-[CONFIGURATION]
-api_id=12345678
-api_hash=dff159855418ddfaddf10dcbdeadbeef
-phone_number=5511987542563
-data_path=/usr/TEx/
-```
-
-Execute the first 2 commands to configure and sync TEx and the last one to activate the listener module.
-
+### Command Line
+#### Connect to Telegram Servers
 ```bash
-TEx connect --config /usr/my_TEx_config.config
-TEx load_groups --config /usr/my_TEx_config.config
-TEx listen --config /usr/my_TEx_config.config
+python3 -m TEx connect --api_id TELEGRAM_API_ID --api_hash TELEGRAM_API_HASH --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
 ```
+  * **api_id** > Required - Telegram API ID. From https://my.telegram.org/ > login > API development tools 
+  * **api_hash** > Required - Telegram API Hash. From https://my.telegram.org/ > login > API development tools
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
 
-<!-- Command Line -->
-## Command Line
-
-### Connect to Telegram Servers
+#### Update Groups List
 ```bash
-TEx connect --config CONFIGURATION_FILE_PATH
-```
-  * **config** > Required - Created Configuration File Path
-
-### Update Groups List (Optional, but Recommended)
-```bash
-TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
+python3 -m TEx load_groups --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --refresh_profile_photos
 ```
 
-  * **config** > Required - Created Configuration File Path
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
   * **refresh_profile_photos** > Optional - If present, forces the Download and Update all Channels Members Profile Photo
 
-### List Groups
+#### List Groups
 ```bash
-TEx list_groups --config CONFIGURATION_FILE_PATH 
+python3 -m TEx list_groups --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH
 ```
 
-  * **config** > Required - Created Configuration File Path
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
 
-### Listen Messages (Start the Message Listener)
+#### Download Message
 ```bash
-TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
+python3 -m TEx download_messages --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --group_id 1234,5678
 ```
 
-  * **config** > Required - Created Configuration File Path
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
   * **ignore_media** > Optional - If present, don't Download any Media
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
 
-### Download Messages (Download since first message for each group)
-```bash
-TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
-```
 
-  * **config** > Required - Created Configuration File Path
-  * **ignore_media** > Optional - If present, don't Download any Media
-  * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
-
-### Generate Report
+#### Generate Report
 ```bash
-TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
+python3 -m TEx report --phone_number TARGET_PHONE_NUMBER --data_path DATA_FOLDER_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
 ```
-  * **config** > Required - Created Configuration File Path
+  * **phone_number** > Required - Target Phone Number
+  * **data_path** > Optional - Defines the Path Folder for the SQLite Databases
   * **report_folder** > Optional - Defines the Report Files Folder
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
   * **around_messages** > Optional - Number of messages around (Before and After) the Filtered Message
@@ -144,22 +107,44 @@ TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH -
   * **filter** > Optional - Simple (Comma Separated) String Terms Filter. Ex: hacking,"Car Hacking",foo
   * **suppress_repeating_messages** > Optional - If present, suppress all repeating messages in the same report
 
-### Export Downloaded Files
-```bash
-TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
-```
-  * **config** > Required - Created Configuration File Path
-  * **report_folder** > Optional - Defines the Report Files Folder
-  * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
-  * **filter** > Optional - Simple (Comma Separated) FileName String Terms Filter. Ex: malware, "Bot net"
-  * **limit_days** > Optional - Number of Days of past to filter the Messages
-  * **mime_type** > Optional - File MIME Type. Ex: application/vnd.android.package-archive
+#### Sent Report to Telegram User
+TBD
+
+#### Get Statistics
+TBD
+
+#### Export Text
+TBD
+
+#### Export Files
+TBD
+
+#### Maintenance - Purge Old Data
+TBD
+
+<!-- ROADMAP -->
+## Roadmap
+
+See the [open issues](https://github.com/guibacellar/TEx/issues) for a list of proposed features (and known issues).
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the Apache License. See `LICENSE` for more information.
+
 
 
 <!-- CONTACT -->

@@ -5,6 +5,12 @@ import os
 
 from typing import Dict, Optional
 
+from telethon.tl.types import (Message,
+                               MessageMediaDocument,
+                               MessageMediaGeo,
+                               MessageMediaPhoto,
+                               MessageMediaWebPage)
+
 from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
 from TEx.core.media_download_handling.photo_media_downloader import PhotoMediaDownloader
 from TEx.core.media_download_handling.std_media_downloader import StandardMediaDownloader
@@ -19,11 +25,6 @@ from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
 from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
 from TEx.database.telegram_group_database import TelegramMediaDatabaseManager
 
-from telethon.tl.types import (Message,
-                               MessageMediaDocument,
-                               MessageMediaGeo,
-                               MessageMediaPhoto,
-                               MessageMediaWebPage)
 
 logger = logging.getLogger()
 
@@ -125,7 +126,7 @@ class UniversalTelegramMediaHandler:
         # Update Reference into DB
         if media_metadata is not None:
             media_metadata['group_id'] = group_id
-            return TelegramMediaDatabaseManager.insert(entity_values=media_metadata, group_id=group_id)
+            return TelegramMediaDatabaseManager.insert(entity_values=media_metadata)
 
         return None
 

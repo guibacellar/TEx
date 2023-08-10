@@ -22,7 +22,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
 
         # Load Groups from DB
         groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['target_phone_number'])
         logger.info(f'\t\tFound {len(groups)} Groups')
 
         for group in groups:
@@ -48,7 +48,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
         logger.info(f'\t\t\t{total_media} Medias Removed')
 
         # Compress DB
-        TelegramMediaDatabaseManager.apply_db_maintenance(group_id=group_id)
+        TelegramMediaDatabaseManager.apply_db_maintenance()
         logger.info('\t\t\tDB Optimized Successfully')
 
         # Delete all Old Messages

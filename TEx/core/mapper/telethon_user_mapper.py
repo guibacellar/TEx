@@ -25,6 +25,6 @@ class TelethonUserEntiyMapper:
             'photo_id': None,  # Reserved for Future Version
             'photo_base64': None,  # Reserved for Future Version
             'photo_name': None  # Reserved for Future Version
-        }
+            }
 
         return value

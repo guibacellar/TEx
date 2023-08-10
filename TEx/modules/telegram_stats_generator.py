@@ -66,7 +66,7 @@ class TelegramStatsGenerator(BaseModule):
         limit_seconds: int = int(args['limit_days']) * 24 * 60 * 60
 
         # Load Groups
-        groups: List[TelegramGroupReportFacadeEntity] = await self.__load_groups(args=args)
+        groups: List[TelegramGroupReportFacadeEntity] = await self.__load_groups(config=config)
         logger.info(f'\t\tFound {len(groups)} Groups')
         stats_total_groups += len(groups)
 
@@ -85,7 +85,7 @@ class TelegramStatsGenerator(BaseModule):
         # Draw
         await self.__render(
             {
-                'target_phone_number': args['target_phone_number'],
+                'target_phone_number': config['CONFIGURATION']['phone_number'],
                 'report_root_folder': report_root_folder,
                 'limit_seconds': limit_seconds,
                 'stats_total_messages': stats_total_messages,
@@ -94,14 +94,14 @@ class TelegramStatsGenerator(BaseModule):
                 'stats_total_active_users': stats_total_active_users
                 })
 
-    async def __load_groups(self, args: Dict) -> List[TelegramGroupReportFacadeEntity]:
+    async def __load_groups(self, config: ConfigParser) -> List[TelegramGroupReportFacadeEntity]:
         """
         Load Groups.
 
         :param args: Input Args
         :return: Groups List
         """
-        db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(args['target_phone_number'])
+        db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(config['CONFIGURATION']['phone_number'])
         db_groups.sort(key=lambda group: group.group_username if group.group_username is not None else '')
 
         # Map to Facade Entities
@@ -180,7 +180,7 @@ class TelegramStatsGenerator(BaseModule):
         stats_avg_messages_day = params['stats_total_messages'] / datetime.timedelta(seconds=params['limit_seconds']).days
 
         # Define the Largest Group Name
-        max_large_group_name: int = max([len(item['group']) for item in params['stats_messages_per_groups']]) + 1
+        max_large_group_name: int = max([len(item['group']) for item in params['stats_messages_per_groups']]) + 1  # pylint: disable=R1728
 
         logger.info('\t\t\tRendering')
         with open(f'{params["report_root_folder"]}/stats.txt', 'wt', encoding='utf-8') as file:
