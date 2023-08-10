@@ -16,7 +16,7 @@ class GeoMediaHandler:
 
         # Create Data Dict
         return {
-            'file_name': None,
+            'file_name': 'geo.bin',
 
             'telegram_id': None,
             'extension': None,
@@ -26,6 +26,5 @@ class GeoMediaHandler:
             'mime_type': 'application/vnd.geo',
             'size_bytes': None,
             'title': f'{geo.lat}|{geo.long}',
-            'name': None,
-            'b64_content': None
+            'name': None
             }

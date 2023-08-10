@@ -1,35 +1,19 @@
 """Telegram Group Listener."""
-import hashlib
 import logging
-import os
-import time
 from configparser import ConfigParser
-from time import sleep
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import pytz
-import telethon.errors.rpcerrorlist
 from telethon import TelegramClient, events
 from telethon.events import NewMessage
-from telethon.tl.types import (Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage,
-                               MessageService, PeerChannel, PeerUser)
+from telethon.tl.types import (Channel, Message, PeerUser, User)
 
 from TEx.core.base_module import BaseModule
-from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
-from TEx.core.media_download_handling.photo_media_downloader import PhotoMediaDownloader
-from TEx.core.media_download_handling.std_media_downloader import StandardMediaDownloader
-from TEx.core.media_metadata_handling.do_nothing_media_handler import DoNothingHandler
-from TEx.core.media_metadata_handling.generic_binary_handler import GenericBinaryMediaHandler
-from TEx.core.media_metadata_handling.geo_handler import GeoMediaHandler
-from TEx.core.media_metadata_handling.mp4_handler import MediaMp4Handler
-from TEx.core.media_metadata_handling.pdf_handler import PdfMediaHandler
-from TEx.core.media_metadata_handling.photo_handler import PhotoMediaHandler
-from TEx.core.media_metadata_handling.sticker_handler import MediaStickerHandler
-from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
-from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, \
-    TelegramMessageDatabaseManager
-from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
+from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntiyMapper
+from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
+from TEx.core.media_handler import UniversalTelegramMediaHandler
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
+    TelegramUserDatabaseManager
 
 logger = logging.getLogger()
 
@@ -37,69 +21,29 @@ logger = logging.getLogger()
 class TelegramGroupMessageListener(BaseModule):
     """Download all Messages from Telegram Groups."""
 
-    __MEDIA_HANDLERS: Dict = {
-        'video/mp4': {
-            'metadata_handler': MediaMp4Handler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'application/x-tgsticker': {
-            'metadata_handler': MediaStickerHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'image/webp': {
-            'metadata_handler': WebImageStickerHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'text/plain': {
-            'metadata_handler': TextPlainHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'photo': {
-            'metadata_handler': PhotoMediaHandler.handle_metadata,
-            'downloader': PhotoMediaDownloader.download
-            },
-        'application/pdf': {
-            'metadata_handler': PdfMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'application/x-ms-dos-executable': {
-            'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'application/vnd.android.package-archive': {
-            'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'application/vnd.generic.binary': {
-            'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
-            },
-        'geo': {
-            'metadata_handler': GeoMediaHandler.handle_metadata,
-            'downloader': DoNothingMediaDownloader.download
-            },
-        'do_nothing': {
-            'metadata_handler': DoNothingHandler.handle_metadata,
-            'downloader': DoNothingMediaDownloader.download
-            }
-        }
-
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize Listener Module."""
         self.download_media: bool = False
         self.data_path: str = ''
-        self.group_ids: List[int] = None
+        self.group_ids: List[int] = []
+        self.media_handler: UniversalTelegramMediaHandler = UniversalTelegramMediaHandler()
+        self.target_phone_number: str = ''
 
-    async def handler(self, event: NewMessage.Event) -> None:
-
+    async def __handler(self, event: NewMessage.Event) -> None:
+        """Handle the Message."""
         # Get Message
         message: Message = event.message
 
         # Apply Filter (If group filtering are enabled)
-        if self.group_ids is not None and event.chat.id not in self.group_ids:
+        if len(self.group_ids) > 0 and event.chat.id not in self.group_ids:
             logger.debug(f'\t\tMessage Filtered (GroupID={event.chat.id}) ...')
             return
 
-        # Check if Group Already in DB or is New One
+        if event and not event.chat:
+            return  # TODO: Need to Be Handled in Future Version
+
+        # Ensure Group Exists on DB
+        await self.__ensure_group_exists(event=event)
 
         # Create Dict with All Value
         values: Dict = {
@@ -109,22 +53,71 @@ class TelegramGroupMessageListener(BaseModule):
             'message': message.message,
             'raw': message.raw_text,
             'to_id': message.to_id.channel_id if message.to_id is not None else None,
-            'media_id': await self.__handle_medias(message, event.chat.id, self.data_path) if self.download_media else None,
+            'media_id': await self.media_handler.handle_medias(message, event.chat.id,
+                                                               self.data_path) if self.download_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None
         }
 
-        # Need to Save Message - I Stop Here
+        # Process Sender ID
         if message.from_id is not None:
             if isinstance(message.from_id, PeerUser):
+
                 values['from_id'] = message.from_id.user_id
                 values['from_type'] = 'User'
+
+                # Ensure User Exists
+                await self.__ensure_user_exists(event=event)
+
             else:
                 pass
 
         # Add to DB
-        TelegramMessageDatabaseManager.insert(values)   # TODO: Check Group Integrity on DB (Group Exists, Members, etc)
-        # TODO: How to frequently update group member list?
+        TelegramMessageDatabaseManager.insert(values)
+
+    async def __ensure_user_exists(self, event: NewMessage.Event) -> None:
+        """
+        Ensure the User Exists on DB.
+
+        :param event:
+        :return:
+        """
+        # Check if User Already in DB or is New One -- REFACTORY
+        if not TelegramUserDatabaseManager.get_by_id(pk=event.from_id.user_id):
+            logger.warning(
+                f'\t\tUser "{event.from_id.user_id}" was not found on DB. Performing automatic synchronization.')
+
+            # Retrieve User
+            result: User = await event.get_sender()
+
+            # Perform Synchronization
+            if result:
+                user_dict_data: Dict = TelethonUserEntiyMapper.to_database_dict(result)
+                TelegramUserDatabaseManager.insert_or_update(user_dict_data)
+
+    async def __ensure_group_exists(self, event: NewMessage.Event) -> None:
+        """
+        Ensure the Group/Channel Exists on DB.
+
+        :param event:
+        :return:
+        """
+        # Check if Group Already in DB or is New One
+        if not TelegramGroupDatabaseManager.get_by_id(pk=event.chat.id):
+            logger.warning(
+                f'\t\tGroup "{event.chat.id}" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).')
+
+            # Retrieve Group Definitions
+            result: Channel = await event.get_chat()
+
+            # Perform Synchronization
+            if result:
+                group_dict_data: Dict = TelethonChannelEntiyMapper.to_database_dict(
+                    channel=result,
+                    target_phone_numer=self.target_phone_number
+                )
+
+                TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
@@ -133,99 +126,27 @@ class TelegramGroupMessageListener(BaseModule):
             return
 
         # Update Module Global Info
-        self.download_media = not args['ignore_media'],
+        self.download_media = not args['ignore_media'],  # type: ignore
         self.data_path = args['data_path']
+        self.target_phone_number = args['target_phone_number']
 
         # Update Module Group Filtering Info
         if args['group_id'] and args['group_id'] != '*':
-            self.group_ids: List[int] = [int(group_id) for group_id in args['group_id'].split(',')]
+            self.group_ids = [int(group_id) for group_id in args['group_id'].split(',')]
             logger.info(f'\t\tApplied Groups Filtering... {len(self.group_ids)} selected')
 
         # Get Client
         client: TelegramClient = data['telegram_client']
 
         # Register Handlers
-        client.add_event_handler(self.handler, events.NewMessage)
+        client.add_event_handler(self.__handler, events.NewMessage)
 
         # Catch Up Past Messages
+        logger.info('\t\tListening Past Messages...')
         await client.catch_up()
 
         # Read all Messages from Now
+        logger.info('\t\tListening New Messages...')
         await client.run_until_disconnected()  # Code Stops Here until telegram disconnects
 
-    async def __handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[int]:
-        """Handle Message Media, Photo, File, etc."""
-        executor_id: Optional[str] = self.__resolve_executor_id(message=message)
-
-        if executor_id == 'not_defined':
-            return None
-
-        # Retrieve the Executor Spec
-        executor_spec: Dict = {}
-        if executor_id in TelegramGroupMessageListener.__MEDIA_HANDLERS:
-            executor_spec = TelegramGroupMessageListener.__MEDIA_HANDLERS[executor_id]
-        else:
-            executor_spec = TelegramGroupMessageListener.__MEDIA_HANDLERS['application/vnd.generic.binary']
-
-        # Get Media Metadata
-        media_metadata: Optional[Dict] = executor_spec['metadata_handler'](
-            message=message
-            )
-
-        # Handle Unicode Chars on Media File Name - TODO: TO Method
-        if media_metadata and media_metadata['file_name']:
-            try:
-                media_metadata['file_name'].encode('ascii')
-            except UnicodeError:
-                file, ext = os.path.splitext(media_metadata['file_name'])
-                media_metadata['file_name'] = f'{hashlib.md5(file.encode("utf-8")).hexdigest()}{ext}'  # nosec
-
-        # Check Media Size - TODO: TO Method
-        if media_metadata and \
-                'size_bytes' in media_metadata and \
-                media_metadata['size_bytes'] and \
-                media_metadata['size_bytes'] > 256000000:  # 256 MB
-            logger.info('\t\t\t\tMedia too Large. Ignoring...')
-            return None
-
-        # Download Media and Save into DB
-        await executor_spec['downloader'](
-            message=message,
-            media_metadata=media_metadata,
-            data_path=data_path
-            )
-
-        # Update into DB
-        if media_metadata is not None:
-            return TelegramMediaDatabaseManager.insert(entity_values=media_metadata, group_id=group_id)
-
-        return None
-
-    def __resolve_executor_id(self, message: Message) -> Optional[str]:
-        """Resolve the Executor ID."""
-        executor_id: str = 'not_defined'
-
-        if message.voice is not None:
-            executor_id = 'do_nothing'
-
-        elif message.media is not None:
-            if isinstance(message.media, MessageMediaWebPage):
-                executor_id = 'do_nothing'
-
-            elif isinstance(message.media, MessageMediaDocument):
-                logger.info(
-                    f'\t\t\tDownloading Media from Message {message.id} ({message.media.document.size / 1024:.6} Kbytes) as {message.media.document.mime_type} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
-                executor_id = message.media.document.mime_type
-
-            elif isinstance(message.media, MessageMediaGeo):
-                logger.info(f'\t\t\tDownloading Geo from Message {message.id}')
-                executor_id = 'geo'
-
-            elif isinstance(message.media, MessageMediaPhoto):
-                logger.info(f'\t\t\tDownloading Photo from Message {message.id} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
-                executor_id = 'photo'
-
-            else:
-                logger.info(f'\t\t\tNot Supported Media Type {type(message.media)}. Ignoring...')
-
-        return executor_id
+        logger.info('\t\tTelegram Client Disconnected...')

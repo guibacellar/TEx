@@ -1,10 +1,11 @@
 """Telegram Checker Handler."""
 import logging
+import os.path
 from configparser import ConfigParser
 from typing import Dict
 
 from telethon import TelegramClient
-from telethon.sessions import StringSession
+from telethon.sessions import SQLiteSession
 
 from TEx.core.base_module import BaseModule
 
@@ -21,24 +22,28 @@ class TelegramConnector(BaseModule):
         if not need_connection:
             return
 
+        SQLiteSession()
+
         # Check Activation Command
         if args['connect']:  # New Connection
             logger.info('\t\tAuthorizing on Telegram...')
 
             # Connect
             client = TelegramClient(
-                StringSession(),
+                os.path.join(args["data_path"], 'session', args['target_phone_number']),
                 args['api_id'],
                 args['api_hash'],
-                )
+                catch_up=True,
+                device_model='TeX'
+            )
             await client.start(phone=args['target_phone_number'])
+            client.session.save()
 
             # Save Data into State File
             data['telegram_connection'] = {
                 'api_id': args['api_id'],
                 'api_hash': args['api_hash'],
-                'target_phone_number': args['target_phone_number'],
-                'session_code': client.session.save()
+                'target_phone_number': args['target_phone_number']
                 }
 
         else:  # Reuse Previous Connection
@@ -52,9 +57,11 @@ class TelegramConnector(BaseModule):
                 return
 
             client = TelegramClient(
-                StringSession(data['telegram_connection']['session_code']),
+                os.path.join(args["data_path"], 'session', args['target_phone_number']),
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
+                catch_up=True,
+                device_model='TeX'
                 )
             await client.start(phone=data['telegram_connection']['target_phone_number'])
 

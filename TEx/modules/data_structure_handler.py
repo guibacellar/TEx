@@ -23,3 +23,4 @@ class DataStructureHandler(BaseModule):
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'download'))
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'profile_pic'))
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'media'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'session'))

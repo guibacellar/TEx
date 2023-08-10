@@ -16,8 +16,10 @@ from telethon.tl.types import ChatPhoto, InputPeerEmpty
 from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
+from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntiyMapper
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
+from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 
 logger = logging.getLogger()
 
@@ -51,23 +53,12 @@ class TelegramGroupScrapper(BaseModule):
 
             logger.info(f'\t\tProcessing "{chat.title} ({chat.id})" Members and Group Profile Picture')
 
-            values: Dict = {
-                'id': chat.id,
-                'constructor_id': chat.CONSTRUCTOR_ID,
-                'access_hash': str(chat.access_hash),
-                'fake': chat.fake,
-                'gigagroup': chat.gigagroup,
-                'has_geo': chat.has_geo,
-                'participants_count': chat.participants_count,
-                'restricted': chat.restricted,
-                'scam': chat.scam,
-                'group_username': chat.username,
-                'verified': chat.verified,
-                'title': chat.title,
-                'source': args['target_phone_number']
-                }
+            values: Dict = TelethonChannelEntiyMapper.to_database_dict(
+                channel=chat,
+                target_phone_numer=args['target_phone_number']
+            )
 
-            # Get Photo - TODO: Separate in Method
+            # Get Photo - TODO: Refactory - Separate in Method
             if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
                 values['photo_id'] = chat.photo.photo_id
                 photo_name, photo_base64 = await self.get_profile_pic_b64(
@@ -84,7 +75,7 @@ class TelegramGroupScrapper(BaseModule):
                 values['photo_base64'] = None
                 values['photo_name'] = None
 
-            # Get Members - TODO: Separate in Method
+            # Get Members - TODO: Refactory - Separate in Method
             try:
                 members = await self.get_members(
                     client=client,
@@ -135,24 +126,10 @@ class TelegramGroupScrapper(BaseModule):
             async for member in client.iter_participants(channel):
 
                 # Build Model
-                values: Dict = {
-                    'id': member.id,
-                    'is_bot': member.bot,
-                    'is_fake': member.fake,
-                    'is_self': member.is_self,
-                    'is_scam': member.scam,
-                    'is_verified': member.verified,
-                    'first_name': member.first_name,
-                    'last_name': member.last_name,
-                    'username': member.username,
-                    'phone_number': member.phone,
-                    'photo_id': None,  # Reserved for Future Version
-                    'photo_base64': None,  # Reserved for Future Version
-                    'photo_name': None  # Reserved for Future Version
-                    }
+                user_dict_data: Dict = TelethonUserEntiyMapper.to_database_dict(member)
 
                 # Return
-                h_result.append(values)
+                h_result.append(user_dict_data)
 
         except ChatAdminRequiredError:
             logger.info('\t\t\t...Unable to Download Chat Participants due Permission Restrictions...')

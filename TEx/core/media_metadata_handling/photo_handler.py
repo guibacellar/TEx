@@ -14,15 +14,14 @@ class PhotoMediaHandler:
         media: MessageMediaPhoto = message.media
 
         return {
-            'file_name': None,
+            'file_name': f'photo{message.file.ext}',
             'telegram_id': media.photo.id,
-            'extension': None,
-            'height': None,
-            'width': None,
+            'extension': message.file.ext,
+            'height': message.file.height,
+            'width': message.file.width,
             'date_time': media.photo.date,
-            'mime_type': None,
-            'size_bytes': None,
+            'mime_type': message.file.mime_type,
+            'size_bytes': message.file.size,
             'title': None,
-            'name': None,
-            'b64_content': None
+            'name': None
             }

@@ -5,7 +5,7 @@ import os
 import shutil
 from configparser import ConfigParser
 from io import TextIOWrapper
-from typing import Dict, List, TypedDict, cast
+from typing import Dict, List, TypedDict
 
 import pytz
 
@@ -197,8 +197,8 @@ class TelegramStatsGenerator(BaseModule):
             file.write(f'\nTotal Messages    : {params["stats_total_messages"]} (~ {stats_avg_messages_day:.0f}/day)')
             file.write(f'\nTotal Active Users: {params["stats_total_active_users"]}')
 
-            await self.__render_messages_stats(cast(TextIOWrapper, file), max_large_group_name, params['stats_messages_per_groups'])
-            await self.__render_media_stats(cast(TextIOWrapper, file), max_large_group_name, params['stats_messages_per_groups'])
+            await self.__render_messages_stats(file, max_large_group_name, params['stats_messages_per_groups'])
+            await self.__render_media_stats(file, max_large_group_name, params['stats_messages_per_groups'])
 
             file.flush()
             file.close()

@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 TelegramDataBaseDeclarativeBase = declarative_base()
-TelegramMediaDataBaseDeclarativeBase = declarative_base()
+# TelegramMediaDataBaseDeclarativeBase = declarative_base()
 
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -59,14 +59,15 @@ class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
     reply_to_msg_id: int = Column(Integer)
 
 
-class TelegramMediaOrmEntity(TelegramMediaDataBaseDeclarativeBase):
+class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
     """Telegram Media ORM Model."""
 
     __bind_key__ = 'data'
     __tablename__ = 'telegram_media'
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)  # noqa: A003
-    telegram_id: int = Column(Integer)
+    group_id: int = Column(Integer, index=True)
+    telegram_id: int = Column(Integer, index=True)
     file_name: str = Column(String(1024))
 
     extension: str = Column(String(16))
@@ -80,8 +81,6 @@ class TelegramMediaOrmEntity(TelegramMediaDataBaseDeclarativeBase):
 
     title: str = Column(String(1024))
     name: str = Column(String(1024))
-
-    b64_content: str = Column(String(256000000))  # 256 MB
 
 
 class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):

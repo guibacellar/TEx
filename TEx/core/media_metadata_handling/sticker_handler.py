@@ -24,6 +24,5 @@ class MediaStickerHandler:
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
-            'name': None,
-            'b64_content': None
+            'name': None
             }

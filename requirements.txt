@@ -1,5 +1,5 @@
 # Telegram
-Telethon==1.28.5
+Telethon==1.29.2
 cryptg==0.2.post4
 telethon-cryptg==0.0.4
 
@@ -12,10 +12,11 @@ aiosqlite==0.19.0
 Jinja2==3.0.3
 
 # Others
-pytz==2021.3
+pytz==2023.3
 urllib3==1.26.8
-requests==2.27.1
+requests==2.31.0
+cachetools==5.3.1
 
 # QA
-tox==3.24.5
-pytest==6.2.5
+tox==4.7.0
+pytest==7.4.0

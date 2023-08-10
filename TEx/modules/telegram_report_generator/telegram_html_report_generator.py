@@ -48,7 +48,7 @@ class TelegramReportGenerator(BaseModule):
 
         # Check Report and Assets Folder
         report_root_folder: str = args['report_folder']
-        assets_root_folder: str = f'{report_root_folder}/assets/'
+        assets_root_folder: str = os.path.join(report_root_folder, 'assets')
 
         # Purge Report Folder
         if os.path.exists(report_root_folder):
@@ -177,7 +177,8 @@ class TelegramReportGenerator(BaseModule):
         render_messages: List = await self.process_messages(
             messages=messages,
             assets_root_folder=assets_root_folder,
-            suppress_repeating_messages=args['suppress_repeating_messages']
+            suppress_repeating_messages=args['suppress_repeating_messages'],
+            data_path=args['data_path']
             )
 
         logger.info('\t\t\tRendering')
@@ -194,7 +195,11 @@ class TelegramReportGenerator(BaseModule):
         # Add Meta in Group
         group.meta_message_count = len(render_messages)
 
-    async def process_messages(self, messages: List[TelegramMessageReportFacadeEntity], assets_root_folder: str, suppress_repeating_messages: bool) -> List[TelegramMediaOrmEntity]:
+    async def process_messages(self,
+                               messages: List[TelegramMessageReportFacadeEntity],
+                               assets_root_folder: str,
+                               suppress_repeating_messages: bool,
+                               data_path: str) -> List[TelegramMediaOrmEntity]:
         """Process Group Messages."""
         h_result: List = []
         reppeating_messages_signatures: List[str] = []
@@ -236,13 +241,13 @@ class TelegramReportGenerator(BaseModule):
                     }
 
                 # Process Media
-                entry.update(await self.get_media(message=message, assets_root_folder=assets_root_folder))
+                entry.update(await self.get_media(message=message, assets_root_folder=assets_root_folder, data_path=data_path))
 
                 h_result.append(entry)
 
         return h_result
 
-    async def get_media(self, message: TelegramMessageReportFacadeEntity, assets_root_folder: str) -> Dict:
+    async def get_media(self, message: TelegramMessageReportFacadeEntity, assets_root_folder: str, data_path: str) -> Dict:
         """Download Media and Return the Metadata."""
         media_file_name: Optional[str] = None
         media_mime_type: Optional[str] = None
@@ -261,23 +266,16 @@ class TelegramReportGenerator(BaseModule):
             if media:
                 if media.mime_type == 'application/vnd.geo':
                     media_geo = media.title.replace('|', ',')
+
                 else:
 
-                    media_path: str = f'{assets_root_folder}{media.id}_{media.file_name}'
+                    souce_media_path: str = os.path.join(data_path, 'media', str(media.group_id), media.file_name)
+                    destination_media_path: str = os.path.join(assets_root_folder, f'{media.group_id}_{media.file_name}')
 
-                    # Save only If Media do Not Exists
-                    if not os.path.exists(media_path):
+                    # Copy from Media Folder into Report Assets Folder
+                    shutil.copy(souce_media_path, destination_media_path)
 
-                        # Save into assets folder
-                        with open(media_path, 'wb') as file:
-                            if not media.b64_content:
-                                file.write(''.encode())
-                            else:
-                                file.write(base64.b64decode(media.b64_content))
-                            file.flush()
-                            file.close()
-
-                    media_file_name = f'assets/{media.id}_{media.file_name}'
+                    media_file_name = f'assets/{media.group_id}_{media.file_name}'
                     media_title = media.title
 
                 media_mime_type = media.mime_type
