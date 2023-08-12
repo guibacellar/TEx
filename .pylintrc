@@ -64,10 +64,8 @@ disable=
     anomalous-backslash-in-string,
     broad-except,
     consider-using-sys-exit,
-    duplicated-code,
     line-too-long,
     no-member,
-    no-self-use,
     too-few-public-methods,
     logging-fstring-interpolation,
     import-error,
@@ -523,5 +521,5 @@ preferred-modules=
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception
