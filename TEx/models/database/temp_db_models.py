@@ -1,7 +1,7 @@
 """Temporary Data Model."""
 
 from sqlalchemy import Integer, String
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class TempDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore

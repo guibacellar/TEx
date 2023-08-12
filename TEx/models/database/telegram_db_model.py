@@ -3,7 +3,7 @@
 import datetime
 from typing import Optional
 from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class TelegramDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
