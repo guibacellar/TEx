@@ -20,6 +20,7 @@ from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
     TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramUserOrmEntity,
 )
+from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 from TEx.modules.telegram_messages_scrapper import TelegramGroupMessageScrapper
 from TEx.modules.telegram_report_generator.telegram_html_report_generator import TelegramReportGenerator
 from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data, \
@@ -37,11 +38,12 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         DirectoryManagerUtils.ensure_dir_struct('_data/resources')
         DirectoryManagerUtils.ensure_dir_struct('_data/media')
 
-        DbInitializer.init(data_path='_data/', args={})
+        DbInitializer.init(data_path='_data/')
 
         # Reset SQLlite Groups
         DbManager.SESSIONS['data'].execute(delete(TelegramMessageOrmEntity))
         DbManager.SESSIONS['data'].execute(delete(TelegramGroupOrmEntity))
+        DbManager.SESSIONS['data'].execute(delete(TelegramMediaOrmEntity))
         DbManager.SESSIONS['data'].commit()
 
         # Add Group 1 - Without Any Message
@@ -82,17 +84,9 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'to_id': None, 'media_id': None
         })
 
-        # Initialize the Medias Groups
-        DbInitializer.init_media_dbs(data_path='_data/', args={'target_phone_number': 'UT-PHONE'})
-
-        # Cleanup Media DBs
-        DbManager.SESSIONS['media_1'].execute(delete(TelegramMediaOrmEntity))
-        DbManager.SESSIONS['media_2'].execute(delete(TelegramMediaOrmEntity))
         DbManager.SESSIONS['data'].commit()
 
     def tearDown(self) -> None:
-        DbManager.SESSIONS['media_1'].close()
-        DbManager.SESSIONS['media_2'].close()
         DbManager.SESSIONS['data'].close()
 
     def test_run_generate_report_disabled(self):
@@ -101,8 +95,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         # Call Test Target Method
         target: TelegramReportGenerator = TelegramReportGenerator()
         args: Dict = {
-            'target_phone_number': 'UT-PHONE',
-            'data_path': '_data',
+            'config': 'unittest_configfile.config',
             'report_folder': '_report',
             'group_id': '*',
             'order_desc': True,
@@ -129,8 +122,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         # Call Test Target Method
         target: TelegramReportGenerator = TelegramReportGenerator()
         args: Dict = {
-            'target_phone_number': 'UT-PHONE',  # TODO: Make a new Test when the target_phone_number has no Groups
-            'data_path': '_data',
+            'config': 'unittest_configfile.config',
             'report_folder': '_report',
             'group_id': '*',
             'order_desc': True,
@@ -141,6 +133,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'around_messages': 2
         }
         data: Dict = {}
+        self.__load_execution_config(args, data)
 
         with self.assertLogs() as captured:
             loop = asyncio.get_event_loop()
@@ -152,14 +145,14 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
                 )
             )
 
-            # # Check Logs
-            # self.assertEqual(9, len(captured.records))
-            # self.assertEqual('		Found 2 Groups', captured.records[0].message)
-            # self.assertEqual('		Download Messages from "UT-01" > Last Offset: None', captured.records[1].message)
-            # self.assertEqual('			Downloading Photo from Message 183018', captured.records[2].message)
-            # self.assertEqual('			Downloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive', captured.records[3].message)
-            # self.assertEqual('			Downloading Media from Message 183659 (58.8613 Kbytes) as image/webp', captured.records[4].message)
-            # self.assertEqual('			Downloading Media from Message 183771 (2258.64 Kbytes) as video/mp4', captured.records[5].message)
-            # self.assertEqual('			Downloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker', captured.records[6].message)
-            # self.assertEqual('		Download Messages from "UT-01" > Last Offset: 183771', captured.records[7].message)
-            # self.assertEqual('		Download Messages from "UT-02" > Last Offset: 55', captured.records[8].message)
+    def __load_execution_config(self, args, data):
+
+        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            execution_configuration_loader.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )

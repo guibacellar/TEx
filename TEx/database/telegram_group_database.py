@@ -266,7 +266,7 @@ class TelegramMediaDatabaseManager:
         """Insert or Update one Telegram User."""
         session: Session = DbManager.SESSIONS['data']
 
-        cursor: CursorResult = session.execute(  # type:ignore
+        cursor: CursorResult = session.execute(
             insert(TelegramMediaOrmEntity).
             values(entity_values)
             )
@@ -302,11 +302,11 @@ class TelegramMediaDatabaseManager:
             parts_or_filter: List[BinaryExpression] = []
 
             for name_part in file_name_part:
-                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))  # type: ignore
+                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))
 
             select_statement = select_statement.where(or_(*parts_or_filter))
 
-        return DbManager.SESSIONS['data'].execute(select_statement)  # type:ignore
+        return DbManager.SESSIONS['data'].execute(select_statement)
 
     @staticmethod
     def stats_all_medias_from_group_by_mimetype(group_id: int, file_datetime_limit_seconds: Optional[int] = None) -> Dict:

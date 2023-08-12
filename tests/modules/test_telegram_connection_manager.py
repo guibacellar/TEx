@@ -5,6 +5,8 @@ import unittest
 from unittest import mock
 from typing import Dict
 from configparser import ConfigParser
+
+from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 from TEx.modules.telegram_connection_manager import TelegramConnector, TelegramDisconnector
 
 
@@ -14,6 +16,18 @@ class TelegramConnectorTest(unittest.TestCase):
 
         self.config = ConfigParser()
         self.config.read('../../config.ini')
+
+    def __load_execution_config(self, args, data):
+
+        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            execution_configuration_loader.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )
 
     def test_run_connect(self):
         """Test Run Method with Telegram Server Connection."""
@@ -29,11 +43,10 @@ class TelegramConnectorTest(unittest.TestCase):
         target: TelegramConnector = TelegramConnector()
         args: Dict = {
             'connect': True,
-            'api_id': 'MyTestApiID',
-            'api_hash': 'MyTestApiHash',
-            'target_phone_number': 'MyTestPhoneNumber'
+            'config': 'unittest_configfile.config'
         }
         data: Dict = {}
+        self.__load_execution_config(args, data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:
@@ -51,12 +64,12 @@ class TelegramConnectorTest(unittest.TestCase):
                 self.assertEqual('		User Authorized on Telegram: True', captured.records[1].message)
 
         # Validate Mock Calls
-        telegram_client_mockup.start.assert_awaited_once_with(phone='MyTestPhoneNumber')
+        telegram_client_mockup.start.assert_awaited_once_with(phone='5526986587745')
 
         # Validate Data Result Dict
-        self.assertEqual('MyTestApiID', data['telegram_connection']['api_id'])
-        self.assertEqual('MyTestApiHash', data['telegram_connection']['api_hash'])
-        self.assertEqual('MyTestPhoneNumber', data['telegram_connection']['phone_number'])
+        self.assertEqual('12345678', data['telegram_connection']['api_id'])
+        self.assertEqual('deff1f2587358746548deadbeef58ddd', data['telegram_connection']['api_hash'])
+        self.assertEqual('5526986587745', data['telegram_connection']['target_phone_number'])
         self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse(self):
@@ -74,7 +87,8 @@ class TelegramConnectorTest(unittest.TestCase):
         args: Dict = {
             'connect': False,
             'load_groups': True,
-            'download_messages': False
+            'download_messages': False,
+            'config': 'unittest_configfile.config'
         }
         data: Dict = {
             'telegram_connection': {
@@ -84,6 +98,7 @@ class TelegramConnectorTest(unittest.TestCase):
                 'session_code': '1AZWarxxBu1K7H_xk4-uACJYt3R_zyEPdZGd6t6nyAIxH8r6yVxMrMBP2xRyKhQAT3-KyR2T4BpLicQR6_54yvYatWV0WN2nAZMpyHGdJ-GXCyeiDxhAf4vFWb_eaw8fN4FeNPygq6VGQxOs56H_yO47zVYrwF4OZNBfe8rZISG2YLer43zwJ8fCySlrf8pswx0huRC-ntDWMNrR60_B61SX3_tQYcA1OGujHc6SjCGINxnOqltL0L359iG-CdDvde2-ZWAPLYutR1Q4T48h_GEI_vHhB0DPob9NsQyrLR6QuYO5UnhgbJIs2Fs0ysJfkGBAHsYnFPzDfpKCusC8ubl1phtcyTqg='
             }
         }
+        self.__load_execution_config(args, data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:
@@ -106,7 +121,7 @@ class TelegramConnectorTest(unittest.TestCase):
         # Validate Data Result Dict
         self.assertEqual('MyTestApiID2', data['telegram_connection']['api_id'])
         self.assertEqual('MyTestApiHash2', data['telegram_connection']['api_hash'])
-        self.assertEqual('MyTestPhoneNumber2', data['telegram_connection']['phone_number'])
+        self.assertEqual('MyTestPhoneNumber2', data['telegram_connection']['target_phone_number'])
         self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
     def test_run_reuse_without_authentication(self):
@@ -124,12 +139,14 @@ class TelegramConnectorTest(unittest.TestCase):
         args: Dict = {
             'connect': False,
             'load_groups': True,
-            'download_messages': False
+            'download_messages': False,
+            'config': 'unittest_configfile.config'
         }
         data: Dict = {
             'telegram_connection': {
             }
         }
+        self.__load_execution_config(args, data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:

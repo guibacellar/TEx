@@ -1,9 +1,11 @@
 """Temporary Data Model."""
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 
-TempDataBaseDeclarativeBase = declarative_base()
+
+class TempDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
+    """Global Temporary Declarative Base."""
 
 
 class TempDataOrmEntity(TempDataBaseDeclarativeBase):
@@ -12,11 +14,11 @@ class TempDataOrmEntity(TempDataBaseDeclarativeBase):
     __bind_key__ = 'temp'
     __tablename__ = 'temporary_data'
 
-    path = Column(String(255), primary_key=True)
-    module = Column(String(255))
-    data = Column(String)
-    created_at = Column(Integer)
-    valid_at = Column(Integer)
+    path: Mapped[str] = mapped_column(String(255), primary_key=True)
+    module: Mapped[str] = mapped_column(String(255))
+    data: Mapped[str] = mapped_column(String)
+    created_at: Mapped[Integer] = mapped_column(Integer)
+    valid_at: Mapped[Integer] = mapped_column(Integer)
 
 
 class StateFileOrmEntity(TempDataBaseDeclarativeBase):
@@ -25,6 +27,6 @@ class StateFileOrmEntity(TempDataBaseDeclarativeBase):
     __bind_key__ = 'temp'
     __tablename__ = 'state_file'
 
-    path = Column(String(255), primary_key=True)
-    data = Column(String)
-    created_at = Column(Integer)
+    path: Mapped[str] = mapped_column(String(255), primary_key=True)
+    data: Mapped[str] = mapped_column(String)
+    created_at: Mapped[Integer] = mapped_column(Integer)

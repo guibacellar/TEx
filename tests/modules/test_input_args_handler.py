@@ -20,14 +20,13 @@ class InputArgsHandlerTest(unittest.TestCase):
         sys.argv = [
             '__main__.py',
             'report',
-            '--phone_number', '+98765123456',
+            '--config', '/usr/home/config_file.config',
             '--order_desc',
             '--limit_days', '8',
             '--filter', 'filter1, "Filter 2", Filter3',
             '--report_folder', 'reports/ut01',
             '--around_messages', '7',
-            '--group_id', '99,5,78,56987',
-            '--data_path', '_data'
+            '--group_id', '99,5,78,56987'
             ]
 
         target: InputArgsHandler = InputArgsHandler()
@@ -43,7 +42,7 @@ class InputArgsHandlerTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual('+98765123456', args['phone_number'])
+        self.assertEqual('/usr/home/config_file.config', args['config'])
         self.assertTrue(args['order_desc'])
         self.assertEqual('filter1, "Filter 2", Filter3', args['filter'])
         self.assertEqual(8, int(args['limit_days']))
@@ -56,8 +55,7 @@ class InputArgsHandlerTest(unittest.TestCase):
         sys.argv = [
             '__main__.py',
             'report',
-            '--phone_number', '+98765123456',
-            '--data_path', '_data'
+            '--config', '/usr/home/config_file2.config',
         ]
 
         target: InputArgsHandler = InputArgsHandler()
@@ -73,7 +71,7 @@ class InputArgsHandlerTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual('+98765123456', args['phone_number'])
+        self.assertEqual('/usr/home/config_file2.config', args['config'])
         self.assertFalse(args['order_desc'])
         self.assertIsNone(args['filter'])
         self.assertEqual(3650, int(args['limit_days']))

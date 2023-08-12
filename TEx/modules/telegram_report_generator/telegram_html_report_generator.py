@@ -30,6 +30,7 @@ from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupR
     TelegramGroupReportFacadeEntityMapper
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
     TelegramMessageReportFacadeEntityMapper
+from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 
 logger = logging.getLogger()
 

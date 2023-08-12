@@ -1,3 +1,67 @@
+[tool.poetry]
+name = "TelegramExplorer"
+version = "0.2.2"
+description = "Telegram Explorer"
+authors = ["Th3 0bservator <th30bservator@gmail.com>"]
+maintainers = [
+    "Th3 0bservator <th30bservator@gmail.com>"
+]
+license = "Apache-2.0"
+readme = "README.md"
+
+homepage = "https://github.com/guibacellar/TEx"
+repository = "https://github.com/guibacellar/TEx"
+documentation = "https://github.com/guibacellar/TEx/blob/main/README.md"
+keywords = [
+        "CyberSecurity",
+        "Investigation",
+        "OSINT",
+        "OpenSourceIntelligence",
+        "Tool"
+]
+
+classifiers = [
+    'Environment :: Console',
+    'Intended Audience :: Information Technology',
+    'License :: Freely Distributable',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.8',
+    'Topic :: Security',
+    'Topic :: Utilities',
+    'Topic :: Software Development :: Build Tools',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+packages = [
+    { include = "TEx", from="." }
+]
+
+# Requirements
+[tool.poetry.dependencies]
+python = "^3.8"
+
+poetry-core = "1.6.1"
+poetry-plugin-export = "^1.4.0"
+build = "^0.10.0"
+
+Telethon            = "1.29.2"
+cryptg              = "0.2.post4"
+telethon-cryptg     = "0.0.4"
+SQLAlchemy          = "2.0.19"
+aiosqlite           = "0.19.0"
+Jinja2              = "3.0.3"
+pytz                = "2023.3"
+urllib3             = "1.26.8"
+requests            = "2.31.0"
+cachetools          = "5.3.1"
+
+
+#include = [
+#    { path = "tests", format = "sdist" }
+#]
+
 [build-system]
-requires = ["setuptools>=57.4.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

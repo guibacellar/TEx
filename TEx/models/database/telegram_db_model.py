@@ -2,11 +2,12 @@
 
 import datetime
 from typing import Optional
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 
-TelegramDataBaseDeclarativeBase = declarative_base()
-# TelegramMediaDataBaseDeclarativeBase = declarative_base()
+
+class TelegramDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
+    """Global Telegram DB Declarative Base."""
 
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -15,26 +16,26 @@ class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_group'
 
-    id: int = Column(Integer, primary_key=True)  # noqa: A003
-    constructor_id: str = Column(String(255))
-    access_hash: str = Column(String(255))
-    group_username: str = Column(String(1024), index=True)
-    title: str = Column(String(4098), index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
+    constructor_id: Mapped[str] = mapped_column(String(255))
+    access_hash: Mapped[str] = mapped_column(String(255))
+    group_username: Mapped[str] = mapped_column(String(1024), index=True)
+    title: Mapped[str] = mapped_column(String(4098), index=True)
 
-    fake: bool = Column(Boolean)
-    gigagroup: bool = Column(Boolean)
-    has_geo: bool = Column(Boolean)
-    restricted: bool = Column(Boolean)
-    scam: bool = Column(Boolean)
-    verified: bool = Column(Boolean)
+    fake: Mapped[bool] = mapped_column(Boolean)
+    gigagroup: Mapped[bool] = mapped_column(Boolean)
+    has_geo: Mapped[bool] = mapped_column(Boolean)
+    restricted: Mapped[bool] = mapped_column(Boolean)
+    scam: Mapped[bool] = mapped_column(Boolean)
+    verified: Mapped[bool] = mapped_column(Boolean)
 
-    participants_count: int = Column(Integer)
+    participants_count: Mapped[int] = mapped_column(Integer)
 
-    photo_id: int = Column(Integer)
-    photo_base64: str = Column(String(1024000))
-    photo_name: str = Column(String(1024))
+    photo_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    photo_base64: Mapped[Optional[str]] = mapped_column(String(1024000), nullable=True)
+    photo_name: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
 
-    source: str = Column(String(255), index=True)
+    source: Mapped[str] = mapped_column(String(255), index=True)
 
 
 class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -43,20 +44,20 @@ class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_message'
 
-    id: int = Column(Integer, primary_key=True)  # noqa: A003
-    group_id: int = Column(Integer, primary_key=True, index=True)
-    media_id: Optional[int] = Column(Integer, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
+    group_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    media_id: Mapped[Optional[int]] = mapped_column(Integer, index=True)
 
-    date_time: datetime.datetime = Column(DateTime)
-    message: str = Column(String(65535))
-    raw: str = Column(String(65535))
+    date_time: Mapped[datetime.datetime] = mapped_column(DateTime)
+    message: Mapped[str] = mapped_column(String(65535))
+    raw: Mapped[str] = mapped_column(String(65535))
 
-    from_id: int = Column(Integer)
-    from_type: str = Column(String(10))
-    to_id: int = Column(Integer)
+    from_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    from_type: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    to_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
-    is_reply: bool = Column(Boolean)
-    reply_to_msg_id: int = Column(Integer)
+    is_reply: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    reply_to_msg_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
 
 class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -65,22 +66,22 @@ class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_media'
 
-    id: int = Column(Integer, primary_key=True, autoincrement=True)  # noqa: A003
-    group_id: int = Column(Integer, index=True)
-    telegram_id: int = Column(Integer, index=True)
-    file_name: str = Column(String(1024))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)  # noqa: A003
+    group_id: Mapped[int] = mapped_column(Integer, index=True)
+    telegram_id: Mapped[int] = mapped_column(Integer, index=True)
+    file_name: Mapped[str] = mapped_column(String(1024))
 
-    extension: str = Column(String(16))
-    height: int = Column(Integer)
-    width: int = Column(Integer)
+    extension: Mapped[str] = mapped_column(String(16))
+    height: Mapped[int] = mapped_column(Integer)
+    width: Mapped[int] = mapped_column(Integer)
 
-    date_time: datetime.datetime = Column(DateTime)
+    date_time: Mapped[datetime.datetime] = mapped_column(DateTime)
 
-    mime_type: str = Column(String(128))
-    size_bytes: int = Column(Integer)
+    mime_type: Mapped[str] = mapped_column(String(128))
+    size_bytes: Mapped[int] = mapped_column(Integer)
 
-    title: str = Column(String(1024))
-    name: str = Column(String(1024))
+    title: Mapped[str] = mapped_column(String(1024))
+    name: Mapped[str] = mapped_column(String(1024))
 
 
 class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):
@@ -89,18 +90,18 @@ class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_user'
 
-    id: int = Column(Integer, primary_key=True)  # noqa: A003
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
 
-    is_bot: bool = Column(Boolean)
-    is_fake: bool = Column(Boolean)
-    is_self: bool = Column(Boolean)
-    is_scam: bool = Column(Boolean)
-    is_verified: bool = Column(Boolean)
-    first_name: str = Column(String(255))
-    last_name: str = Column(String(255))
-    username: str = Column(String(1024))
-    phone_number: str = Column(String(255))
+    is_bot: Mapped[bool] = mapped_column(Boolean)
+    is_fake: Mapped[bool] = mapped_column(Boolean)
+    is_self: Mapped[bool] = mapped_column(Boolean)
+    is_scam: Mapped[bool] = mapped_column(Boolean)
+    is_verified: Mapped[bool] = mapped_column(Boolean)
+    first_name: Mapped[str] = mapped_column(String(255))
+    last_name: Mapped[str] = mapped_column(String(255))
+    username: Mapped[str] = mapped_column(String(1024))
+    phone_number: Mapped[str] = mapped_column(String(255))
 
-    photo_id: int = Column(Integer)
-    photo_base64: str = Column(String(1024000))
-    photo_name: str = Column(String(1024))
+    photo_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    photo_base64: Mapped[Optional[str]] = mapped_column(String(1024000), nullable=True)
+    photo_name: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)

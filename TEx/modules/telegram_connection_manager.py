@@ -5,7 +5,6 @@ from configparser import ConfigParser
 from typing import Dict
 
 from telethon import TelegramClient
-from telethon.sessions import SQLiteSession
 
 from TEx.core.base_module import BaseModule
 
@@ -22,17 +21,15 @@ class TelegramConnector(BaseModule):
         if not need_connection:
             return
 
-        SQLiteSession()
-
         # Check Activation Command
         if args['connect']:  # New Connection
             logger.info('\t\tAuthorizing on Telegram...')
 
             # Connect
             client = TelegramClient(
-                os.path.join(args["data_path"], 'session', config['CONFIGURATION']['phone_number']),
-                args['api_id'],
-                args['api_hash'],
+                os.path.join(config['CONFIGURATION']['data_path'], 'session', config['CONFIGURATION']['phone_number']),
+                config['CONFIGURATION']['api_id'],
+                config['CONFIGURATION']['api_hash'],
                 catch_up=True,
                 device_model='TeX'
                 )
@@ -41,8 +38,8 @@ class TelegramConnector(BaseModule):
 
             # Save Data into State File
             data['telegram_connection'] = {
-                'api_id': config['CONFIGURATION'],
-                'api_hash': config['CONFIGURATION'],
+                'api_id': config['CONFIGURATION']['api_id'],
+                'api_hash': config['CONFIGURATION']['api_hash'],
                 'target_phone_number': config['CONFIGURATION']['phone_number']
                 }
 
