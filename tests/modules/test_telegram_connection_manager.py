@@ -2,12 +2,12 @@
 
 import asyncio
 import unittest
-from unittest import mock
-from typing import Dict
 from configparser import ConfigParser
+from typing import Dict
+from unittest import mock
 
-from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 from TEx.modules.telegram_connection_manager import TelegramConnector, TelegramDisconnector
+from tests.modules.common import TestsCommon
 
 
 class TelegramConnectorTest(unittest.TestCase):
@@ -16,18 +16,6 @@ class TelegramConnectorTest(unittest.TestCase):
 
         self.config = ConfigParser()
         self.config.read('../../config.ini')
-
-    def __load_execution_config(self, args, data):
-
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=data
-            )
-        )
 
     def test_run_connect(self):
         """Test Run Method with Telegram Server Connection."""
@@ -46,7 +34,7 @@ class TelegramConnectorTest(unittest.TestCase):
             'config': 'unittest_configfile.config'
         }
         data: Dict = {}
-        self.__load_execution_config(args, data)
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:
@@ -98,7 +86,7 @@ class TelegramConnectorTest(unittest.TestCase):
                 'session_code': '1AZWarxxBu1K7H_xk4-uACJYt3R_zyEPdZGd6t6nyAIxH8r6yVxMrMBP2xRyKhQAT3-KyR2T4BpLicQR6_54yvYatWV0WN2nAZMpyHGdJ-GXCyeiDxhAf4vFWb_eaw8fN4FeNPygq6VGQxOs56H_yO47zVYrwF4OZNBfe8rZISG2YLer43zwJ8fCySlrf8pswx0huRC-ntDWMNrR60_B61SX3_tQYcA1OGujHc6SjCGINxnOqltL0L359iG-CdDvde2-ZWAPLYutR1Q4T48h_GEI_vHhB0DPob9NsQyrLR6QuYO5UnhgbJIs2Fs0ysJfkGBAHsYnFPzDfpKCusC8ubl1phtcyTqg='
             }
         }
-        self.__load_execution_config(args, data)
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:
@@ -146,7 +134,7 @@ class TelegramConnectorTest(unittest.TestCase):
             'telegram_connection': {
             }
         }
-        self.__load_execution_config(args, data)
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
             with self.assertLogs() as captured:

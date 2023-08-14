@@ -1,29 +1,14 @@
 """Telegram Groups List Tests."""
 
 import asyncio
-import shutil
 import unittest
 from configparser import ConfigParser
 from typing import Dict
-from unittest import mock
 
-from sqlalchemy import select, insert, delete
-
-from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.errors.rpcerrorlist import ChannelPrivateError
-
-from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.db_initializer import DbInitializer
-from TEx.database.db_manager import DbManager
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity,
-    TelegramMessageOrmEntity, TelegramUserOrmEntity,
-)
-from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 from TEx.modules.telegram_groups_list import TelegramGroupList
 from TEx.modules.telegram_groups_scrapper import TelegramGroupScrapper
-from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_users_mockup_data
+from tests.modules.common import TestsCommon
 
 
 class TelegramGroupListTest(unittest.TestCase):
@@ -33,13 +18,7 @@ class TelegramGroupListTest(unittest.TestCase):
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
-        DirectoryManagerUtils.ensure_dir_struct('_data')
-        DirectoryManagerUtils.ensure_dir_struct('_data/resources')
-
-        DbInitializer.init(data_path='_data/')
-        DbManager.SESSIONS['data'].execute(delete(TelegramGroupOrmEntity))
-        DbManager.SESSIONS['data'].execute(delete(TelegramMessageOrmEntity))
-        DbManager.SESSIONS['data'].commit()
+        TestsCommon.basic_test_setup()
 
         # Add Group 1 - Without Any Message
         TelegramGroupDatabaseManager.insert_or_update({
@@ -69,15 +48,7 @@ class TelegramGroupListTest(unittest.TestCase):
         }
         data: Dict = {}
 
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=data
-            )
-        )
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
             loop = asyncio.get_event_loop()
@@ -106,15 +77,7 @@ class TelegramGroupListTest(unittest.TestCase):
         }
         data: Dict = {}
 
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=data
-            )
-        )
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
             loop = asyncio.get_event_loop()

@@ -2,15 +2,12 @@
 import asyncio
 import logging
 import logging.config
-
 import unittest
-from typing import Dict
 from configparser import ConfigParser
+from typing import Dict
 
-from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.db_initializer import DbInitializer
-from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
-from TEx.modules.state_file_handler import SaveStateFileHandler, LoadStateFileHandler
+from TEx.modules.state_file_handler import LoadStateFileHandler, SaveStateFileHandler
+from tests.modules.common import TestsCommon
 
 
 class StateFileHandlerTest(unittest.TestCase):
@@ -21,26 +18,18 @@ class StateFileHandlerTest(unittest.TestCase):
         self.config = ConfigParser()
         self.config.read('config.ini')
 
-        DirectoryManagerUtils.ensure_dir_struct('_data/')
-
-        DbInitializer.init(data_path='_data/')
+        TestsCommon.basic_test_setup()
 
     def test_run(self):
 
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
         target_load: LoadStateFileHandler = LoadStateFileHandler()
         target_save: SaveStateFileHandler = SaveStateFileHandler()
         args: Dict = {'config': 'unittest_configfile.config'}
         save_data: Dict = {'demo': 1}
 
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=save_data)
+
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=save_data
-            )
-        )
 
         loop.run_until_complete(
             target_save.run(

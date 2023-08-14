@@ -1,10 +1,11 @@
 """Input Args Handler Tests."""
 
-import sys
 import asyncio
+import sys
 import unittest
-from typing import Dict
 from configparser import ConfigParser
+from typing import Dict
+
 from TEx.modules.input_args_handler import InputArgsHandler
 
 

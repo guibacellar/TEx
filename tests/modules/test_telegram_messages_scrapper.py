@@ -9,21 +9,16 @@ from typing import Dict
 from unittest import mock
 
 import pytz
-from sqlalchemy import select, insert, delete
+from sqlalchemy import select
 from telethon.tl.functions.messages import GetDialogsRequest
 
-from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.db_initializer import DbInitializer
 from TEx.database.db_manager import DbManager
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity,
-    TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramUserOrmEntity,
-)
-from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
+    TelegramMediaOrmEntity, TelegramMessageOrmEntity, )
 from TEx.modules.telegram_messages_scrapper import TelegramGroupMessageScrapper
-from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data, \
-    base_users_mockup_data
+from tests.modules.common import TestsCommon
+from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data
 
 
 class TelegramGroupMessageScrapperTest(unittest.TestCase):
@@ -33,17 +28,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
-        DirectoryManagerUtils.ensure_dir_struct('_data')
-        DirectoryManagerUtils.ensure_dir_struct('_data/resources')
-        DirectoryManagerUtils.ensure_dir_struct('_data/media')
-
-        DbInitializer.init(data_path='_data/')
-
-        # Reset SQLlite Groups
-        DbManager.SESSIONS['data'].execute(delete(TelegramMessageOrmEntity))
-        DbManager.SESSIONS['data'].execute(delete(TelegramGroupOrmEntity))
-        DbManager.SESSIONS['data'].execute(delete(TelegramMediaOrmEntity))
-        DbManager.SESSIONS['data'].commit()
+        TestsCommon.basic_test_setup()
 
         # Add Group 1 - Without Any Message
         TelegramGroupDatabaseManager.insert_or_update({
@@ -109,15 +94,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'telegram_client': telegram_client_mockup
         }
 
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=data
-            )
-        )
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
             loop = asyncio.get_event_loop()
@@ -283,15 +260,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
             'telegram_client': telegram_client_mockup
         }
 
-        execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            execution_configuration_loader.run(
-                config=self.config,
-                args=args,
-                data=data
-            )
-        )
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
             loop = asyncio.get_event_loop()
