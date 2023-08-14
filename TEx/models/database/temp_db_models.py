@@ -1,5 +1,6 @@
 """Temporary Data Model."""
 
+from typing import Optional
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -15,7 +16,7 @@ class TempDataOrmEntity(TempDataBaseDeclarativeBase):
     __tablename__ = 'temporary_data'
 
     path: Mapped[str] = mapped_column(String(255), primary_key=True)
-    module: Mapped[str] = mapped_column(String(255))
+    module: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     data: Mapped[str] = mapped_column(String)
     created_at: Mapped[Integer] = mapped_column(Integer)
     valid_at: Mapped[Integer] = mapped_column(Integer)

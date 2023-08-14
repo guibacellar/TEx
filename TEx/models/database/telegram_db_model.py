@@ -29,7 +29,7 @@ class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     scam: Mapped[bool] = mapped_column(Boolean)
     verified: Mapped[bool] = mapped_column(Boolean)
 
-    participants_count: Mapped[int] = mapped_column(Integer)
+    participants_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     photo_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     photo_base64: Mapped[Optional[str]] = mapped_column(String(1024000), nullable=True)
@@ -97,10 +97,10 @@ class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):
     is_self: Mapped[bool] = mapped_column(Boolean)
     is_scam: Mapped[bool] = mapped_column(Boolean)
     is_verified: Mapped[bool] = mapped_column(Boolean)
-    first_name: Mapped[str] = mapped_column(String(255))
-    last_name: Mapped[str] = mapped_column(String(255))
-    username: Mapped[str] = mapped_column(String(1024))
-    phone_number: Mapped[str] = mapped_column(String(255))
+    first_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    last_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    username: Mapped[str] = mapped_column(String(1024), nullable=True)
+    phone_number: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     photo_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     photo_base64: Mapped[Optional[str]] = mapped_column(String(1024000), nullable=True)
