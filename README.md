@@ -77,7 +77,7 @@ Considering a *my_TEx_config.config* file created at */usr/my_TEx_config.config*
 [CONFIGURATION]
 api_id=12345678
 api_hash=dff159855418ddfaddf10dcbdeadbeef
-phone_number=5511987542563
+phone_number=5511987654321
 data_path=/usr/TEx/
 ```
 

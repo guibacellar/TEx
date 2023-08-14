@@ -72,16 +72,16 @@ class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
     file_name: Mapped[str] = mapped_column(String(1024))
 
     extension: Mapped[str] = mapped_column(String(16))
-    height: Mapped[int] = mapped_column(Integer)
-    width: Mapped[int] = mapped_column(Integer)
+    height: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    width: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     date_time: Mapped[datetime.datetime] = mapped_column(DateTime)
 
     mime_type: Mapped[str] = mapped_column(String(128))
     size_bytes: Mapped[int] = mapped_column(Integer)
 
-    title: Mapped[str] = mapped_column(String(1024))
-    name: Mapped[str] = mapped_column(String(1024))
+    title: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
 
 
 class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):
