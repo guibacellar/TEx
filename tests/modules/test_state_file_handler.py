@@ -21,9 +21,9 @@ class StateFileHandlerTest(unittest.TestCase):
         self.config = ConfigParser()
         self.config.read('config.ini')
 
-        DirectoryManagerUtils.ensure_dir_struct('data/')
+        DirectoryManagerUtils.ensure_dir_struct('_data/')
 
-        DbInitializer.init(data_path='data/')
+        DbInitializer.init(data_path='_data/')
 
     def test_run(self):
 

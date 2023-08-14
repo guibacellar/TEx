@@ -1,6 +1,6 @@
 import os
 
-data_dir: str = os.path.join(os.getcwd(), "data")
+data_dir: str = os.path.join(os.getcwd(), "_data")
 db_file: str = os.path.join(data_dir, 'local.db')
 
 if not os.path.exists(data_dir):
