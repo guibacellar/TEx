@@ -7,7 +7,7 @@ from TEx.database.db_initializer import DbInitializer
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
-    TelegramMediaOrmEntity, TelegramMessageOrmEntity, )
+    TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramUserOrmEntity, )
 from TEx.modules.execution_configuration_handler import ExecutionConfigurationHandler
 
 
@@ -27,6 +27,7 @@ class TestsCommon:
         DbManager.SESSIONS['data'].execute(delete(TelegramMessageOrmEntity))
         DbManager.SESSIONS['data'].execute(delete(TelegramGroupOrmEntity))
         DbManager.SESSIONS['data'].execute(delete(TelegramMediaOrmEntity))
+        DbManager.SESSIONS['data'].execute(delete(TelegramUserOrmEntity))
         DbManager.SESSIONS['data'].commit()
 
     @staticmethod

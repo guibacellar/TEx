@@ -131,7 +131,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[0], message_id=183017, group_id=1, datetime=datetime.datetime(2020, 5, 12, 21, 19, 22),
             message_content='Message Content', raw_message_content='Message Content',
-            to_id=1148953179, from_type='User', from_id=5566, expected_media_id=None
+            to_id=1148933339, from_type='User', from_id=5566, expected_media_id=None
         )
 
         # Check Message 2 - With a Photo

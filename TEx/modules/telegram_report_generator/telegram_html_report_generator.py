@@ -280,7 +280,8 @@ class TelegramReportGenerator(BaseModule):
                     destination_media_path: str = os.path.join(assets_root_folder, f'{media.group_id}_{media.file_name}')
 
                     # Copy from Media Folder into Report Assets Folder
-                    shutil.copy(souce_media_path, destination_media_path)
+                    if os.path.exists(souce_media_path):
+                        shutil.copy(souce_media_path, destination_media_path)
 
                     media_file_name = f'assets/{media.group_id}_{media.file_name}'
                     media_title = media.title

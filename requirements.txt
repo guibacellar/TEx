@@ -21,3 +21,4 @@ cachetools==5.3.1
 # QA
 tox==4.7.0
 pytest==7.4.0
+coverage==7.2.7

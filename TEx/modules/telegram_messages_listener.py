@@ -53,8 +53,7 @@ class TelegramGroupMessageListener(BaseModule):
             'message': message.message,
             'raw': message.raw_text,
             'to_id': message.to_id.channel_id if message.to_id is not None else None,
-            'media_id': await self.media_handler.handle_medias(message, event.chat.id,
-                                                               self.data_path) if self.download_media else None,
+            'media_id': await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None
             }
@@ -70,7 +69,8 @@ class TelegramGroupMessageListener(BaseModule):
                 await self.__ensure_user_exists(event=event)
 
             else:
-                pass
+                values['from_id'] = None
+                values['from_type'] = None
 
         # Add to DB
         TelegramMessageDatabaseManager.insert(values)

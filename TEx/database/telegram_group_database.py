@@ -12,8 +12,9 @@ from sqlalchemy.sql import Delete, Select, distinct, or_
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.orm import Session
 
-from cachetools import Cache, TTLCache, cached
+from cachetools import cached
 
+from TEx.database import GROUPS_CACHE, USERS_CACHE
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import (
     TelegramGroupOrmEntity,
@@ -21,15 +22,6 @@ from TEx.models.database.telegram_db_model import (
     TelegramMessageOrmEntity,
     TelegramUserOrmEntity,
     )
-
-
-class NoneSupportedTTLCache(TTLCache):
-    """Cache Customization to not Save None Values in Memory."""
-
-    def __setitem__(self, key, value, cache_setitem=Cache.__setitem__) -> None:  # type: ignore
-        """Customize __setitem__  to do not save nullable values."""
-        if value:
-            super().__setitem__(key, value, cache_setitem)  # type: ignore
 
 
 class TelegramGroupDatabaseManager:
@@ -47,7 +39,7 @@ class TelegramGroupDatabaseManager:
             )
 
     @staticmethod
-    @cached(cache=NoneSupportedTTLCache(maxsize=256, ttl=60))
+    @cached(cache=GROUPS_CACHE)
     def get_by_id(pk: str) -> Optional[TelegramGroupOrmEntity]:
         """Retrieve one TelegramGroupOrmEntity by PK."""
         return cast(
@@ -199,7 +191,7 @@ class TelegramUserDatabaseManager:
     """Telegram User Database Manager."""
 
     @staticmethod
-    @cached(cache=NoneSupportedTTLCache(maxsize=2048, ttl=60))
+    @cached(cache=USERS_CACHE)
     def get_by_id(pk: Optional[int]) -> Optional[TelegramUserOrmEntity]:
         """Retrieve one TelegramUserOrmEntity by PK."""
         if pk is None:
