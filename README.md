@@ -46,7 +46,7 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 
 ### Prerequisites
 
- * Python 3.8+
+ * Python 3.8.1+
 
 ### Installation
 pip install TEx

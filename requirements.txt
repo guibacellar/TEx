@@ -1,25 +1,3 @@
-# Telegram
-Telethon==1.29.2
-cryptg==0.2.post4
-telethon-cryptg==0.0.4
-
-# DB Deps
-#sqlalchemy[asyncio]==1.4.23
-#sqlalchemy[mypy]==1.4.29
-SQLAlchemy==2.0.19
-aiosqlite==0.19.0
-
-# Report Generation
-Jinja2==3.0.3
-
-# Others
-pytz==2023.3
-urllib3==1.26.8
-requests==2.31.0
-cachetools==5.3.1
-toml==0.10.2
-
 # QA
 tox==4.7.0
-pytest==7.4.0
-coverage==7.2.7
+poetry==1.5.1
