@@ -58,6 +58,10 @@ requests            = "2.31.0"
 cachetools          = "5.3.1"
 toml                = "0.10.2"
 
+[tool.poetry.dev-dependencies]
+pytest = "7.4.0"
+tox = "4.7.0"
+
 #include = [
 #    { path = "tests", format = "sdist" }
 #]
