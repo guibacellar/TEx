@@ -2,8 +2,11 @@
 
 import argparse
 import logging
+import os
 from configparser import ConfigParser
 from typing import Dict, List
+
+import toml
 
 from TEx.core.base_module import BaseModule
 
@@ -273,7 +276,8 @@ class InputArgsHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        parent_parser = argparse.ArgumentParser(description=f'TEx - Telegram Monitor - {open("../__version__.txt", "r", encoding="utf-8").read()}')  # pylint: disable=R1732
+        tex_version: str = toml.load(os.path.join('..', 'pyproject.toml'))['tool']['poetry']['version']
+        parent_parser = argparse.ArgumentParser(description=f'TEx - Telegram Monitor - {tex_version}')  # pylint: disable=R1732
         sub_parser = parent_parser.add_subparsers(title='actions', dest='action')
 
         # Add Parameters to Arg Parser

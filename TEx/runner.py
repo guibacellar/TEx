@@ -12,13 +12,13 @@ import types
 from configparser import ConfigParser
 from typing import Dict, List, Optional
 
+import toml
 
 from TEx.core.base_module import BaseModule
 
 logger = logging.getLogger()
 
-with open("../__version__.txt", "r", encoding="utf-8") as version_file:
-    VERSION: str = version_file.read()
+VERSION: str = toml.load(os.path.join('..', 'pyproject.toml'))['tool']['poetry']['version']
 
 BANNER: str = f'''
 TEx - Telegram Explorer
