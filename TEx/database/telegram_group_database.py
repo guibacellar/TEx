@@ -134,7 +134,7 @@ class TelegramMessageDatabaseManager:
                 TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
                 )
 
-        select_statement = select_statement.with_only_columns([func.count()])  # pylint: disable=E1102
+        select_statement = select_statement.with_only_columns(func.count())  # pylint: disable=E1102
 
         return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
 
@@ -148,7 +148,7 @@ class TelegramMessageDatabaseManager:
                 TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
                 )
 
-        select_statement = select_statement.with_only_columns([func.count(distinct(TelegramMessageOrmEntity.from_id))])  # pylint: disable=E1102
+        select_statement = select_statement.with_only_columns(func.count(distinct(TelegramMessageOrmEntity.from_id)))  # pylint: disable=E1102
 
         return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
 
@@ -162,7 +162,7 @@ class TelegramMessageDatabaseManager:
                 TelegramMessageOrmEntity.date_time >= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=message_datetime_limit_seconds))
                 )
 
-        select_statement = select_statement.with_only_columns([func.count(distinct(TelegramMessageOrmEntity.from_id))])  # pylint: disable=E1102
+        select_statement = select_statement.with_only_columns(func.count(distinct(TelegramMessageOrmEntity.from_id)))  # pylint: disable=E1102
 
         return cast(int, DbManager.SESSIONS['data'].execute(select_statement).scalar())
 
@@ -318,11 +318,12 @@ class TelegramMediaDatabaseManager:
                 )
 
         # Group Clause
-        select_statement = select_statement.with_only_columns([
+        select_statement = select_statement.where(TelegramMediaOrmEntity.group_id == group_id)
+        select_statement = select_statement.with_only_columns(
             distinct(TelegramMediaOrmEntity.mime_type),
             func.count(TelegramMediaOrmEntity.mime_type),  # pylint: disable=E1102
             func.sum(TelegramMediaOrmEntity.size_bytes)  # pylint: disable=E1102
-            ])
+            )
         select_statement = select_statement.group_by(TelegramMediaOrmEntity.mime_type)
         select_statement = select_statement.group_by(TelegramMediaOrmEntity.group_id == group_id)
 
