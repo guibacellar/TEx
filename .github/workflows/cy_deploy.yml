@@ -3,23 +3,8 @@ name: CI-Deploy
 on:
   push:
 
-    paths-ignore:
-      - '**/*.md'
-      - '**/docs/*.md'
-      - '**/.github/workflows/deploy.yml'
-      - '**/.github/workflows/publish.yml'
-
-  pull_request:
-    branches:
-      - develop
-      - main
-
     tags:
       - V*
-
-    paths-ignore:
-      - '**/*.md'
-      - '**/docs/*.md'
 
 jobs:
   CodeQuality:
