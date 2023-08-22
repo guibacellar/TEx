@@ -15,7 +15,7 @@ on:
       - main
 
     tags:
-      - *
+      - V*
 
     paths-ignore:
       - '**/*.md'
