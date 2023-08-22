@@ -5,7 +5,7 @@ import datetime
 
 import pytz
 import sqlalchemy.exc
-from sqlalchemy import delete, desc, insert, select, update
+from sqlalchemy import delete, desc, insert, select, text, update
 from sqlalchemy.sql.expression import func
 from sqlalchemy.engine import ChunkedIteratorResult, CursorResult, Row
 from sqlalchemy.sql import Delete, Select, distinct, or_
@@ -337,9 +337,8 @@ class TelegramMediaDatabaseManager:
 
         return h_result
 
-    # TO_DO - REFACTORY - NEED TO DELETE THE FILES FROM DISK
     @staticmethod
-    def remove_all_medias_by_age(group_id: int, media_limit_days: int) -> int:  # pylint: disable=W0613
+    def get_all_medias_by_age(group_id: int, media_limit_days: int) -> List[TelegramMediaOrmEntity]:
         """
         Remove all Medias older that Age in Seconds.
 
@@ -347,14 +346,29 @@ class TelegramMediaDatabaseManager:
         :param media_limit_days: Age of Media in Days
         :return: Number of Medias Removed
         """
-        statement: Delete = delete(TelegramMediaOrmEntity).where(
+        statement: Delete = select(TelegramMediaOrmEntity).where(
             TelegramMediaOrmEntity.date_time <= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(days=media_limit_days))
             )
 
-        total_medias: int = cast(int, DbManager.SESSIONS['data'].execute(statement).rowcount)
-        DbManager.SESSIONS['data'].commit()
+        statement = statement.where(TelegramMediaOrmEntity.group_id == group_id)
 
-        return total_medias
+        return cast(
+            List[TelegramMediaOrmEntity],
+            DbManager.SESSIONS['data'].execute(statement).scalars().all()
+            )
+
+    @staticmethod
+    def delete_media_by_id(media_id: int) -> None:
+        """
+        Remove Media by PK.
+
+        :param group_id: Target Group ID
+        :param media_id: Media ID
+        :return:
+        """
+        statement: Delete = delete(TelegramMediaOrmEntity).where(TelegramMediaOrmEntity.id == media_id)
+        DbManager.SESSIONS['data'].execute(statement)
+        DbManager.SESSIONS['data'].commit()
 
     @staticmethod
     def apply_db_maintenance() -> None:
@@ -365,4 +379,4 @@ class TelegramMediaDatabaseManager:
         :param file_datetime_limit_seconds: Age of File in Seconds
         :return: Number of Medias Removed
         """
-        DbManager.SESSIONS['data'].execute("vacuum")
+        DbManager.SESSIONS['data'].execute(text("vacuum"))

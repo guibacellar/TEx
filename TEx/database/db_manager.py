@@ -17,13 +17,13 @@ class DbManager:
         """Initialize the DB Connection."""
         DbManager.SQLALCHEMY_BINDS = {
             'temp': create_engine(
-                f'sqlite:///{os.path.join(data_path, "temp_local.db")}',
-                connect_args={"check_same_thread": False},
+                f'sqlite:///{os.path.join(data_path, "temp_local.db")}?nolock=1&check_same_thread=false',
+                connect_args={'check_same_thread': False},
                 echo=False, logging_name='sqlalchemy', isolation_level='READ UNCOMMITTED'
                 ),
             'data': create_engine(
-                f'sqlite:///{os.path.join(data_path, "data_local.db")}',
-                connect_args={"check_same_thread": False},
+                f'sqlite:///{os.path.join(data_path, "data_local.db")}?nolock=1&check_same_thread=false',
+                connect_args={'check_same_thread': False},
                 echo=False, logging_name='sqlalchemy', isolation_level='READ UNCOMMITTED'
                 )
             }
