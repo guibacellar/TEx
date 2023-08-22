@@ -123,6 +123,7 @@ TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
 
 ### Download Messages (Download since first message for each group)
+Scrap Messages from Telegram Server
 ```bash
 TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ```
@@ -132,6 +133,7 @@ TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
 
 ### Generate Report
+Generate HTML Report
 ```bash
 TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
 ```
@@ -145,6 +147,7 @@ TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH -
   * **suppress_repeating_messages** > Optional - If present, suppress all repeating messages in the same report
 
 ### Export Downloaded Files
+Export Downloaded Files by MimeType
 ```bash
 TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
 ```
@@ -155,6 +158,17 @@ TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PA
   * **limit_days** > Optional - Number of Days of past to filter the Messages
   * **mime_type** > Optional - File MIME Type. Ex: application/vnd.android.package-archive
 
+### Export Texts
+Export Messages (Texts) using Regex finder
+```bash
+TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id *
+```
+  * **config** > Required - Created Configuration File Path
+  * **report_folder** > Optional - Defines the Report Files Folder
+  * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
+  * **limit_days** > Optional - Number of Days of past to filter the Messages
+  * **regex** > Required - Regex to find the messages. 
+    * Ex: Export Links from Messages (.*http://.*),(.*https://.*)
 
 <!-- LICENSE -->
 ## License

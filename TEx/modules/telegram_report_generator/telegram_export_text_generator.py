@@ -50,7 +50,7 @@ class TelegramExportTextGenerator(BaseModule):
 
         # Load Groups from DB
         db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
-            args['target_phone_number'])
+            config['CONFIGURATION']['phone_number'])
         logger.info(f'\t\tFound {len(db_groups)} Groups')
 
         # Map to Facade Entities
