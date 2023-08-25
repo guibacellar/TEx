@@ -84,9 +84,9 @@ data_path=/usr/TEx/
 Execute the first 2 commands to configure and sync TEx and the last one to activate the listener module.
 
 ```bash
-TEx connect --config /usr/my_TEx_config.config
-TEx load_groups --config /usr/my_TEx_config.config
-TEx listen --config /usr/my_TEx_config.config
+python -m TEx connect --config /usr/my_TEx_config.config
+python -m TEx load_groups --config /usr/my_TEx_config.config
+python -m TEx listen --config /usr/my_TEx_config.config
 ```
 
 <!-- Command Line -->
@@ -94,13 +94,13 @@ TEx listen --config /usr/my_TEx_config.config
 
 ### Connect to Telegram Servers
 ```bash
-TEx connect --config CONFIGURATION_FILE_PATH
+python -m TEx connect --config CONFIGURATION_FILE_PATH
 ```
   * **config** > Required - Created Configuration File Path
 
 ### Update Groups List (Optional, but Recommended)
 ```bash
-TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
+python -m TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -108,14 +108,14 @@ TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
 
 ### List Groups
 ```bash
-TEx list_groups --config CONFIGURATION_FILE_PATH 
+python -m TEx list_groups --config CONFIGURATION_FILE_PATH 
 ```
 
   * **config** > Required - Created Configuration File Path
 
 ### Listen Messages (Start the Message Listener)
 ```bash
-TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
+python -m TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -125,7 +125,7 @@ TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ### Download Messages (Download since first message for each group)
 Scrap Messages from Telegram Server
 ```bash
-TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
+python -m TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -135,7 +135,7 @@ TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ### Generate Report
 Generate HTML Report
 ```bash
-TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
+python -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder
@@ -149,7 +149,7 @@ TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH -
 ### Export Downloaded Files
 Export Downloaded Files by MimeType
 ```bash
-TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
+python -m TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder
@@ -161,7 +161,7 @@ TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PA
 ### Export Texts
 Export Messages (Texts) using Regex finder
 ```bash
-TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id *
+python -m TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id *
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder
