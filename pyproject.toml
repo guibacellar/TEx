@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "TelegramExplorer"
-version = "0.2.9"
+version = "0.2.10"
 description = "Telegram Explorer"
 authors = ["Th3 0bservator <th30bservator@gmail.com>"]
 maintainers = [
@@ -35,8 +35,16 @@ classifiers = [
 ]
 
 packages = [
-    { include = "TEx", from="." }
+    { include = "TEx", from="." },
 ]
+
+
+include = [
+    "pyproject.toml",
+    ".README.md"
+]
+
+exclude = [".tox", "venv", "dist"]
 
 # Requirements
 [tool.poetry.dependencies]
@@ -57,6 +65,7 @@ urllib3             = ">=1.26.8"
 requests            = ">=2.31.0,<3"
 cachetools          = ">=5.3.1,<6"
 toml                = ">=0.10.2"
+tox = "^4.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest                  = ">=7.4.0"
@@ -84,10 +93,6 @@ types-pytz              = ">=2023.3.0.0"
 types-requests          = ">=2.31.0.2"
 types-cachetools        = ">=5.3.0.6"
 types-toml              = ">=0.10.8.7"
-
-#include = [
-#    { path = "tests", format = "sdist" }
-#]
 
 [build-system]
 requires = ["poetry-core"]
