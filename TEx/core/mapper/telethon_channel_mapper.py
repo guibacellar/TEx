@@ -18,12 +18,12 @@ class TelethonChannelEntiyMapper:
             'fake': channel.fake,
             'gigagroup': getattr(channel, 'gigagroup', False),
             'has_geo': getattr(channel, 'has_geo', False),
-            'participants_count': channel.participants_count,
+            'participants_count': getattr(channel, 'participants_count', 0),
             'restricted': channel.restricted,
             'scam': channel.scam,
             'group_username': channel.username,
             'verified': channel.verified,
-            'title': channel.title,
+            'title': getattr(channel, 'title', ''),
             'source': target_phone_numer
             }
 

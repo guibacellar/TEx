@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "TelegramExplorer"
-version = "0.2.10"
+version = "0.2.11"
 description = "Telegram Explorer"
 authors = ["Th3 0bservator <th30bservator@gmail.com>"]
 maintainers = [
@@ -65,7 +65,8 @@ urllib3             = ">=1.26.8"
 requests            = ">=2.31.0,<3"
 cachetools          = ">=5.3.1,<6"
 toml                = ">=0.10.2"
-tox = "^4.10.0"
+tox                 = "^4.10.0"
+discord-webhook     = ">=1.3.0,<2"
 
 [tool.poetry.dev-dependencies]
 pytest                  = ">=7.4.0"

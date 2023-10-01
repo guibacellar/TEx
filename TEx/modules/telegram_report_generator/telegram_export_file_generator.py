@@ -78,7 +78,7 @@ class TelegramExportFileGenerator(BaseModule):
                 )
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
-        """Apply Filter on Gropus."""
+        """Apply Filter on yGropus."""
         groups: List[TelegramGroupReportFacadeEntity] = []
 
         # Filter Groups
@@ -120,6 +120,9 @@ class TelegramExportFileGenerator(BaseModule):
 
             souce_media_path: str = os.path.join(config['CONFIGURATION']['data_path'], 'media', str(media[0].group_id), media[0].file_name)
             destination_media_path: str = os.path.join(report_root_folder, f'{media[0].group_id}_{media[0].file_name}')
+
+            if not os.path.exists(souce_media_path):
+                continue
 
             # Compute Source File Hash
             file_hash: str = ''

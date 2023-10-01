@@ -14,6 +14,7 @@ from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
     TelegramUserDatabaseManager
+from TEx.finder.finder_engine import FinderEngine
 
 logger = logging.getLogger()
 
@@ -28,6 +29,7 @@ class TelegramGroupMessageListener(BaseModule):
         self.group_ids: List[int] = []
         self.media_handler: UniversalTelegramMediaHandler = UniversalTelegramMediaHandler()
         self.target_phone_number: str = ''
+        self.finder: FinderEngine = FinderEngine()
 
     async def __handler(self, event: NewMessage.Event) -> None:
         """Handle the Message."""
@@ -71,6 +73,9 @@ class TelegramGroupMessageListener(BaseModule):
             else:
                 values['from_id'] = None
                 values['from_type'] = None
+
+        # Execute Finder
+        await self.finder.run(message=message)
 
         # Add to DB
         TelegramMessageDatabaseManager.insert(values)
@@ -129,6 +134,9 @@ class TelegramGroupMessageListener(BaseModule):
         self.download_media = not args['ignore_media']
         self.data_path = config['CONFIGURATION']['data_path']
         self.target_phone_number = config['CONFIGURATION']['phone_number']
+
+        # Set Finder
+        self.finder.configure(config=config)
 
         # Update Module Group Filtering Info
         if args['group_id'] and args['group_id'] != '*':

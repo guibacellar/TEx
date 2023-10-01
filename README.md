@@ -84,9 +84,9 @@ data_path=/usr/TEx/
 Execute the first 2 commands to configure and sync TEx and the last one to activate the listener module.
 
 ```bash
-python -m TEx connect --config /usr/my_TEx_config.config
-python -m TEx load_groups --config /usr/my_TEx_config.config
-python -m TEx listen --config /usr/my_TEx_config.config
+python3 -m TEx connect --config /usr/my_TEx_config.config
+python3 -m TEx load_groups --config /usr/my_TEx_config.config
+python3 -m TEx listen --config /usr/my_TEx_config.config
 ```
 
 <!-- Command Line -->
@@ -94,13 +94,13 @@ python -m TEx listen --config /usr/my_TEx_config.config
 
 ### Connect to Telegram Servers
 ```bash
-python -m TEx connect --config CONFIGURATION_FILE_PATH
+python3 -m TEx connect --config CONFIGURATION_FILE_PATH
 ```
   * **config** > Required - Created Configuration File Path
 
 ### Update Groups List (Optional, but Recommended)
 ```bash
-python -m TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
+python3 -m TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_photos
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -108,14 +108,14 @@ python -m TEx load_groups --config CONFIGURATION_FILE_PATH --refresh_profile_pho
 
 ### List Groups
 ```bash
-python -m TEx list_groups --config CONFIGURATION_FILE_PATH 
+python3 -m TEx list_groups --config CONFIGURATION_FILE_PATH 
 ```
 
   * **config** > Required - Created Configuration File Path
 
 ### Listen Messages (Start the Message Listener)
 ```bash
-python -m TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
+python3 -m TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -125,7 +125,7 @@ python -m TEx listen --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ### Download Messages (Download since first message for each group)
 Scrap Messages from Telegram Server
 ```bash
-python -m TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
+python3 -m TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234,5678
 ```
 
   * **config** > Required - Created Configuration File Path
@@ -135,7 +135,7 @@ python -m TEx download_messages --config CONFIGURATION_FILE_PATH --group_id 1234
 ### Generate Report
 Generate HTML Report
 ```bash
-python -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
+python3 -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id * --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder
@@ -149,7 +149,7 @@ python -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOL
 ### Export Downloaded Files
 Export Downloaded Files by MimeType
 ```bash
-python -m TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
+python3 -m TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT_FOLDER_PATH --group_id * --filter * --limit_days 3 --mime_type text/plain
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder
@@ -161,7 +161,7 @@ python -m TEx export_file --config CONFIGURATION_FILE_PATH -report_folder REPORT
 ### Export Texts
 Export Messages (Texts) using Regex finder
 ```bash
-python -m TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id *
+python3 -m TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id *
 ```
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Optional - Defines the Report Files Folder

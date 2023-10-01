@@ -11,5 +11,5 @@ class NoneSupportedTTLCache(TTLCache):
             super().__setitem__(key, value, cache_setitem)  # type: ignore
 
 
-GROUPS_CACHE: NoneSupportedTTLCache = NoneSupportedTTLCache(maxsize=256, ttl=60)
-USERS_CACHE: NoneSupportedTTLCache = NoneSupportedTTLCache(maxsize=2048, ttl=60)
+GROUPS_CACHE: NoneSupportedTTLCache = NoneSupportedTTLCache(maxsize=256, ttl=300)
+USERS_CACHE: NoneSupportedTTLCache = NoneSupportedTTLCache(maxsize=2048, ttl=300)
