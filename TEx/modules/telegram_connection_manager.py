@@ -21,13 +21,18 @@ class TelegramConnector(BaseModule):
         if not need_connection:
             return
 
+        # Check if Directory Exists
+        session_dir: str = os.path.join(config['CONFIGURATION']['data_path'], 'session')
+        if not os.path.exists(session_dir):
+            os.mkdir(session_dir)
+
         # Check Activation Command
         if args['connect']:  # New Connection
             logger.info('\t\tAuthorizing on Telegram...')
 
             # Connect
             client = TelegramClient(
-                os.path.join(config['CONFIGURATION']['data_path'], 'session', config['CONFIGURATION']['phone_number']),
+                os.path.join(session_dir, config['CONFIGURATION']['phone_number']),
                 config['CONFIGURATION']['api_id'],
                 config['CONFIGURATION']['api_hash'],
                 catch_up=True,
@@ -54,7 +59,7 @@ class TelegramConnector(BaseModule):
                 return
 
             client = TelegramClient(
-                os.path.join(config['CONFIGURATION']['data_path'], 'session', config['CONFIGURATION']['phone_number']),
+                os.path.join(session_dir, config['CONFIGURATION']['phone_number']),
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
                 catch_up=True,

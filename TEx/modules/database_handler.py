@@ -1,6 +1,7 @@
 """Database Handler."""
 
 import logging
+import os
 from configparser import ConfigParser
 from typing import Dict
 
@@ -16,6 +17,9 @@ class DatabaseHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute."""
+        if not os.path.exists(config['CONFIGURATION']['data_path']):
+            os.mkdir(config['CONFIGURATION']['data_path'])
+
         # Initialize DB
         DbInitializer.init(config['CONFIGURATION']['data_path'])
 
