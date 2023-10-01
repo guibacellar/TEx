@@ -1,0 +1,8 @@
+site_name: Telegram Explorer
+theme:
+  name: readthedocs
+  highlightjs: true
+
+plugins:
+  - search
+

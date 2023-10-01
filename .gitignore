@@ -13,6 +13,7 @@ assets/chromedriver.exe
 assets/chromedriver.so
 assets/chromedriver
 poetry.lock
+compiled_docs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
