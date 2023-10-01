@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "TelegramExplorer"
-version = "0.2.11"
+version = "0.2.12"
 description = "Telegram Explorer"
 authors = ["Th3 0bservator <th30bservator@gmail.com>"]
 maintainers = [
