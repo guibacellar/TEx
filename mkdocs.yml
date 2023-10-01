@@ -6,3 +6,13 @@ theme:
 plugins:
   - search
 
+nav:
+  - Home: 'index.md'
+  - 'Basic Configuration': 'configuration.md'
+  - 'Authentication': 'authentication.md'
+  - 'How to Use': 'how_to_use_basic.md'
+
+copyright: Th3 0bservator
+
+extra:
+  generator: false
