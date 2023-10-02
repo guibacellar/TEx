@@ -1,4 +1,6 @@
 site_name: Telegram Explorer
+repo_url: https://github.com/guibacellar/TEx/
+
 theme:
   name: readthedocs
   highlightjs: true
@@ -8,11 +10,24 @@ plugins:
 
 nav:
   - Home: 'index.md'
-  - 'Basic Configuration': 'configuration.md'
   - 'Authentication': 'authentication.md'
-  - 'How to Use': 'how_to_use_basic.md'
+  - 'Contact': 'contact.md'
+  - 'Configuration':
+    - 'Basic Configuration': 'configuration.md'
+    - 'Complete Configuration File Example': 'complete_configuration_file_example.md'
+  - 'How to Use':
+      - 'Basic Usage': 'how_to_use_basic.md'
+      - 'Connecting to Telegram Servers': 'usage_connection.md'
+      - 'Download/Update Groups': 'usage_load_groups.md'
+      - 'List Groups': 'usage_list_groups.md'
+      - 'Listen Messages': 'usage_message_listener.md'
+      - 'Download Messages': 'usage_download_messages.md'
+  - 'Notification System':
+      - 'Discord Notification Hook': 'notification_discord.md'
+  - 'Message Finder System':
+      - 'RegEx Finder': 'finder_regex.md'
 
-copyright: Th3 0bservator
+site_author: Th3 0bservator
 
 extra:
   generator: false

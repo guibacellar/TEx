@@ -17,6 +17,20 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 - Python 3.8.1+
 - Windows x64 or Linux x64
 
+<!-- FEATURES -->
+## Features
+- Connection Manager
+- Group Information Scrapper
+- List Groups
+- Automatic Group Information Sync
+- Automatic Users Information Sync
+- Messages Listener
+- Messages Scrapper
+- Download Media
+- HTML Report Generation
+- Export Downloaded Files
+- Export Messages
+
 <!-- HOW WORKS -->
 ## How Telegram Explorer Works
 Telegram Explorer works using one configuration file per target phone number to be used. 
@@ -34,19 +48,3 @@ Telegram Explorer is available through *pip*, so, just use pip install in order 
 ```bash
 pip install TelegramExplorer
 ```
-
-## Next
-
-⏩ Please see the [basic configuration](configuration.md) for further details.
-
----
-
-<!-- CONTACT -->
-## Contact
-
-**Th3 0bservator**
-
-[![Foo](https://img.shields.io/badge/RSS-FFA500?style=for-the-badge&logo=rss&logoColor=white)](https://www.theobservator.net/) 
-[![Foo](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/th3_0bservator) 
-[![Foo](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/guibacellar/) 
-[![Foo](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/guilherme-bacellar/)
