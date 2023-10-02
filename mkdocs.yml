@@ -27,9 +27,9 @@ nav:
   - 'Message Finder System':
       - 'RegEx Finder': 'finder_regex.md'
   - 'Reports':
-      - 'HTML Report': 'reports/report_html.md'
-      - 'Text Report': 'reports/report_text.md'
-      - 'Export Files': 'reports/report_export_files.md'
+      - 'HTML Report': 'report/report_html.md'
+      - 'Text Report': 'report/report_text.md'
+      - 'Export Files': 'report/report_export_files.md'
 
 site_author: Th3 0bservator
 
