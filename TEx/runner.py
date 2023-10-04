@@ -114,8 +114,8 @@ class TelegramMonitorRunner:
 
         python_version = str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
 
-        if major != 3 or major == 3 and minor < 6:
-            logger.fatal('This application requires at least, Python 3.7.6')
+        if major != 3 or major == 3 and minor < 8:
+            logger.fatal('This application requires at least, Python 3.8.1')
             logger.fatal(f'Current Installed Version is: {python_version}')
             return False
 
