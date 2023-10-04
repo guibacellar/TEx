@@ -12,6 +12,8 @@
 
 TEx is a Telegram Explorer tool created to help Researchers, Investigators and Law Enforcement Agents to Collect and Process the Huge Amount of Data Generated from Criminal, Fraud, Security and Others Telegram Groups.
 
+Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/TEx)
+
 <!-- REQUIREMENTS -->
 ## Requirements
 - Python 3.8.1+
