@@ -32,6 +32,9 @@ class SaveStateFileHandler(BaseModule):
         """Execute Module."""
         state_file_name: str = config['MODULE_SaveStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
 
+        # Remove Internal Controls
+        del data['internals']
+
         StateFileHandler.write_file_text(
             state_file_name,
             json.dumps(data)

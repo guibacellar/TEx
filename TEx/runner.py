@@ -61,7 +61,7 @@ class TelegramMonitorRunner:
 
         # Load Modules
         args: Dict = {}
-        data: Dict = {}
+        data: Dict = {'internals': {'panic': False}}
 
         # Execute Pre Pipeline
         self.__execute_sequence(args, data, self.config['PIPELINE']['pre_pipeline_sequence'].split('\n'), 'Initialization')
@@ -76,6 +76,10 @@ class TelegramMonitorRunner:
 
     def __execute_sequence(self, args: Dict, data: Dict, sequence_spec: List, sequence_name: str) -> None:
 
+        # Check Panic Exit Control
+        if data['internals']['panic']:
+            return
+
         logger.info(f'[*] Executing {sequence_name}:')
         loop = asyncio.get_event_loop()
 
@@ -85,7 +89,7 @@ class TelegramMonitorRunner:
 
         for pipeline_item in sequence_spec:
 
-            if pipeline_item == '':
+            if pipeline_item == '' or data['internals']['panic']:
                 continue
 
             logger.info(f'\t[+] {pipeline_item}')
