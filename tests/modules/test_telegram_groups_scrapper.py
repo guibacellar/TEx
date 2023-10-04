@@ -67,7 +67,7 @@ class TelegramGroupScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(13, len(captured.records))
+            self.assertEqual(15, len(captured.records))
             self.assertEqual('		Enumerating Groups', captured.records[0].message)
             self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
             self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[2].message)
@@ -121,7 +121,7 @@ class TelegramGroupScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(13, len(captured.records))
+            self.assertEqual(15, len(captured.records))
             self.assertEqual('		Enumerating Groups', captured.records[0].message)
             self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
             self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[2].message)
@@ -175,7 +175,7 @@ class TelegramGroupScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(13, len(captured.records))
+            self.assertEqual(15, len(captured.records))
             self.assertEqual('		Enumerating Groups', captured.records[0].message)
             self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
             self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[2].message)
@@ -194,6 +194,9 @@ class TelegramGroupScrapperTest(unittest.TestCase):
 
             self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[11].message)
             self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[12].message)
+
+            self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture', captured.records[13].message)
+            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[14].message)
 
     def test_run_download_groups(self):
         """Test Run Method for Scrap Telegram Groups."""
@@ -235,27 +238,22 @@ class TelegramGroupScrapperTest(unittest.TestCase):
             )
 
             # Check Logs
-            self.assertEqual(7, len(captured.records))
+            self.assertEqual(8, len(captured.records))
             self.assertEqual('		Enumerating Groups', captured.records[0].message)
-            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture',
-                             captured.records[1].message)
-            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture',
-                             captured.records[2].message)
-            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture',
-                             captured.records[3].message)
-            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture',
-                             captured.records[4].message)
-            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture',
-                             captured.records[5].message)
-            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture',
-                             captured.records[6].message)
+            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
+            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture', captured.records[2].message)
+            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture', captured.records[3].message)
+            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture', captured.records[4].message)
+            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture', captured.records[5].message)
+            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[6].message)
+            self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture', captured.records[7].message)
 
         # Check all Groups in SQLlite DB
         all_groups = DbManager.SESSIONS['data'].execute(
             select(TelegramGroupOrmEntity)
         ).scalars().all()
 
-        self.assertEqual(6, len(all_groups))
+        self.assertEqual(7, len(all_groups))
 
         self.assertTrue(all_groups[2].restricted)
 

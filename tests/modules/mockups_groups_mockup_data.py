@@ -41,9 +41,12 @@ base_groups_mockup_data = Dialogs(
 
         ChatForbidden(id=9905, title='Forbidden Five'),
 
-        Channel(id=10989, title='Channel Title Fox', photo=None, date=datetime.datetime(2020, 10, 25, 4, 38, 46, tzinfo=datetime.timezone.utc), creator=False, left=True, broadcast=True, verified=False, megagroup=False, restricted=False, signatures=False, min=False, scam=False, has_link=False, has_geo=False, slowmode_enabled=False, call_active=False, call_not_empty=False, fake=False, gigagroup=False, access_hash=-1935369767279529587, username='cTF', restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None)],
+        Channel(id=10989, title='Channel Title Fox', photo=None, date=datetime.datetime(2020, 10, 25, 4, 38, 46, tzinfo=datetime.timezone.utc), creator=False, left=True, broadcast=True, verified=False, megagroup=False, restricted=False, signatures=False, min=False, scam=False, has_link=False, has_geo=False, slowmode_enabled=False, call_active=False, call_not_empty=False, fake=False, gigagroup=False, access_hash=-1935369767279529587, username='cTF', restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None),
 
-    users=[]
+        Channel(id=10999, title=None, photo=None, date=None, creator=None, left=None, broadcast=None, verified=None, megagroup=None, restricted=None, signatures=None, min=None, scam=None, has_link=None, has_geo=None, slowmode_enabled=None, call_active=None, call_not_empty=None, fake=None, gigagroup=None, access_hash=-1935369767279529587, username=None, restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None)
+        ],
+
+users=[]
 )
 
 base_users_mockup_data = [
