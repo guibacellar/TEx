@@ -1,12 +1,10 @@
 site_name: Telegram Explorer
 repo_url: https://github.com/guibacellar/TEx/
+copyright: Copyright &copy; 2023 - Th3 0bservator
 
 theme:
   name: readthedocs
   highlightjs: true
-
-plugins:
-  - search
 
 nav:
   - Home: 'index.md'
@@ -27,9 +25,12 @@ nav:
   - 'Message Finder System':
       - 'RegEx Finder': 'finder_regex.md'
   - 'Reports':
-      - 'HTML Report': 'report/report_html.md'
-      - 'Text Report': 'report/report_text.md'
       - 'Export Files': 'report/report_export_files.md'
+      - 'HTML Report': 'report/report_html.md'
+      - 'Status Report': 'report/report_status.md'
+      - 'Text Report': 'report/report_text.md'
+  - 'Maintenance':
+      - 'Purging Old Data': 'maintenance/purge_old_data.md'
 
 site_author: Th3 0bservator
 

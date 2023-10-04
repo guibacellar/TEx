@@ -54,7 +54,7 @@ poetry-core = ">=1.6.1,<2"
 poetry-plugin-export = "^1.4.0"
 build = "^0.10.0"
 
-Telethon            = ">=1.29.2"
+Telethon            = "1.29.2"
 cryptg              = ">=0.2.post4"
 telethon-cryptg     = ">=0.0.4"
 SQLAlchemy          = ">=2.0.19,<2.1"

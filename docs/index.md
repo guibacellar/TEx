@@ -31,6 +31,26 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 - Export Downloaded Files
 - Export Messages
 
+<!-- LIMITATIONS -->
+## Know Limitations
+
+Although we do not currently know the limitations of using the tool, it is important to announce the limits to which we test the platform.
+
+Currently, **one TeX process can support at least** (per configuration file/per phone numer):
+
+**Per Group**
+
+- 50,000 messages
+- 7,000 users per group
+- 8 GB of downloaded files
+
+**Total**
+
+- 400 groups
+- 800,000 messages
+- 50,000 unique users
+- 150 GB of total downloaded files
+
 <!-- HOW WORKS -->
 ## How Telegram Explorer Works
 Telegram Explorer works using one configuration file per target phone number to be used. 

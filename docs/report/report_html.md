@@ -1,36 +1,31 @@
 # Generate Report - HTML
 
-Telegram Explorer allow you to generate HTML report containing messages, assets (images, videos, binaries, etc) from groups. Also, you may specify groups, period and message filters to generate a more customized report.
+Telegram Explorer exports a internal status report containing statistics about message and users count for each group, also a media info with size and content-type.
 
 **Full Command:**
 
 ```bash
-python3 -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --group_id 157841,55697,12542378 --around_messages NUM --order_desc --limit_days 3 --filter FILTER_EXPRESSION_1,FILTER_EXPRESSION_2,FILTER_EXPRESSION_N
+python3 -m TEx export_text --config CONFIGURATION_FILE_PATH --order_desc --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH --group_id 12547,1256698
 ```
 
 **Basic Command:**
 
 ```bash
-python3 -m TEx report --config CONFIGURATION_FILE_PATH --report_folder REPORT_FOLDER_PATH --order_desc --limit_days 3 --filter Malware,BitLocker
+python3 -m TEx export_text --config CONFIGURATION_FILE_PATH --limit_days 3 --regex REGEX --report_folder REPORT_FOLDER_PATH
 ```
 **Parameters**
 
   * **config** > Required - Created Configuration File Path
   * **report_folder** > Required - Defines the Report Files Folder
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's
-  * **around_messages** > Optional - Number of messages around (Before and After) the Filtered Message
-  * **order_desc** > Optional - If present, sort all messages descending. Otherwise, sort Ascending.
   * **limit_days** > Optional - Number of Days of past to filter the Messages
-  * **filter** > Optional - Simple (Comma Separated) String Terms Filter. Ex: hacking,"Car Hacking",foo
-  * **suppress_repeating_messages** > Optional - If present, suppress all repeating messages in the same report
+  * **regex** > Required - Regex to find the messages. 
+    * Ex: Export Links from Messages (.\*http://.\*),(.\*https://.\*)
 
-*Output Example:*
+*Output Example Using "*(.\*http://.\*),(.\*https://.\*)*" Regular Expression:*
 
 *Report Folder*
-![html_report_files.png](../media/html_report_files.png)
+![text_report_files.png](../media/text_report_files.png)
 
-*Report Index*
-![html_report_index.png](../media/html_report_index.png)
-
-*Report Group Detail*
-![html_report_content.png](../media/html_report_content.png)
+*File Content*
+![text_report_content.png](../media/text_report_content.png)
