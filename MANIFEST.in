@@ -1,2 +1,0 @@
-include OSIx\OSIx.py OSIx\config.ini OSIx\logging.conf
-recursive-include OSIx\resources *
