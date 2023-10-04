@@ -15,6 +15,10 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 
 Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/TEx)
 
+> ⚠️ **BETA VERSION** ⚠️
+> <br/> Please note that this project has been in beta for a few weeks, so it is possible that you may encounter bugs that have not yet been mapped out.
+> <br/> I kindly ask you to report the bugs at: [https://github.com/guibacellar/TEx/issues](https://github.com/guibacellar/TEx/issues)
+
 <!-- REQUIREMENTS -->
 ## Requirements
 - Python 3.8.1+
