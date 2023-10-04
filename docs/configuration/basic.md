@@ -14,9 +14,9 @@ data_path=my_data_path
 * **phone_number** > Required - Target Phone Number
 * **data_path** > Optional - Defines the Path Folder for the SQLite Databases and Dowloaded Files
 
-Place the configuration file anywhere you want with .ini extension.
+Place the configuration file anywhere you want with .config extension.
 
-**EXAMPLE (myconfig.ini)**
+**EXAMPLE (myconfig.config)**
 ```ini
 [CONFIGURATION]
 api_id=12555896

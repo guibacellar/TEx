@@ -1,7 +1,7 @@
 # Basic Usage
 
 ## The Basics
-Considering a *my_TEx_config.ini* file created at */usr/my_TEx_config.ini* with follow:
+Considering a *my_TEx_config.config* file created at */usr/my_TEx_config.config* with follow:
 
 ```editorconfig
 [CONFIGURATION]
