@@ -1,6 +1,7 @@
 """Execution Configuration Loader."""
 
 import logging
+import os.path
 from configparser import ConfigParser
 from typing import Dict
 
@@ -15,4 +16,10 @@ class ExecutionConfigurationHandler(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Load Configuration for Execution."""
         logger.info('[*] Loading Execution Configurations:')
+
+        if not os.path.exists(args['config']):
+            logger.fatal(f'[?] CONFIGURATION FILE NOT FOUND AT \"{args["config"]}\"')
+            data['internals']['panic'] = True
+            return
+
         config.read(args['config'])

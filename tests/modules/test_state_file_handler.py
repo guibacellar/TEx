@@ -25,7 +25,7 @@ class StateFileHandlerTest(unittest.TestCase):
         target_load: LoadStateFileHandler = LoadStateFileHandler()
         target_save: SaveStateFileHandler = SaveStateFileHandler()
         args: Dict = {'config': 'unittest_configfile.config'}
-        save_data: Dict = {'demo': 1}
+        save_data: Dict = {'demo': 1, 'internals': {'panic': False}}
 
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=save_data)
 

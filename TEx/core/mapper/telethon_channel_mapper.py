@@ -4,7 +4,7 @@ from typing import Dict
 from telethon.tl.types import Channel
 
 
-class TelethonChannelEntiyMapper:
+class TelethonChannelEntityMapper:
     """Telethon Channel Entity Mapper."""
 
     @staticmethod
@@ -15,15 +15,15 @@ class TelethonChannelEntiyMapper:
             'id': channel.id,
             'constructor_id': channel.CONSTRUCTOR_ID,
             'access_hash': str(channel.access_hash),
-            'fake': channel.fake,
-            'gigagroup': getattr(channel, 'gigagroup', False),
-            'has_geo': getattr(channel, 'has_geo', False),
-            'participants_count': getattr(channel, 'participants_count', 0),
-            'restricted': channel.restricted,
-            'scam': channel.scam,
-            'group_username': channel.username,
-            'verified': channel.verified,
-            'title': getattr(channel, 'title', ''),
+            'fake': channel.fake if channel.fake else False,
+            'gigagroup': channel.gigagroup if channel.gigagroup else False,
+            'has_geo': channel.has_geo if channel.has_geo else False,
+            'participants_count': channel.participants_count if channel.participants_count else 0,
+            'restricted': channel.restricted if channel.restricted else False,
+            'scam': channel.scam if channel.scam else False,
+            'group_username': channel.username if channel.username else '',
+            'verified': channel.verified if channel.verified else False,
+            'title': channel.title if channel.title else '',
             'source': target_phone_numer
             }
 

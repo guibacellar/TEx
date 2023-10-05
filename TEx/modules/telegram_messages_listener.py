@@ -9,7 +9,7 @@ from telethon.events import NewMessage
 from telethon.tl.types import (Channel, Message, PeerUser, User)
 
 from TEx.core.base_module import BaseModule
-from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntiyMapper
+from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
 from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
@@ -117,7 +117,7 @@ class TelegramGroupMessageListener(BaseModule):
 
             # Perform Synchronization
             if result:
-                group_dict_data: Dict = TelethonChannelEntiyMapper.to_database_dict(
+                group_dict_data: Dict = TelethonChannelEntityMapper.to_database_dict(
                     channel=result,
                     target_phone_numer=self.target_phone_number
                     )

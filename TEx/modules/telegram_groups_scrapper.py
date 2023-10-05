@@ -16,7 +16,7 @@ from telethon.tl.types import ChatPhoto, InputPeerEmpty
 from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
-from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntiyMapper
+from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
 from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
@@ -53,7 +53,7 @@ class TelegramGroupScrapper(BaseModule):
 
             logger.info(f'\t\tProcessing "{chat.title} ({chat.id})" Members and Group Profile Picture')
 
-            values: Dict = TelethonChannelEntiyMapper.to_database_dict(
+            values: Dict = TelethonChannelEntityMapper.to_database_dict(
                 channel=chat,
                 target_phone_numer=config['CONFIGURATION']['phone_number']
                 )

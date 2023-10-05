@@ -61,7 +61,7 @@ class TelegramMonitorRunner:
 
         # Load Modules
         args: Dict = {}
-        data: Dict = {}
+        data: Dict = {'internals': {'panic': False}}
 
         # Execute Pre Pipeline
         self.__execute_sequence(args, data, self.config['PIPELINE']['pre_pipeline_sequence'].split('\n'), 'Initialization')
@@ -76,6 +76,10 @@ class TelegramMonitorRunner:
 
     def __execute_sequence(self, args: Dict, data: Dict, sequence_spec: List, sequence_name: str) -> None:
 
+        # Check Panic Exit Control
+        if data['internals']['panic']:
+            return
+
         logger.info(f'[*] Executing {sequence_name}:')
         loop = asyncio.get_event_loop()
 
@@ -85,7 +89,7 @@ class TelegramMonitorRunner:
 
         for pipeline_item in sequence_spec:
 
-            if pipeline_item == '':
+            if pipeline_item == '' or data['internals']['panic']:
                 continue
 
             logger.info(f'\t[+] {pipeline_item}')
@@ -110,8 +114,8 @@ class TelegramMonitorRunner:
 
         python_version = str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
 
-        if major != 3 or major == 3 and minor < 6:
-            logger.fatal('This application requires at least, Python 3.7.6')
+        if major != 3 or major == 3 and minor < 8:
+            logger.fatal('This application requires at least, Python 3.8.1')
             logger.fatal(f'Current Installed Version is: {python_version}')
             return False
 
