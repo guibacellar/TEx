@@ -118,7 +118,7 @@ class TelegramGroupMessageListener(BaseModule):
             # Perform Synchronization
             if result:
                 group_dict_data: Dict = TelethonChannelEntityMapper.to_database_dict(
-                    channel=result,
+                    entity=result,
                     target_phone_numer=self.target_phone_number
                     )
 
