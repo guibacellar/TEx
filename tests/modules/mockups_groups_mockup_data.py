@@ -1,7 +1,7 @@
 import datetime
 
 from telethon.tl.patched import MessageService
-from telethon.tl.types import Channel, ChatBannedRights, ChatForbidden, ChatPhoto, Document, DocumentAttributeFilename, \
+from telethon.tl.types import Chat, Channel, ChatBannedRights, ChatForbidden, ChatPhoto, Document, DocumentAttributeFilename, \
     DocumentAttributeImageSize, DocumentAttributeSticker, DocumentAttributeVideo, InputStickerSetID, \
     KeyboardButtonCallback, KeyboardButtonRow, \
     Message, \
@@ -43,8 +43,12 @@ base_groups_mockup_data = Dialogs(
 
         Channel(id=10989, title='Channel Title Fox', photo=None, date=datetime.datetime(2020, 10, 25, 4, 38, 46, tzinfo=datetime.timezone.utc), creator=False, left=True, broadcast=True, verified=False, megagroup=False, restricted=False, signatures=False, min=False, scam=False, has_link=False, has_geo=False, slowmode_enabled=False, call_active=False, call_not_empty=False, fake=False, gigagroup=False, access_hash=-1935369767279529587, username='cTF', restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None),
 
-        Channel(id=10999, title=None, photo=None, date=None, creator=None, left=None, broadcast=None, verified=None, megagroup=None, restricted=None, signatures=None, min=None, scam=None, has_link=None, has_geo=None, slowmode_enabled=None, call_active=None, call_not_empty=None, fake=None, gigagroup=None, access_hash=-1935369767279529587, username=None, restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None)
-        ],
+        Channel(id=10999, title=None, photo=None, date=None, creator=None, left=None, broadcast=None, verified=None, megagroup=None, restricted=None, signatures=None, min=None, scam=None, has_link=None, has_geo=None, slowmode_enabled=None, call_active=None, call_not_empty=None, fake=None, gigagroup=None, access_hash=-1935369767279529587, username=None, restriction_reason=[], admin_rights=None, banned_rights=None, default_banned_rights=None, participants_count=None),
+
+        User(id=12099, is_self=True, contact=False, mutual_contact=False, deleted=False, bot=False, bot_chat_history=False, bot_nochats=False, verified=False, restricted=False, min=False, bot_inline_geo=False, support=False, scam=False, apply_min_photo=True, fake=False, access_hash=-771864453243322064, first_name='John', last_name='Snow', username='johnsnow55', phone='15894317355', photo=UserProfilePhoto(photo_id=5064607680504638078, dc_id=1, has_video=False, stripped_thumb=b'\x01\x08\x08\xa8\x8a\xa2\x03 l:\x9e\xa3\xa8\xa2\x8a*J?'), status=UserStatusOffline(was_online=datetime.datetime(2021, 10, 21, 19, 26, 11, tzinfo=datetime.timezone.utc)), bot_info_version=None, restriction_reason=[], bot_inline_placeholder=None, lang_code=None),
+
+        Chat(id=12000, title='Chat 12000', participants_count=4, version=99, photo=ChatPhoto(photo_id=4918555509905705018, dc_id=1, has_video=False, stripped_thumb=None), date=datetime.datetime(2022, 9, 27, 13, 22, 23, tzinfo=datetime.timezone.utc), creator=False, left=None, deactivated=None, call_active=None, call_not_empty=None, noforwards=None, migrated_to=None),
+    ],
 
 users=[]
 )

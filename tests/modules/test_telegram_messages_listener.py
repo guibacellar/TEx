@@ -88,6 +88,18 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 )
             )
 
+            mocked_channels_def = [
+
+                # Channels as Chat
+                base_groups_mockup_data.chats[0], base_groups_mockup_data.chats[0], base_groups_mockup_data.chats[0],
+                base_groups_mockup_data.chats[0], base_groups_mockup_data.chats[0], base_groups_mockup_data.chats[0],
+                base_groups_mockup_data.chats[7], base_groups_mockup_data.chats[7], base_groups_mockup_data.chats[7],
+                base_groups_mockup_data.chats[7], base_groups_mockup_data.chats[7], base_groups_mockup_data.chats[7],
+
+                base_groups_mockup_data.chats[12],  # User as Chat
+                base_groups_mockup_data.chats[13],  # Chat as Chat
+            ]
+
             # Emulate Dispatcher Calls
             for ix, message in enumerate(base_messages_mockup_data):
 
@@ -95,7 +107,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                     continue
 
                 # Select Mocked Channel for Message
-                mocked_channel = base_groups_mockup_data.chats[0] if ix <= 5 else base_groups_mockup_data.chats[7]
+                mocked_channel = mocked_channels_def[ix]
 
                 mocked_event = mock.AsyncMock()
                 mocked_event.chat = mocked_channel
@@ -129,7 +141,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         telegram_client_mockup.run_until_disconnected.assert_awaited_once()
 
         # Check Logs
-        self.assertEqual(16, len(captured.records))
+        self.assertEqual(18, len(captured.records))
         self.assertEqual('\t\tListening Past Messages...', captured.records[0].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[1].message)
         self.assertEqual('\t\tTelegram Client Disconnected...', captured.records[2].message)
@@ -143,15 +155,17 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[10].message)
         self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[11].message)
         self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[12].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[13].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[14].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[15].message)
+        self.assertEqual('		Group "12099" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[13].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[14].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[15].message)
+        self.assertEqual('		Group "12000" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[16].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[17].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
             select(TelegramGroupOrmEntity)
         ).scalars().all()
-        self.assertEqual(len(all_groups), 2)
+        self.assertEqual(len(all_groups), 4)
 
         self.verify_single_group(all_groups[0], '2918368265874677535', '2200278116', False,
                             False, 'CTA', False, 10981, False,
@@ -161,6 +175,16 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_group(all_groups[1], '-81612359763615430348', '2200278116', False,
                             False, 'cte', False, 10984, False,
                                 False, '5526986587745', 'Channel Title Echo', False
+                                 )
+
+        self.verify_single_group(all_groups[2], '', '1103884886', False,
+                            False, '', False, 12000, False,
+                                False, '5526986587745', 'Chat 12000', False
+                                 )
+
+        self.verify_single_group(all_groups[3], '-771864453243322064', '2880827680', False,
+                            False, 'johnsnow55', False, 12099, False,
+                                False, '5526986587745', 'johnsnow55', False
                                  )
 
         # Check Synchronized Users
@@ -283,7 +307,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Check Message 8 - With text/plain
         self.verify_single_message(
-            message_obj=all_messages[7], message_id=4622199, group_id=10984,
+            message_obj=all_messages[7], message_id=4622199, group_id=12099,
             datetime=datetime.datetime(2022, 2, 16, 15, 15, 1),
             message_content='Message 8 - With text/plain', raw_message_content='Message 8 - With text/plain',
             to_id=1287139915, from_type='User', from_id=881571585,
@@ -292,12 +316,12 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_media_data(
             expected_media_id=4929432170046423539, filename='4622199_1645024499642.txt',
             extension='.txt', mime_type='text/plain', name=None, height=None, width=None, size_bytes=11592,
-            group_id=10984
+            group_id=12099
         )
 
         # Check Message 8 - With text/plain
         self.verify_single_message(
-            message_obj=all_messages[8], message_id=34357, group_id=10984,
+            message_obj=all_messages[8], message_id=34357, group_id=12000,
             datetime=datetime.datetime(2022, 2, 16, 16, 5, 17),
             message_content='Message 9 - With application/pdf',
             raw_message_content='Message 9 - With application/pdf',
@@ -307,7 +331,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_media_data(
             expected_media_id=4929533136137618103, filename='34357_mat.pdf',
             extension='.pdf', mime_type='application/pdf', name=None, height=None, width=None, size_bytes=2969855,
-            group_id=10984
+            group_id=12000
         )
 
     def test_run_listen_messages_filtered(self):
@@ -618,7 +642,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
     def verify_single_group(self, group_obj, access_hash=None, constructor_id=None, fake=None, gigagroup=None, username=None,
                             has_geo=None, group_id=None, restricted=None, scam=None, source=None, title=None,
-                            verified=None):
+                            verified=None, group_type=None):
 
         self.assertEqual(group_obj.access_hash, access_hash)
         self.assertEqual(group_obj.constructor_id, constructor_id)

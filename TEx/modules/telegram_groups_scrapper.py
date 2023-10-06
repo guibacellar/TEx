@@ -54,7 +54,7 @@ class TelegramGroupScrapper(BaseModule):
             logger.info(f'\t\tProcessing "{chat.title} ({chat.id})" Members and Group Profile Picture')
 
             values: Dict = TelethonChannelEntityMapper.to_database_dict(
-                channel=chat,
+                entity=chat,
                 target_phone_numer=config['CONFIGURATION']['phone_number']
                 )
 
