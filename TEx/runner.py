@@ -16,7 +16,7 @@ import toml
 
 from TEx.core.base_module import BaseModule
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 VERSION: str = toml.load(os.path.join('..', 'pyproject.toml'))['tool']['poetry']['version']
 

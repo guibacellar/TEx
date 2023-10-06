@@ -8,7 +8,7 @@ from typing import Dict
 from TEx.core.base_module import BaseModule
 from TEx.core.state_file import StateFileHandler
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class LoadStateFileHandler(BaseModule):

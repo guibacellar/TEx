@@ -8,7 +8,7 @@ from telethon import TelegramClient
 
 from TEx.core.base_module import BaseModule
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramConnector(BaseModule):

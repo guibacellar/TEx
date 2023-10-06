@@ -14,7 +14,7 @@ from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramGroupMessageScrapper(BaseModule):
@@ -27,7 +27,7 @@ class TelegramGroupMessageScrapper(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['download_messages']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Get Client

@@ -22,7 +22,7 @@ from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupR
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
     TelegramMessageReportFacadeEntityMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramExportTextGenerator(BaseModule):
@@ -33,7 +33,7 @@ class TelegramExportTextGenerator(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['export_text']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

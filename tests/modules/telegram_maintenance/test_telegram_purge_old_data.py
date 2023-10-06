@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import logging
 import os.path
 import shutil
 import unittest
@@ -129,7 +130,7 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         # Execute Module
-        with self.assertLogs() as captured:
+        with self.assertLogs('TelegramExplorer', level=logging.DEBUG) as captured:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(
                 target.run(

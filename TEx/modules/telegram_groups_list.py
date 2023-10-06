@@ -8,7 +8,7 @@ from TEx.core.base_module import BaseModule
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramGroupList(BaseModule):
@@ -17,7 +17,7 @@ class TelegramGroupList(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['list_groups']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Data Dict

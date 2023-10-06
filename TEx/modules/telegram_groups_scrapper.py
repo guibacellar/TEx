@@ -21,7 +21,7 @@ from TEx.core.temp_file import TempFileHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
 from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramGroupScrapper(BaseModule):
@@ -30,7 +30,7 @@ class TelegramGroupScrapper(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['load_groups']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Data Dict

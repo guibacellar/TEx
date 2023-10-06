@@ -8,7 +8,7 @@ from typing import Dict
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class DataStructureHandler(BaseModule):

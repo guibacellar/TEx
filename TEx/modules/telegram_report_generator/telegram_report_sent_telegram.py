@@ -13,7 +13,7 @@ from telethon import TelegramClient
 
 from TEx.core.base_module import BaseModule
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramReportSentViaTelegram(BaseModule):
@@ -24,7 +24,7 @@ class TelegramReportSentViaTelegram(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['sent_report_telegram']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

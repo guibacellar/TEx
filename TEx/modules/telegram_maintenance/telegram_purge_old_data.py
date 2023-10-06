@@ -9,7 +9,7 @@ from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, T
     TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity, TelegramMediaOrmEntity
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramMaintenancePurgeOldData(BaseModule):
@@ -18,7 +18,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['purge_old_data']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Load Groups from DB

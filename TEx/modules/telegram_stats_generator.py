@@ -21,7 +21,7 @@ from TEx.models.database.telegram_db_model import (
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramStatsGenerator(BaseModule):
@@ -43,7 +43,7 @@ class TelegramStatsGenerator(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['stats']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

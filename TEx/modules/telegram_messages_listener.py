@@ -16,7 +16,7 @@ from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, T
     TelegramUserDatabaseManager
 from TEx.finder.finder_engine import FinderEngine
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramGroupMessageListener(BaseModule):
@@ -127,7 +127,7 @@ class TelegramGroupMessageListener(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not args['listen']:
-            logger.info('\t\tModule is Not Enabled...')
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Update Module Global Info

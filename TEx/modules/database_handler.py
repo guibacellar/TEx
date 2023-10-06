@@ -9,7 +9,7 @@ from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.db_initializer import DbInitializer
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class DatabaseHandler(BaseModule):

@@ -7,7 +7,7 @@ from typing import Dict
 from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TempFileManager(BaseModule):
