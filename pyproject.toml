@@ -114,7 +114,9 @@ select = [
     "ICN", "ISC", "FA", "EXE", "EM",
     "PYI", "T10", "DTZ", "C4", "COM",
     "A", "B", "BLE", "S", "ASYNC",
-    "ANN", "PTH" # All Flake 8 Modules
+    "ANN", "PTH", # All Flake 8 Modules
+
+    "C90" # mccabe
 
 ]
 unfixable = []
@@ -144,9 +146,6 @@ max-branches=12
 max-public-methods=20
 max-returns=6
 max-statements=50
-
-[tool.ruff.mccabe]
-max-complexity = 5
 
 [tool.ruff.flake8-unused-arguments]
 ignore-variadic-names = false

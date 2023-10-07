@@ -67,22 +67,14 @@ class TelegramGroupScrapper(BaseModule):
                 target_phone_numer=config['CONFIGURATION']['phone_number'],
                 )
 
-            # Get Photo - TODO: Refactory - Separate in Method
-            if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
-                values['photo_id'] = chat.photo.photo_id
-                photo_name, photo_base64 = await self.get_profile_pic_b64(
-                    client=client,
-                    channel=chat,
-                    data_path=config['CONFIGURATION']['data_path'],
-                    force_reload=args['refresh_profile_photos'],
-                    )
-
-                values['photo_base64'] = photo_base64
-                values['photo_name'] = photo_name
-            else:
-                values['photo_id'] = None
-                values['photo_base64'] = None
-                values['photo_name'] = None
+            # Process Photos
+            await self.__get_chat_photo(
+                args=args,
+                chat=chat,
+                client=client,
+                config=config,
+                data_values=values,
+                )
 
             # Get Members - TODO: Refactory - Separate in Method
             try:
@@ -109,6 +101,24 @@ class TelegramGroupScrapper(BaseModule):
 
             # Add Group to DB
             TelegramGroupDatabaseManager.insert_or_update(values)
+
+    async def __get_chat_photo(self, args: Dict, chat: telethon.Channel, client: TelegramClient, config: ConfigParser, data_values: Dict) -> None:
+        """Get Photo from Chat."""
+        if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
+            data_values['photo_id'] = chat.photo.photo_id
+            photo_name, photo_base64 = await self.get_profile_pic_b64(
+                client=client,
+                channel=chat,
+                data_path=config['CONFIGURATION']['data_path'],
+                force_reload=args['refresh_profile_photos'],
+            )
+
+            data_values['photo_base64'] = photo_base64
+            data_values['photo_name'] = photo_name
+        else:
+            data_values['photo_id'] = None
+            data_values['photo_base64'] = None
+            data_values['photo_name'] = None
 
     async def load_groups(self, client: TelegramClient) -> List[telethon.tl.types.Channel]:
         """Load all Groups from Telegram."""
