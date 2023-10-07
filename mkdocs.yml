@@ -3,8 +3,17 @@ repo_url: https://github.com/guibacellar/TEx/
 copyright: Copyright &copy; 2023 - Th3 0bservator
 
 theme:
-  name: readthedocs
+  name: material
   highlightjs: true
+  features:
+    - navigation.footer
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - footnotes
+
 
 nav:
   - Home: 'index.md'
@@ -35,4 +44,10 @@ nav:
 site_author: Th3 0bservator
 
 extra:
-  generator: false
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/th3_0bservator
+    - icon: fontawesome/brands/github
+      link: https://github.com/guibacellar/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/guilherme-bacellar/

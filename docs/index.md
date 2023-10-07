@@ -15,9 +15,10 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 
 Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/TEx)
 
-> ⚠️ **BETA VERSION** ⚠️
-> <br/> Please note that this project has been in beta for a few weeks, so it is possible that you may encounter bugs that have not yet been mapped out.
-> <br/> I kindly ask you to report the bugs at: [https://github.com/guibacellar/TEx/issues](https://github.com/guibacellar/TEx/issues)
+!!! warning "BETA VERSION"
+    
+    Please note that this project has been in beta for a few weeks, so it is possible that you may encounter bugs that have not yet been mapped out.
+    I kindly ask you to report the bugs at: [https://github.com/guibacellar/TEx/issues](https://github.com/guibacellar/TEx/issues)
 
 <!-- REQUIREMENTS -->
 ## Requirements
@@ -66,7 +67,9 @@ Telegram Explorer works using one configuration file per target phone number to 
 
 So, you can deploy 1 or several Telegram Explorer runners in one machine, using on configuration file for each instance. You also can deploy the runner using Linux Containers or Docker containers.
 
-> ⚠️ **IMPORTANT**⚠️ </br></br> Depending on the security level and your account settings, you may be asked to enter a security code that will be sent to your Telegram, or some authentication information. </br></br>This way, the application will ask (only at the time of the first connection) for you to enter this value in the terminal (TTY).
+!!! info "IMPORTANT"
+    
+    Depending on the security level and your account settings, you may be asked to enter a security code that will be sent to your Telegram, or some authentication information. </br></br>This way, the application will ask (only at the time of the first connection) for you to enter this value in the terminal (TTY).
 
 <!-- INSTALLING -->
 ## Installing

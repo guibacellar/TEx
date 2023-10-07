@@ -3,7 +3,7 @@
 ## The Basics
 Considering a *my_TEx_config.config* file created at */usr/my_TEx_config.config* with follow:
 
-```editorconfig
+```ini
 [CONFIGURATION]
 api_id=12555896
 api_hash=dead1f29db5d1fa56cc42757acbabeef
