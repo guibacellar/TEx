@@ -1,4 +1,5 @@
 """Telegram Group Scrapper."""
+from __future__ import annotations
 
 import base64
 import json
@@ -17,9 +18,9 @@ from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
 from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
+from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
-from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -53,7 +54,7 @@ class TelegramGroupScrapper(BaseModule):
 
         # Get all Chats
         chats: List = await self.load_groups(
-            client=client
+            client=client,
             )
 
         # Get Only the Groups
@@ -63,7 +64,7 @@ class TelegramGroupScrapper(BaseModule):
 
             values: Dict = TelethonChannelEntityMapper.to_database_dict(
                 entity=chat,
-                target_phone_numer=config['CONFIGURATION']['phone_number']
+                target_phone_numer=config['CONFIGURATION']['phone_number'],
                 )
 
             # Get Photo - TODO: Refactory - Separate in Method
@@ -73,7 +74,7 @@ class TelegramGroupScrapper(BaseModule):
                     client=client,
                     channel=chat,
                     data_path=config['CONFIGURATION']['data_path'],
-                    force_reload=args['refresh_profile_photos']
+                    force_reload=args['refresh_profile_photos'],
                     )
 
                 values['photo_base64'] = photo_base64
@@ -87,7 +88,7 @@ class TelegramGroupScrapper(BaseModule):
             try:
                 members = await self.get_members(
                     client=client,
-                    channel=chat
+                    channel=chat,
                     )
 
                 # Sync with DB
@@ -111,7 +112,7 @@ class TelegramGroupScrapper(BaseModule):
 
     async def load_groups(self, client: TelegramClient) -> List[telethon.tl.types.Channel]:
         """Load all Groups from Telegram."""
-        logger.info("\t\tEnumerating Groups")
+        logger.info('\t\tEnumerating Groups')
 
         # DownLoad Groups
         result: Dialogs = await client(GetDialogsRequest(
@@ -119,7 +120,7 @@ class TelegramGroupScrapper(BaseModule):
             offset_id=0,
             offset_peer=InputPeerEmpty(),
             limit=20000,
-            hash=0
+            hash=0,
             ))
 
         return [chat for chat in result.chats if isinstance(chat, telethon.tl.types.Channel)]
@@ -167,7 +168,7 @@ class TelegramGroupScrapper(BaseModule):
             generated_path: str = await client.download_profile_photo(
                 entity=channel,
                 file=target_path,
-                download_big=True
+                download_big=True,
                 )
         except ValueError as ex:
             if 'PeerChannel' in ex.args[0]:
@@ -189,9 +190,9 @@ class TelegramGroupScrapper(BaseModule):
             path=temp_file,
             content=json.dumps({
                 'path': pathlib.Path(generated_path).name,
-                'content': base_64_content
+                'content': base_64_content,
                 }),
-            validate_seconds=604800
+            validate_seconds=604800,
             )
 
         return pathlib.Path(generated_path).name, base_64_content

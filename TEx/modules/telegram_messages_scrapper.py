@@ -1,13 +1,15 @@
 """Telegram Group Scrapper."""
+from __future__ import annotations
+
+import asyncio
 import logging
 from configparser import ConfigParser
-from time import sleep
 from typing import Dict, List, Optional, cast
 
 import pytz
 import telethon.errors.rpcerrorlist
 from telethon import TelegramClient
-from telethon.tl.types import (Message, MessageService, PeerChannel, PeerUser)
+from telethon.tl.types import Message, MessageService, PeerChannel, PeerUser
 
 from TEx.core.base_module import BaseModule
 from TEx.core.media_handler import UniversalTelegramMediaHandler
@@ -61,7 +63,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     group_name=group.title,
                     download_media=not args['ignore_media'],
                     data_path=config['CONFIGURATION']['data_path'],
-                    iter_message_type=PeerChannel
+                    iter_message_type=PeerChannel,
                     )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Download Messages...')
@@ -70,7 +72,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                 logger.info('\t\t\tUnable to Download dua a Channel Private Error Restriction...')
                 logger.error(ex)
 
-    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:  # pylint: disable=R0913
+    async def __download_messages(self, group_id: int, group_name: str, client: TelegramClient, download_media: bool, data_path: str, iter_message_type: type) -> None:
         """Download all Messages from a Single Group."""
         # Main Download Loop
         while True:
@@ -85,7 +87,7 @@ class TelegramGroupMessageScrapper(BaseModule):
             logger.info(f'\t\tDownload Messages from "{group_name}" > Last Offset: {last_offset}')
 
             # Wait to Prevent Telegram Flood Detection
-            sleep(1)
+            await asyncio.sleep(1)
 
             # Get all Chats from a Single Group
             # https://docs.telethon.dev/en/latest/modules/client.html#telethon.client.messages.MessageMethods.iter_messages
@@ -93,7 +95,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     iter_message_type(group_id),
                     reverse=True,
                     limit=500,
-                    min_id=last_offset if last_offset is not None else -1
+                    min_id=last_offset if last_offset is not None else -1,
                     ):
 
                 # Ignore MessageService Messages
@@ -120,7 +122,7 @@ class TelegramGroupMessageScrapper(BaseModule):
                     'message': message.message,
                     'raw': message.raw_text,
                     'to_id': message.to_id.channel_id if message.to_id is not None else None,
-                    'media_id': await self.media_handler.handle_medias(message, group_id, data_path) if download_media else None
+                    'media_id': await self.media_handler.handle_medias(message, group_id, data_path) if download_media else None,
                     }
 
                 if message.from_id is not None:

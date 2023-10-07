@@ -1,15 +1,12 @@
 """Universal Telegram Media Handler."""
+from __future__ import annotations
+
 import hashlib
 import logging
 import os
-
 from typing import Dict, Optional
 
-from telethon.tl.types import (Message,
-                               MessageMediaDocument,
-                               MessageMediaGeo,
-                               MessageMediaPhoto,
-                               MessageMediaWebPage)
+from telethon.tl.types import Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage
 
 from TEx.core.media_download_handling.do_nothing_media_downloader import DoNothingMediaDownloader
 from TEx.core.media_download_handling.photo_media_downloader import PhotoMediaDownloader
@@ -25,7 +22,6 @@ from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
 from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
 from TEx.database.telegram_group_database import TelegramMediaDatabaseManager
 
-
 logger = logging.getLogger('TelegramExplorer')
 
 
@@ -37,48 +33,48 @@ class UniversalTelegramMediaHandler:
     __MEDIA_HANDLERS: Dict = {
         'video/mp4': {
             'metadata_handler': MediaMp4Handler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'application/x-tgsticker': {
             'metadata_handler': MediaStickerHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'image/webp': {
             'metadata_handler': WebImageStickerHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'text/plain': {
             'metadata_handler': TextPlainHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'photo': {
             'metadata_handler': PhotoMediaHandler.handle_metadata,
-            'downloader': PhotoMediaDownloader.download
+            'downloader': PhotoMediaDownloader.download,
             },
         'application/pdf': {
             'metadata_handler': PdfMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'application/x-ms-dos-executable': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'application/vnd.android.package-archive': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'application/vnd.generic.binary': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
-            'downloader': StandardMediaDownloader.download
+            'downloader': StandardMediaDownloader.download,
             },
         'geo': {
             'metadata_handler': GeoMediaHandler.handle_metadata,
-            'downloader': DoNothingMediaDownloader.download
+            'downloader': DoNothingMediaDownloader.download,
             },
         'do_nothing': {
             'metadata_handler': DoNothingHandler.handle_metadata,
-            'downloader': DoNothingMediaDownloader.download
-            }
+            'downloader': DoNothingMediaDownloader.download,
+            },
         }
 
     async def handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[int]:
@@ -97,7 +93,7 @@ class UniversalTelegramMediaHandler:
 
         # Get Media Metadata
         media_metadata: Optional[Dict] = executor_spec['metadata_handler'](
-            message=message
+            message=message,
             )
 
         # Handle Unicode Chars on Media File Name - TODO: TO Method
@@ -107,7 +103,7 @@ class UniversalTelegramMediaHandler:
                 media_metadata['file_name'].encode('ascii')
             except UnicodeError:
                 file, ext = os.path.splitext(media_metadata['file_name'])
-                media_metadata['file_name'] = f'{hashlib.md5(file.encode("utf-8")).hexdigest()}{ext}'  # nosec
+                media_metadata['file_name'] = f'{hashlib.md5(file.encode("utf-8")).hexdigest()}{ext}'
 
         # Check Media Size - TODO: TO Method
         if media_metadata and \
@@ -122,7 +118,7 @@ class UniversalTelegramMediaHandler:
         await executor_spec['downloader'](
             message=message,
             media_metadata=media_metadata,
-            data_path=target_file_path
+            data_path=target_file_path,
             )
 
         # Update Reference into DB
@@ -146,7 +142,8 @@ class UniversalTelegramMediaHandler:
             elif isinstance(message.media, MessageMediaDocument):
                 logger.info(
                     f'\t\t\tDownloading Media from Message {message.id} ({message.media.document.size / 1024:.6} Kbytes)'
-                    f' as {message.media.document.mime_type} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
+                    f' as {message.media.document.mime_type} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}',
+                    )
                 executor_id = message.media.document.mime_type
 
             elif isinstance(message.media, MessageMediaGeo):

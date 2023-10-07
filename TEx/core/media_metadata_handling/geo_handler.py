@@ -1,4 +1,5 @@
 """Geo Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, Optional
 
@@ -26,5 +27,5 @@ class GeoMediaHandler:
             'mime_type': 'application/vnd.geo',
             'size_bytes': None,
             'title': f'{geo.lat}|{geo.long}',
-            'name': None
+            'name': None,
             }

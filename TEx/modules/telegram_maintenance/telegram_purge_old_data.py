@@ -1,12 +1,13 @@
 """Telegram Maintenance - Purge old Data Manager."""
+from __future__ import annotations
+
 import logging
 import os.path
 from configparser import ConfigParser
 from typing import Dict, List, cast
 
 from TEx.core.base_module import BaseModule
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, \
-    TelegramMessageDatabaseManager
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity, TelegramMediaOrmEntity
 
 logger = logging.getLogger('TelegramExplorer')
@@ -40,7 +41,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
                     group_id=group.id,
                     group_name=group.title,
                     max_age=int(args['limit_days']),
-                    media_root_path=config['CONFIGURATION']['data_path']
+                    media_root_path=config['CONFIGURATION']['data_path'],
                     )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Purge Old Messages...')
@@ -57,7 +58,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
         # Get all Old Medias
         all_medias: List[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_all_medias_by_age(
             group_id=group_id,
-            media_limit_days=max_age
+            media_limit_days=max_age,
             )
         media_count: int = len(all_medias)
         logger.info(f'\t\t\t{len(all_medias)} Medias to be Removed')
@@ -79,6 +80,6 @@ class TelegramMaintenancePurgeOldData(BaseModule):
         # Delete all Old Messages
         total_messages: int = TelegramMessageDatabaseManager.remove_all_messages_by_age(
             group_id=group_id,
-            limit_days=max_age
+            limit_days=max_age,
             )
         logger.info(f'\t\t\t{total_messages} Messages Removed')

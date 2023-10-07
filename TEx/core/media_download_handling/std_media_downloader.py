@@ -1,4 +1,6 @@
 """Standard Media Downloader."""
+from __future__ import annotations
+
 import os
 from typing import Dict, List
 
@@ -17,7 +19,7 @@ class StandardMediaDownloader:
         :return:
         """
         if not media_metadata:
-            return None
+            return
 
         # Download Media
         target_path: str = os.path.join(data_path, StandardMediaDownloader.__sanitize_media_filename(media_metadata['file_name']))

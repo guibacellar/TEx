@@ -30,20 +30,20 @@ class DiscordNotifier(BaseNotifier):
         # Run the Notification Process.
         webhook = DiscordWebhook(
             url=self.url,
-            rate_limit_retry=True
+            rate_limit_retry=True,
             )
 
         embed = DiscordEmbed(
             title=f'**{message.chat.title}** ({message.chat.id})',
-            description=message.raw_text
+            description=message.raw_text,
             )
 
-        embed.add_embed_field(name="Rule", value=rule_id, inline=False)
-        embed.add_embed_field(name="Message ID", value=str(message.id), inline=False)
-        embed.add_embed_field(name="Group Name", value=message.chat.title, inline=True)
-        embed.add_embed_field(name="Group ID", value=message.chat.id, inline=True)
-        embed.add_embed_field(name="Message Date", value=str(message.date), inline=False)
-        embed.add_embed_field(name="Tag", value=duplication_tag, inline=False)
+        embed.add_embed_field(name='Rule', value=rule_id, inline=False)
+        embed.add_embed_field(name='Message ID', value=str(message.id), inline=False)
+        embed.add_embed_field(name='Group Name', value=message.chat.title, inline=True)
+        embed.add_embed_field(name='Group ID', value=message.chat.id, inline=True)
+        embed.add_embed_field(name='Message Date', value=str(message.date), inline=False)
+        embed.add_embed_field(name='Tag', value=duplication_tag, inline=False)
 
         # add embed object to webhook
         webhook.add_embed(embed)

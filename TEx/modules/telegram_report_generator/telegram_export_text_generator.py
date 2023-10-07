@@ -1,4 +1,6 @@
 """Telegram Report Generator."""
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -7,20 +9,14 @@ from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
 
+import aiofiles
+
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.telegram_group_database import (
-    TelegramGroupDatabaseManager,
-    TelegramMessageDatabaseManager
-    )
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity,
-    TelegramMessageOrmEntity
-    )
-from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
-    TelegramGroupReportFacadeEntityMapper
-from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
-    TelegramMessageReportFacadeEntityMapper
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
+from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity, TelegramMessageOrmEntity
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, TelegramGroupReportFacadeEntityMapper
+from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, TelegramMessageReportFacadeEntityMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -70,7 +66,7 @@ class TelegramExportTextGenerator(BaseModule):
         # Filter Groups
         groups = self.__filter_groups(
             args=args,
-            source=groups
+            source=groups,
             )
 
         # Process Each Group
@@ -79,7 +75,7 @@ class TelegramExportTextGenerator(BaseModule):
             await self.__export_data(
                 args=args,
                 group=group,
-                report_root_folder=report_root_folder
+                report_root_folder=report_root_folder,
                 )
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
@@ -111,7 +107,7 @@ class TelegramExportTextGenerator(BaseModule):
         db_messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
             group_id=group.id,
             order_by_desc=args['order_desc'],
-            message_datetime_limit_seconds=limit_seconds
+            message_datetime_limit_seconds=limit_seconds,
             )
 
         # Convert Messages to Report Facade Entity
@@ -130,14 +126,14 @@ class TelegramExportTextGenerator(BaseModule):
             return
 
         logger.info('\t\t\tRendering')
-        with open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
+        async with aiofiles.open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
 
             for message in filtered_messages:
-                file.write(message.encode('utf-8'))
-                file.write('\r\n'.encode('utf-8'))
+                await file.write(message.encode('utf-8'))
+                await file.write(b'\r\n')
 
-            file.flush()
-            file.close()
+            await file.flush()
+            await file.close()
 
         # Add Meta in Group
         group.meta_message_count = len(filtered_messages)
@@ -166,4 +162,4 @@ class TelegramExportTextGenerator(BaseModule):
 
     def ireplace(self, old: str, repl: str, text: str) -> str:
         """Case Insensitive Replace."""
-        return re.sub('(?i)' + re.escape(old), lambda m: repl, text)
+        return re.sub('(?i)' + re.escape(old), lambda _m: repl, text)

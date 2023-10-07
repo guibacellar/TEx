@@ -1,13 +1,12 @@
 """Temp File Handle."""
 
-from typing import cast
-
 from datetime import datetime
+from typing import cast
 
 import pytz
 
-from TEx.models.database.temp_db_models import TempDataOrmEntity
 from TEx.database.db_manager import DbManager
+from TEx.models.database.temp_db_models import TempDataOrmEntity
 
 
 class TempFileHandler:
@@ -37,8 +36,8 @@ class TempFileHandler:
         """Remove all Expired Entries."""
         total: int = DbManager.SESSIONS['temp'].execute(
             TempDataOrmEntity.__table__.delete().where(
-                TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp())
-                )
+                TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp()),
+                ),
             ).rowcount
 
         DbManager.SESSIONS['temp'].flush()
@@ -65,14 +64,14 @@ class TempFileHandler:
         """
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
-            TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path)
+            TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path),
             )
 
         entity: TempDataOrmEntity = TempDataOrmEntity(
             path=path,
             data=content,
             created_at=int(datetime.now(tz=pytz.UTC).timestamp()),
-            valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds
+            valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds,
             )
         DbManager.SESSIONS['temp'].add(entity)
 

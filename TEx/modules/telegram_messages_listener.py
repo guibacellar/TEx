@@ -1,4 +1,6 @@
 """Telegram Group Listener."""
+from __future__ import annotations
+
 import logging
 from configparser import ConfigParser
 from typing import Dict, List, cast
@@ -6,14 +8,13 @@ from typing import Dict, List, cast
 import pytz
 from telethon import TelegramClient, events
 from telethon.events import NewMessage
-from telethon.tl.types import (Channel, Message, PeerUser, User)
+from telethon.tl.types import Channel, Message, PeerUser, User
 
 from TEx.core.base_module import BaseModule
 from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
 from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.media_handler import UniversalTelegramMediaHandler
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, \
-    TelegramUserDatabaseManager
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, TelegramUserDatabaseManager
 from TEx.finder.finder_engine import FinderEngine
 
 logger = logging.getLogger('TelegramExplorer')
@@ -65,7 +66,7 @@ class TelegramGroupMessageListener(BaseModule):
             'to_id': message.to_id.channel_id if message.to_id is not None else None,
             'media_id': await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None,
             'is_reply': message.is_reply,
-            'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None
+            'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None,
             }
 
         # Process Sender ID
@@ -119,7 +120,8 @@ class TelegramGroupMessageListener(BaseModule):
         if not TelegramGroupDatabaseManager.get_by_id(pk=event.chat.id):
             logger.warning(
                 f'\t\tGroup "{event.chat.id}" not found on DB. Performing automatic synchronization. Consider execute '
-                f'"load_groups" command to perform a full group synchronization (Members and Group Cover Photo).')
+                f'"load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            )
 
             # Retrieve Group Definitions
             result: Channel = await event.get_chat()
@@ -128,7 +130,7 @@ class TelegramGroupMessageListener(BaseModule):
             if result:
                 group_dict_data: Dict = TelethonChannelEntityMapper.to_database_dict(
                     entity=result,
-                    target_phone_numer=self.target_phone_number
+                    target_phone_numer=self.target_phone_number,
                     )
 
                 TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
