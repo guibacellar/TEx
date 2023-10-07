@@ -1,6 +1,7 @@
 """Telegram Connection Manager Tests."""
 
 import asyncio
+import os
 import platform
 import unittest
 from configparser import ConfigParser
@@ -50,7 +51,7 @@ class TelegramConnectorTest(unittest.TestCase):
 
                 # Check Constructor Parameters
                 client_base.assert_called_once_with(
-                    '_data\\session\\5526986587745',
+                    os.path.join('_data', 'session', '5526986587745'),
                     '12345678',
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
@@ -115,7 +116,7 @@ class TelegramConnectorTest(unittest.TestCase):
 
                 # Check Constructor Parameters
                 client_base.assert_called_once_with(
-                    '_data\\session\\5526986587745',
+                    os.path.join('_data', 'session', '5526986587745'),
                     'MyTestApiID2',
                     'MyTestApiHash2',
                     catch_up=True,
@@ -209,7 +210,7 @@ class TelegramConnectorTest(unittest.TestCase):
 
                 # Check Constructor Parameters
                 client_base.assert_called_once_with(
-                    '_data\\session\\5526986587745',
+                    os.path.join('_data', 'session', '5526986587745'),
                     '12345678',
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
