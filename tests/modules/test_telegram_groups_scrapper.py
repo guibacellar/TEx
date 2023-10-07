@@ -1,6 +1,7 @@
 """Telegram Groups Scrapper Tests."""
 
 import asyncio
+import logging
 import shutil
 import unittest
 from configparser import ConfigParser
@@ -317,7 +318,7 @@ class TelegramGroupScrapperTest(unittest.TestCase):
 
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with self.assertLogs() as captured:
+        with self.assertLogs('TelegramExplorer', level=logging.DEBUG) as captured:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(
                 target.run(

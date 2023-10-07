@@ -1,7 +1,5 @@
 """State File Handler Tests."""
 import asyncio
-import logging
-import logging.config
 import unittest
 from configparser import ConfigParser
 from typing import Dict
@@ -13,7 +11,6 @@ from tests.modules.common import TestsCommon
 class StateFileHandlerTest(unittest.TestCase):
 
     def setUp(self) -> None:
-        logging.config.fileConfig('logging.conf')
 
         self.config = ConfigParser()
         self.config.read('config.ini')

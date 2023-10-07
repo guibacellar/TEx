@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import logging
 import os.path
 import shutil
 import unittest
@@ -130,7 +131,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
         }
         data: Dict = {}
 
-        with self.assertLogs() as captured:
+        with self.assertLogs('TelegramExplorer', level=logging.DEBUG) as captured:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(
                 target.run(

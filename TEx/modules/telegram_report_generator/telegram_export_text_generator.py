@@ -5,7 +5,7 @@ import re
 import shutil
 from configparser import ConfigParser
 from operator import attrgetter
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
@@ -22,7 +22,7 @@ from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupR
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
     TelegramMessageReportFacadeEntityMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramExportTextGenerator(BaseModule):
@@ -30,10 +30,18 @@ class TelegramExportTextGenerator(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['export_text'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['export_text']:
-            logger.info('\t\tModule is Not Enabled...')
+        if not await self.can_activate(config, args, data):
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

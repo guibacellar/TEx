@@ -26,7 +26,7 @@ from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHan
 from TEx.database.telegram_group_database import TelegramMediaDatabaseManager
 
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class UniversalTelegramMediaHandler:

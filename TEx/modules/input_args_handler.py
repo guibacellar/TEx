@@ -10,7 +10,7 @@ import toml
 
 from TEx.core.base_module import BaseModule
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class InputArgsHandler(BaseModule):
@@ -273,6 +273,14 @@ class InputArgsHandler(BaseModule):
                 }
             }
         }
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""

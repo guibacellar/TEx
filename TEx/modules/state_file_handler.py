@@ -8,11 +8,19 @@ from typing import Dict
 from TEx.core.base_module import BaseModule
 from TEx.core.state_file import StateFileHandler
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class LoadStateFileHandler(BaseModule):
     """Module that Loads Previous Created State File."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
@@ -27,6 +35,14 @@ class LoadStateFileHandler(BaseModule):
 
 class SaveStateFileHandler(BaseModule):
     """Module that Save a New State File."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""

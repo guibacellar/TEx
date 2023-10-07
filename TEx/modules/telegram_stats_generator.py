@@ -5,7 +5,7 @@ import os
 import shutil
 from configparser import ConfigParser
 from io import TextIOWrapper
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, cast
 
 import pytz
 
@@ -21,7 +21,7 @@ from TEx.models.database.telegram_db_model import (
 from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
     TelegramGroupReportFacadeEntityMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramStatsGenerator(BaseModule):
@@ -40,10 +40,18 @@ class TelegramStatsGenerator(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['stats'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['stats']:
-            logger.info('\t\tModule is Not Enabled...')
+        if not await self.can_activate(config, args, data):
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

@@ -9,11 +9,19 @@ from TEx.core.base_module import BaseModule
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.db_initializer import DbInitializer
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class DatabaseHandler(BaseModule):
     """Module That Handle the Internal DB."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute."""

@@ -31,7 +31,7 @@ from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupR
 from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
     TelegramMessageReportFacadeEntityMapper
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramReportGenerator(BaseModule):
@@ -39,10 +39,18 @@ class TelegramReportGenerator(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['report'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['report']:
-            logger.info('\t\tModule is Not Enabled...')
+        if not await self.can_activate(config, args, data):
+            logger.debug('\t\tModule is Not Enabled...')
             return
 
         # Check Report and Assets Folder

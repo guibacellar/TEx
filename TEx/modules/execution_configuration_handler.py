@@ -7,11 +7,19 @@ from typing import Dict
 
 from TEx.core.base_module import BaseModule
 
-logger = logging.getLogger()
+logger = logging.getLogger('TelegramExplorer')
 
 
 class ExecutionConfigurationHandler(BaseModule):
     """Module That Handle the Input Arguments."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Load Configuration for Execution."""
