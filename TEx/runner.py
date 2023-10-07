@@ -133,10 +133,10 @@ class TelegramMonitorRunner:
 
         python_version = str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
 
-        if major != 3 or major == 3 and minor < 8:
-            logger.fatal('This application requires at least, Python 3.8.1')
+        # Python Deprecated Version Check
+        if major != 3 or major == 3 and minor <= 9:
+            logger.warning('**** Python 3.8 and Python 3.9 is deprecated. Please, consider upgrade your Python runtime version. **** ')
             logger.fatal(f'Current Installed Version is: {python_version}')
-            return False
 
         return True
 

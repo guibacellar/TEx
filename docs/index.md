@@ -22,7 +22,7 @@ Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/
 
 <!-- REQUIREMENTS -->
 ## Requirements
-- Python 3.8.1+
+- Python 3.8.1+ (⚠️ Deprecated. Consider using version 3.10+ ⚠️)
 - Windows x64 or Linux x64
 
 <!-- FEATURES -->
