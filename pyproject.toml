@@ -75,28 +75,50 @@ coverage                = ">=7.3.0"
 mypy                    = ">=1.4.1"
 pydocstyle              = ">=6.3.0"
 bandit                  = ">=1.7.5"
-pylint                  = ">=2.17.5"
-pylint-pytest           = ">=1.1.2"
 astroid                 = ">=2.15.6"
-pycodestyle             = ">=2.11.0"
 pep8-naming             = ">=0.13.3"
-flake8                  = ">=6.1.0"
-flake8-assertive        = ">=2.1.0"
-flake8-alfred           = ">=1.1.1"
-flake8-bugbear          = ">=23.7.10"
-flake8-builtins         = ">=2.1.0"
-flake8-blind-except     = ">=0.2.1"
-flake8-comprehensions   = ">=3.14.0"
-flake8-docstrings       = ">=1.7.0"
-flake8-import-order     = ">=0.18.2"
-flake8-rst-docstrings   = ">=0.3.0"
 types-pytz              = ">=2023.3.0.0"
 types-requests          = ">=2.31.0.2"
 types-cachetools        = ">=5.3.0.6"
 types-toml              = ">=0.10.8.7"
 mkdocs                  = ">=1.5.3,<2"
 mkdocs-material         = ">=9.4.2,<10"
+ruff                    = "0.0.292"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+ackend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py38"
+select = [
+    "F", # Pyflakes
+    "E", "W", # pycodestyle
+    "D", # pydocstyle
+    "PL", # Pylint
+]
+unfixable = []
+
+exclude = [".venv", "tests", "runner.py", "__init__.py", "__main__.py"]
+
+
+# Same as Black.
+line-length = 200
+show-fixes = true
+
+[tool.ruff.per-file-ignores]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.pylint]
+max-args=7
+max-branches=12
+max-public-methods=20
+max-returns=6
+max-statements=50
+
+[tool.ruff.mccabe]
+max-complexity = 5

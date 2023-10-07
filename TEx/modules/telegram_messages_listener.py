@@ -118,7 +118,8 @@ class TelegramGroupMessageListener(BaseModule):
         # Check if Group Already in DB or is New One
         if not TelegramGroupDatabaseManager.get_by_id(pk=event.chat.id):
             logger.warning(
-                f'\t\tGroup "{event.chat.id}" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).')
+                f'\t\tGroup "{event.chat.id}" not found on DB. Performing automatic synchronization. Consider execute '
+                f'"load_groups" command to perform a full group synchronization (Members and Group Cover Photo).')
 
             # Retrieve Group Definitions
             result: Channel = await event.get_chat()

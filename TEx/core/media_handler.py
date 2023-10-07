@@ -32,6 +32,8 @@ logger = logging.getLogger('TelegramExplorer')
 class UniversalTelegramMediaHandler:
     """Handle all Media Complexity for Download or Persistence."""
 
+    __MAX_DOWNLOAD_SIZE_BYTES: int = 256000000  # 256 MB
+
     __MEDIA_HANDLERS: Dict = {
         'video/mp4': {
             'metadata_handler': MediaMp4Handler.handle_metadata,
@@ -111,7 +113,7 @@ class UniversalTelegramMediaHandler:
         if media_metadata and \
                 'size_bytes' in media_metadata and \
                 media_metadata['size_bytes'] and \
-                media_metadata['size_bytes'] > 256000000:  # 256 MB
+                media_metadata['size_bytes'] > UniversalTelegramMediaHandler.__MAX_DOWNLOAD_SIZE_BYTES:
             logger.info('\t\t\t\tMedia too Large. Ignoring...')
             return None
 
@@ -143,7 +145,8 @@ class UniversalTelegramMediaHandler:
 
             elif isinstance(message.media, MessageMediaDocument):
                 logger.info(
-                    f'\t\t\tDownloading Media from Message {message.id} ({message.media.document.size / 1024:.6} Kbytes) as {message.media.document.mime_type} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
+                    f'\t\t\tDownloading Media from Message {message.id} ({message.media.document.size / 1024:.6} Kbytes)'
+                    f' as {message.media.document.mime_type} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
                 executor_id = message.media.document.mime_type
 
             elif isinstance(message.media, MessageMediaGeo):
