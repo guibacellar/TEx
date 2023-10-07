@@ -19,7 +19,7 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 
 <!-- REQUIREMENTS -->
 ## Requirements
-- Python 3.8.1+
+- Python 3.8.1+ (⚠️ Deprecated. Consider using version 3.10+ ⚠️)
 - Windows x64 or Linux x64
 
 <!-- FEATURES -->
