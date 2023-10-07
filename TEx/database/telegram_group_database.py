@@ -107,7 +107,7 @@ class TelegramMessageDatabaseManager:
             if 'UNIQUE' in exc.orig.args[0]:
                 return
 
-            raise exc
+            raise
 
     @staticmethod
     def get_max_id_from_group(group_id: int) -> Optional[int]:

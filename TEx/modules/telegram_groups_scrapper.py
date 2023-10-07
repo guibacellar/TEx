@@ -100,12 +100,12 @@ class TelegramGroupScrapper(BaseModule):
                 if 'PeerChannel' in _ex.args[0]:
                     logger.info('\t\t\t...Unable to Download Chat Participants due PerChannel Restrictions...')
                     continue
-                raise _ex
+                raise
             except TypeError as _ex:
                 if "'ChannelParticipants' object is not subscriptable" in _ex.args[0]:
                     logger.info('\t\t\t...Unable to Download Chat Participants due ChannelParticipants Restrictions...')
                     continue
-                raise _ex
+                raise
 
             # Add Group to DB
             TelegramGroupDatabaseManager.insert_or_update(values)
@@ -174,7 +174,7 @@ class TelegramGroupScrapper(BaseModule):
             if 'PeerChannel' in ex.args[0]:
                 return None, None
 
-            raise ex
+            raise
 
         # Get the Base64
         base_64_content: str = ''

@@ -103,6 +103,10 @@ select = [
     "N", # pep8-naming
     "UP", # pyupgrade
 
+    "ERA", # eradicate
+    "TRY", # tryceratops
+    "FLY", # flynt
+
     "FIX", "TD", "YTT",  "ARG",  "INT",
     "TCH", "TID", "SIM", "SLOT", "SLF",
     "RET", "RSE", "Q",   "PT",   "UP",
@@ -207,10 +211,10 @@ suppress-none-returning = false
 
 "TEx/modules/telegram_connection_manager.py" = ["ARG002", "ARG004", "BLE001"]
 "TEx/modules/telegram_groups_list.py" = ["ARG002", "ARG004"]
-"TEx/modules/telegram_groups_scrapper.py" = ["ARG002", "ARG004", "ASYNC101"] # REMOVE AND FIX ASYNC101 AFTER UPGRADE TO PYTHON 3.10
-"TEx/modules/telegram_maintenance/telegram_purge_old_data.py" = ["ARG002", "ARG004"]
+"TEx/modules/telegram_groups_scrapper.py" = ["ARG002", "ARG004", "ASYNC101", "TRY400"] # REMOVE AND FIX ASYNC101 AFTER UPGRADE TO PYTHON 3.10
+"TEx/modules/telegram_maintenance/telegram_purge_old_data.py" = ["ARG002", "ARG004", "TRY400"]
 "TEx/modules/telegram_messages_listener.py" = ["ARG002", "ARG004"]
-"TEx/modules/telegram_messages_scrapper.py" = ["ARG002", "ARG004"]
+"TEx/modules/telegram_messages_scrapper.py" = ["ARG002", "ARG004", "TRY400"]
 
 "TEx/modules/telegram_report_generator/telegram_export_file_generator.py" = ["ARG002", "ARG004", "S324", "ASYNC101"] # REMOVE AND FIX ASYNC101 AFTER UPGRADE TO PYTHON 3.10
 "TEx/modules/telegram_report_generator/telegram_export_text_generator.py" = ["ARG002", "ARG004", "S324"]
