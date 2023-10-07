@@ -92,19 +92,38 @@ class TelegramMonitorRunner:
             if pipeline_item == '' or data['internals']['panic']:
                 continue
 
-            logger.info(f'\t[+] {pipeline_item}')
             pipeline_item_meta: List[str] = pipeline_item.split('.')
 
             osix_module: types.ModuleType = importlib.import_module(f'modules.{".".join(pipeline_item_meta[:-1])}')
             module_instance: BaseModule = getattr(osix_module, pipeline_item_meta[-1])()
 
             loop.run_until_complete(
-                module_instance.run(
-                    config=self.config,
-                    args=args,
-                    data=data
-                    )
+                self.__execute_pipeline_item(args, data, module_instance, pipeline_item)
                 )
+
+    async def __execute_pipeline_item(self, args: Dict, data: Dict, module_instance: BaseModule, pipeline_item: str) -> None:
+
+        if not self.config:
+            return
+
+        # Check Module Activation
+        can_activate_module: bool = await module_instance.can_activate(
+            config=self.config,
+            args=args,
+            data=data
+            )
+
+        if not can_activate_module:
+            return
+
+        logger.info(f'\t[+] {pipeline_item}')
+
+        # Execute Module
+        await module_instance.run(
+            config=self.config,
+            args=args,
+            data=data
+            )
 
     def check_python_version(self) -> bool:
         """Check if the Current Python Version is Supported."""

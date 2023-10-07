@@ -14,9 +14,17 @@ logger = logging.getLogger('TelegramExplorer')
 class DataStructureHandler(BaseModule):
     """Handle the Basic Directory Structure."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return 'data_path' in args
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute."""
-        if 'data_path' not in args:
+        if not await self.can_activate(config, args, data):
             return
 
         DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'export'))

@@ -2,7 +2,7 @@
 import logging
 import os.path
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, cast
 
 from telethon import TelegramClient
 
@@ -14,11 +14,17 @@ logger = logging.getLogger('TelegramExplorer')
 class TelegramConnector(BaseModule):
     """Telegram Connection Manager - Connect."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['connect'] or args['load_groups'] or args['download_messages'] or args['sent_report_telegram'] or args['listen'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        # Check if Need a Connection
-        need_connection: bool = args['connect'] or args['load_groups'] or args['download_messages'] or args['sent_report_telegram'] or args['listen']
-        if not need_connection:
+        if not await self.can_activate(config, args, data):
             return
 
         # Check if Directory Exists
@@ -74,8 +80,18 @@ class TelegramConnector(BaseModule):
 class TelegramDisconnector(BaseModule):
     """Telegram Connection Manager - Connect."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return 'telegram_client' in data and data['telegram_client']
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if 'telegram_client' in data and data['telegram_client']:
-            await data['telegram_client'].disconnect()
-            del data['telegram_client']
+        if not await self.can_activate(config, args, data):
+            return
+
+        await data['telegram_client'].disconnect()
+        del data['telegram_client']

@@ -1,7 +1,7 @@
 """Telegram Group Listener."""
 import logging
 from configparser import ConfigParser
-from typing import Dict, List
+from typing import Dict, List, cast
 
 import pytz
 from telethon import TelegramClient, events
@@ -21,6 +21,14 @@ logger = logging.getLogger('TelegramExplorer')
 
 class TelegramGroupMessageListener(BaseModule):
     """Download all Messages from Telegram Groups."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['listen'])
 
     def __init__(self) -> None:
         """Initialize Listener Module."""
@@ -126,7 +134,7 @@ class TelegramGroupMessageListener(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['listen']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

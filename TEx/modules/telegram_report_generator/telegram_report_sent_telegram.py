@@ -6,7 +6,7 @@ import time
 import zipfile
 from configparser import ConfigParser
 from os.path import basename
-from typing import Dict
+from typing import Dict, cast
 
 import pytz
 from telethon import TelegramClient
@@ -21,9 +21,17 @@ class TelegramReportSentViaTelegram(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function..
+
+        :return:
+        """
+        return cast(bool, args['sent_report_telegram'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['sent_report_telegram']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

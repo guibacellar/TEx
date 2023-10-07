@@ -14,6 +14,14 @@ logger = logging.getLogger('TelegramExplorer')
 class LoadStateFileHandler(BaseModule):
     """Module that Loads Previous Created State File."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         state_file_name: str = config['MODULE_LoadStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
@@ -27,6 +35,14 @@ class LoadStateFileHandler(BaseModule):
 
 class SaveStateFileHandler(BaseModule):
     """Module that Save a New State File."""
+
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""

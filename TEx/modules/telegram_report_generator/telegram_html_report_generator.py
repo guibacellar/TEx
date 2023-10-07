@@ -39,9 +39,17 @@ class TelegramReportGenerator(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['report'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['report']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

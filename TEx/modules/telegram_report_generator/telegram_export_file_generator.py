@@ -5,7 +5,7 @@ import os
 import shutil
 from configparser import ConfigParser
 from operator import attrgetter
-from typing import Dict, List
+from typing import Dict, List, cast
 
 from _hashlib import HASH
 
@@ -32,9 +32,17 @@ class TelegramExportFileGenerator(BaseModule):
     __USERS_RESOLUTION_CACHE: Dict = {}
     __HASH_CACHE: List[str] = []
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['export_file'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['export_file']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

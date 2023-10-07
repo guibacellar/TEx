@@ -5,7 +5,7 @@ import os
 import shutil
 from configparser import ConfigParser
 from io import TextIOWrapper
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, cast
 
 import pytz
 
@@ -40,9 +40,17 @@ class TelegramStatsGenerator(BaseModule):
 
     __USERS_RESOLUTION_CACHE: Dict = {}
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['stats'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['stats']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

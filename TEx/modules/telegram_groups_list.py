@@ -2,7 +2,7 @@
 
 import logging
 from configparser import ConfigParser
-from typing import Dict, List
+from typing import Dict, List, cast
 
 from TEx.core.base_module import BaseModule
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager
@@ -14,9 +14,17 @@ logger = logging.getLogger('TelegramExplorer')
 class TelegramGroupList(BaseModule):
     """List all Groups on Telegram Account."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['list_groups'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['list_groups']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

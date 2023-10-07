@@ -6,7 +6,7 @@ import logging
 import os
 import pathlib
 from configparser import ConfigParser
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast
 
 import telethon.tl.types
 from telethon import TelegramClient
@@ -27,9 +27,17 @@ logger = logging.getLogger('TelegramExplorer')
 class TelegramGroupScrapper(BaseModule):
     """List all Groups on Telegram Account."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['load_groups'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['load_groups']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

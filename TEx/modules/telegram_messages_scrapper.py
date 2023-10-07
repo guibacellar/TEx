@@ -2,7 +2,7 @@
 import logging
 from configparser import ConfigParser
 from time import sleep
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 import pytz
 import telethon.errors.rpcerrorlist
@@ -24,9 +24,17 @@ class TelegramGroupMessageScrapper(BaseModule):
         """Class Initializer."""
         self.media_handler: UniversalTelegramMediaHandler = UniversalTelegramMediaHandler()
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return cast(bool, args['download_messages'])
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        if not args['download_messages']:
+        if not await self.can_activate(config, args, data):
             logger.debug('\t\tModule is Not Enabled...')
             return
 

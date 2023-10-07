@@ -15,3 +15,11 @@ class BaseModule:
 
         :return: None
         """
+
+    @abc.abstractmethod
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """

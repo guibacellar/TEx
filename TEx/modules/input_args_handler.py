@@ -274,6 +274,14 @@ class InputArgsHandler(BaseModule):
             }
         }
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         tex_version: str = toml.load(os.path.join('..', 'pyproject.toml'))['tool']['poetry']['version']

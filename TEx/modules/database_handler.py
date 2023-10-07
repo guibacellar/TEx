@@ -15,6 +15,14 @@ logger = logging.getLogger('TelegramExplorer')
 class DatabaseHandler(BaseModule):
     """Module That Handle the Internal DB."""
 
+    async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
+        """
+        Abstract Method for Module Activation Function.
+
+        :return:
+        """
+        return True
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute."""
         if not os.path.exists(config['CONFIGURATION']['data_path']):
