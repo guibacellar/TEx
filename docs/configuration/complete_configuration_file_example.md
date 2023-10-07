@@ -8,6 +8,7 @@ api_id=12555896
 api_hash=dead1f29db5d1fa56cc42757acbabeef
 phone_number=15552809753
 data_path=/usr/home/tex_data/
+device_model=AMD64
 
 [FINDER]
 enabled=true

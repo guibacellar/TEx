@@ -1,6 +1,8 @@
 """Telegram Connection Manager Tests."""
 
 import asyncio
+import os
+import platform
 import unittest
 from configparser import ConfigParser
 from typing import Dict
@@ -21,7 +23,7 @@ class TelegramConnectorTest(unittest.TestCase):
         """Test Run Method with Telegram Server Connection."""
 
         # Setup Mock
-        telegram_client_mockup = mock.AsyncMock()
+        telegram_client_mockup = mock.Mock()
         started_telegram_client_mockup = mock.AsyncMock()
 
         telegram_client_mockup.start = mock.AsyncMock(return_value=started_telegram_client_mockup)
@@ -36,7 +38,7 @@ class TelegramConnectorTest(unittest.TestCase):
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -47,12 +49,22 @@ class TelegramConnectorTest(unittest.TestCase):
                     )
                 )
 
+                # Check Constructor Parameters
+                client_base.assert_called_once_with(
+                    os.path.join('_data', 'session', '5526986587745'),
+                    '12345678',
+                    'deff1f2587358746548deadbeef58ddd',
+                    catch_up=True,
+                    device_model='UT_DEVICE_01'
+                )
+
                 # Check Logs
                 self.assertEqual(2, len(captured.records))
                 self.assertEqual('		User Authorized on Telegram: True', captured.records[1].message)
 
         # Validate Mock Calls
         telegram_client_mockup.start.assert_awaited_once_with(phone='5526986587745')
+        telegram_client_mockup.session.save.assert_called_once()
 
         # Validate Data Result Dict
         self.assertEqual('12345678', data['telegram_connection']['api_id'])
@@ -88,7 +100,10 @@ class TelegramConnectorTest(unittest.TestCase):
         }
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup):
+        # Force Delete device_model from Configuration, to Ensure the FallBack System Works
+        del self.config['CONFIGURATION']['device_model']
+
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -97,6 +112,15 @@ class TelegramConnectorTest(unittest.TestCase):
                         args=args,
                         data=data
                     )
+                )
+
+                # Check Constructor Parameters
+                client_base.assert_called_once_with(
+                    os.path.join('_data', 'session', '5526986587745'),
+                    'MyTestApiID2',
+                    'MyTestApiHash2',
+                    catch_up=True,
+                    device_model='TeX'
                 )
 
                 # Check Logs
@@ -150,6 +174,48 @@ class TelegramConnectorTest(unittest.TestCase):
                 # Check Logs
                 self.assertEqual(1, len(captured.records))
                 self.assertEqual('\t\tNot Authenticated on Telegram. Please use the "connect" command.', captured.records[0].message)
+
+    def test_constructor_call_with_auto_device_model(self):
+        """Test If Auto Configuration for device_model works."""
+
+        # Setup Mock
+        telegram_client_mockup = mock.Mock()
+        started_telegram_client_mockup = mock.AsyncMock()
+
+        telegram_client_mockup.start = mock.AsyncMock(return_value=started_telegram_client_mockup)
+        telegram_client_mockup.is_user_authorized = mock.AsyncMock(return_value=True)
+
+        """Run Test for Connection to Telegram Servers."""
+        target: TelegramConnector = TelegramConnector()
+        args: Dict = {
+            'connect': True,
+            'config': 'unittest_configfile.config'
+        }
+        data: Dict = {}
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
+
+        # Force Auto Mode
+        self.config['CONFIGURATION']['device_model'] = 'AUTO'
+
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
+            with self.assertLogs() as captured:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(
+                    target.run(
+                        config=self.config,
+                        args=args,
+                        data=data
+                    )
+                )
+
+                # Check Constructor Parameters
+                client_base.assert_called_once_with(
+                    os.path.join('_data', 'session', '5526986587745'),
+                    '12345678',
+                    'deff1f2587358746548deadbeef58ddd',
+                    catch_up=True,
+                    device_model=platform.uname().machine
+                )
 
 
 class TelegramDisconnectorTest(unittest.TestCase):

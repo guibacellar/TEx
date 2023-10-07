@@ -1,6 +1,7 @@
 """Telegram Checker Handler."""
 import logging
 import os.path
+import platform
 from configparser import ConfigParser
 from typing import Dict, cast
 
@@ -32,6 +33,8 @@ class TelegramConnector(BaseModule):
         if not os.path.exists(session_dir):
             os.mkdir(session_dir)
 
+        device_model: str = self.__get_device_model_name(config=config)
+
         # Check Activation Command
         if args['connect']:  # New Connection
             logger.info('\t\tAuthorizing on Telegram...')
@@ -42,7 +45,7 @@ class TelegramConnector(BaseModule):
                 config['CONFIGURATION']['api_id'],
                 config['CONFIGURATION']['api_hash'],
                 catch_up=True,
-                device_model='TeX'
+                device_model=device_model
                 )
             await client.start(phone=config['CONFIGURATION']['phone_number'])
             client.session.save()
@@ -69,12 +72,31 @@ class TelegramConnector(BaseModule):
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
                 catch_up=True,
-                device_model='TeX'
+                device_model=device_model
                 )
             await client.start(phone=data['telegram_connection']['target_phone_number'])
 
         data['telegram_client'] = client
         logger.info(f'\t\tUser Authorized on Telegram: {await client.is_user_authorized()}')
+
+    def __get_device_model_name(self, config: ConfigParser) -> str:
+        """
+        Compute Device Model Name for Telegram API.
+
+        :return:
+        """
+        # Get Value from Configuration File
+        device_model_name: str = config['CONFIGURATION']['device_model'] if 'device_model' in config['CONFIGURATION'] else 'TeX'
+
+        # Check for Automatic Configuration
+        if device_model_name == 'AUTO':
+            try:
+                return platform.uname().machine
+
+            except Exception:  # noqa: B902
+                return 'TeX'
+
+        return device_model_name
 
 
 class TelegramDisconnector(BaseModule):
