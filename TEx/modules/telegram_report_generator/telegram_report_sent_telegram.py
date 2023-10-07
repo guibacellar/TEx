@@ -1,8 +1,10 @@
 """Telegram Report Generator."""
+from __future__ import annotations
+
+import asyncio
 import datetime
 import logging
 import os
-import time
 import zipfile
 from configparser import ConfigParser
 from os.path import basename
@@ -39,7 +41,7 @@ class TelegramReportSentViaTelegram(BaseModule):
         report_root_folder: str = args['report_folder']
 
         # Create Report File Name
-        attach_name: str = args['attachment_name'].replace('@@now@@', datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y%m%d_%H%M%S')) + ".zip"
+        attach_name: str = args['attachment_name'].replace('@@now@@', datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y%m%d_%H%M%S')) + '.zip'
         report_filename: str = os.path.join(report_root_folder, attach_name)
         logger.info(f'\t\t\tTarget Report Filename: {report_filename}')
 
@@ -66,10 +68,10 @@ class TelegramReportSentViaTelegram(BaseModule):
             receiver,
             args['title'].replace(
                 '@@now@@',
-                datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S')
-                ).replace('\\n', '\n')
+                datetime.datetime.strftime(datetime.datetime.now(tz=pytz.UTC), '%y-%m-%d %H:%M:%S'),
+                ).replace('\\n', '\n'),
             )
-        time.sleep(1)
+        await asyncio.sleep(1)
         # Sent the Report
         await client.send_file(receiver, f'{report_root_folder}/{attach_name}')
 

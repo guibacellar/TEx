@@ -1,4 +1,6 @@
 """Base Class for All Notifiers."""
+from __future__ import annotations
+
 import abc
 import hashlib
 from configparser import SectionProxy
@@ -25,7 +27,7 @@ class BaseNotifier:
             return False, ''
 
         # Compute Deduplication Tag
-        tag: str = hashlib.md5(message.encode('UTF-8')).hexdigest()  # nosec
+        tag: str = hashlib.md5(message.encode('UTF-8')).hexdigest()
 
         # If Found, Return True
         if self.cache.get(tag):

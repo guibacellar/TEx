@@ -1,4 +1,6 @@
 """Finder Engine."""
+from __future__ import annotations
+
 from configparser import ConfigParser
 from typing import Dict, List
 
@@ -32,7 +34,7 @@ class FinderEngine:
                 self.rules.append({
                     'id': sec,
                     'instance': RegexFinder(config=config[sec]),
-                    'notifier': config[sec]['notifier']
+                    'notifier': config[sec]['notifier'],
                     })
 
     def configure(self, config: ConfigParser) -> None:
@@ -55,5 +57,5 @@ class FinderEngine:
                 await self.notification_engine.run(
                     notifiers=rule['notifier'].split(','),
                     message=message,
-                    rule_id=rule['id']
+                    rule_id=rule['id'],
                     )

@@ -1,4 +1,5 @@
 """Database Handler."""
+from __future__ import annotations
 
 import logging
 import os
@@ -27,8 +28,8 @@ class DataStructureHandler(BaseModule):
         if not await self.can_activate(config, args, data):
             return
 
-        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'export'))
-        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'download'))
-        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'profile_pic'))
-        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'media'))
-        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args["data_path"], 'session'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args['data_path'], 'export'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args['data_path'], 'download'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args['data_path'], 'profile_pic'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args['data_path'], 'media'))
+        DirectoryManagerUtils.ensure_dir_struct(os.path.join(args['data_path'], 'session'))

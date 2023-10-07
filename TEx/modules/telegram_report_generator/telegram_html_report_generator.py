@@ -1,4 +1,6 @@
 """Telegram Report Generator."""
+from __future__ import annotations
+
 import datetime
 import logging
 import os
@@ -9,27 +11,16 @@ from hashlib import md5
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
 
+import aiofiles
 import pytz
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.telegram_group_database import (
-    TelegramGroupDatabaseManager,
-    TelegramMediaDatabaseManager,
-    TelegramMessageDatabaseManager,
-    TelegramUserDatabaseManager
-    )
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity,
-    TelegramMediaOrmEntity,
-    TelegramMessageOrmEntity,
-    TelegramUserOrmEntity
-    )
-from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
-    TelegramGroupReportFacadeEntityMapper
-from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
-    TelegramMessageReportFacadeEntityMapper
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, TelegramMessageDatabaseManager, TelegramUserDatabaseManager
+from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity, TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramUserOrmEntity
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, TelegramGroupReportFacadeEntityMapper
+from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, TelegramMessageReportFacadeEntityMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -67,11 +58,11 @@ class TelegramReportGenerator(BaseModule):
 
         # Get Report Template
         env = Environment(
-            loader=FileSystemLoader("report_templates"),
-            autoescape=select_autoescape()
+            loader=FileSystemLoader('report_templates'),
+            autoescape=select_autoescape(),
             )
-        report_template: Template = env.get_template("default_report.html")
-        index_template: Template = env.get_template("default_index.html")
+        report_template: Template = env.get_template('default_report.html')
+        index_template: Template = env.get_template('default_index.html')
 
         # Load Groups from DB
         db_groups: List[TelegramGroupOrmEntity] = TelegramGroupDatabaseManager.get_all_by_phone_number(
@@ -87,7 +78,7 @@ class TelegramReportGenerator(BaseModule):
         # Filter Groups
         groups = self.__filter_groups(
             args=args,
-            source=groups
+            source=groups,
             )
 
         # Process Each Group
@@ -99,7 +90,7 @@ class TelegramReportGenerator(BaseModule):
                 assets_root_folder=assets_root_folder,
                 group=group,
                 report_root_folder=report_root_folder,
-                template=report_template
+                template=report_template,
                 )
 
         # Render Index
@@ -108,7 +99,7 @@ class TelegramReportGenerator(BaseModule):
             args=args,
             report_root_folder=report_root_folder,
             template=index_template,
-            groups=groups
+            groups=groups,
             )
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
@@ -142,15 +133,14 @@ class TelegramReportGenerator(BaseModule):
             now=datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S'),
             target_phone=config['CONFIGURATION']['phone_number'],
             groups_filter=group_filter if group_filter != '*' else 'All',
-            words_filter=words_filter if words_filter else 'None'
+            words_filter=words_filter if words_filter else 'None',
             )
 
-        with open(f'{report_root_folder}/index.html', 'wb') as file:
-            file.write(output.encode('utf-8'))
-            file.flush()
-            file.close()
+        async with aiofiles.open(f'{report_root_folder}/index.html', 'wb') as file:
+            await file.write(output.encode('utf-8'))
+            await file.flush()
+            await file.close()
 
-    # pylint: disable=R0913
     async def __draw_report(self,
                             config: ConfigParser,
                             args: Dict,
@@ -169,7 +159,7 @@ class TelegramReportGenerator(BaseModule):
         db_messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
             group_id=group.id,
             order_by_desc=args['order_desc'],
-            message_datetime_limit_seconds=limit_seconds
+            message_datetime_limit_seconds=limit_seconds,
             )
 
         # Convert Messages to Report Facade Entity
@@ -194,19 +184,19 @@ class TelegramReportGenerator(BaseModule):
             messages=messages,
             assets_root_folder=assets_root_folder,
             suppress_repeating_messages=args['suppress_repeating_messages'],
-            data_path=config['CONFIGURATION']['data_path']
+            data_path=config['CONFIGURATION']['data_path'],
             )
 
         logger.info('\t\t\tRendering')
-        with open(f'{report_root_folder}/result_{group.group_username}_{group.id}.html', 'wb') as file:
+        async with aiofiles.open(f'{report_root_folder}/result_{group.group_username}_{group.id}.html', 'wb') as file:
             output = template.render(
                 groupname=group.title,
                 groupusername=group.group_username,
-                messages=render_messages
+                messages=render_messages,
                 )
-            file.write(output.encode('utf-8'))
-            file.flush()
-            file.close()
+            await file.write(output.encode('utf-8'))
+            await file.flush()
+            await file.close()
 
         # Add Meta in Group
         group.meta_message_count = len(render_messages)
@@ -224,7 +214,7 @@ class TelegramReportGenerator(BaseModule):
         for message in messages:
 
             if suppress_repeating_messages:
-                message_hash: str = md5(message.message.encode('utf-8')).hexdigest()  # nosec
+                message_hash: str = md5(message.message.encode('utf-8')).hexdigest()
                 if message_hash in reppeating_messages_signatures:
                     continue
                 reppeating_messages_signatures.append(message_hash)
@@ -253,7 +243,7 @@ class TelegramReportGenerator(BaseModule):
                     'message': message.message,
                     'meta_next': getattr(message, 'meta_next', None),
                     'meta_previous': getattr(message, 'meta_previous', None),
-                    'to_from_information': self.render_to_from_message_info(message=message, from_user=from_user)
+                    'to_from_information': self.render_to_from_message_info(message=message, from_user=from_user),
                     }
 
                 # Process Media
@@ -275,7 +265,7 @@ class TelegramReportGenerator(BaseModule):
 
             # Get Media from DB
             media: Optional[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_by_id(
-                pk=message.media_id
+                pk=message.media_id,
                 )
 
             if media:
@@ -301,7 +291,7 @@ class TelegramReportGenerator(BaseModule):
                     'media_mime_type': media_mime_type,
                     'media_geo': media_geo,
                     'media_title': media_title,
-                    'media_is_image': media_mime_type and ('image/' in media_mime_type or media_mime_type == 'photo')
+                    'media_is_image': media_mime_type and ('image/' in media_mime_type or media_mime_type == 'photo'),
                     }
 
         return {
@@ -309,7 +299,7 @@ class TelegramReportGenerator(BaseModule):
             'media_mime_type': None,
             'media_geo': None,
             'media_title': None,
-            'media_is_image': None
+            'media_is_image': None,
             }
 
     def render_to_from_message_info(self, message: TelegramMessageReportFacadeEntity, from_user: Optional[TelegramUserOrmEntity]) -> str:
@@ -329,7 +319,7 @@ class TelegramReportGenerator(BaseModule):
         """Return the User from DB Resolution."""
         if user_id not in TelegramReportGenerator.__USERS_RESOLUTION_CACHE:
             TelegramReportGenerator.__USERS_RESOLUTION_CACHE.update(
-                {user_id: TelegramUserDatabaseManager.get_by_id(user_id)}
+                {user_id: TelegramUserDatabaseManager.get_by_id(user_id)},
                 )
 
         return cast(Optional[TelegramUserOrmEntity], TelegramReportGenerator.__USERS_RESOLUTION_CACHE[user_id])
@@ -386,7 +376,7 @@ class TelegramReportGenerator(BaseModule):
 
     def ireplace(self, old: str, repl: str, text: str) -> str:
         """Case Insensitive Replace."""
-        return re.sub('(?i)' + re.escape(old), lambda m: repl, text)
+        return re.sub('(?i)' + re.escape(old), lambda _m: repl, text)
 
     def get_previous_messages(self, target_id: int, messages: List[TelegramMessageReportFacadeEntity], count: int) -> List[TelegramMessageReportFacadeEntity]:
         """Return the (count) messages prior the (id) message."""

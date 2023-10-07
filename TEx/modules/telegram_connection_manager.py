@@ -1,4 +1,6 @@
 """Telegram Checker Handler."""
+from __future__ import annotations
+
 import logging
 import os.path
 import platform
@@ -45,7 +47,7 @@ class TelegramConnector(BaseModule):
                 config['CONFIGURATION']['api_id'],
                 config['CONFIGURATION']['api_hash'],
                 catch_up=True,
-                device_model=device_model
+                device_model=device_model,
                 )
             await client.start(phone=config['CONFIGURATION']['phone_number'])
             client.session.save()
@@ -54,7 +56,7 @@ class TelegramConnector(BaseModule):
             data['telegram_connection'] = {
                 'api_id': config['CONFIGURATION']['api_id'],
                 'api_hash': config['CONFIGURATION']['api_hash'],
-                'target_phone_number': config['CONFIGURATION']['phone_number']
+                'target_phone_number': config['CONFIGURATION']['phone_number'],
                 }
 
         else:  # Reuse Previous Connection
@@ -72,7 +74,7 @@ class TelegramConnector(BaseModule):
                 data['telegram_connection']['api_id'],
                 data['telegram_connection']['api_hash'],
                 catch_up=True,
-                device_model=device_model
+                device_model=device_model,
                 )
             await client.start(phone=data['telegram_connection']['target_phone_number'])
 
@@ -93,7 +95,7 @@ class TelegramConnector(BaseModule):
             try:
                 return platform.uname().machine
 
-            except Exception:  # noqa: B902
+            except Exception:
                 return 'TeX'
 
         return device_model_name

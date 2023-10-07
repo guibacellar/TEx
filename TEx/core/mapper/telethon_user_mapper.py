@@ -1,4 +1,6 @@
 """Telethon User Entity Mapper."""
+from __future__ import annotations
+
 from typing import Dict
 
 from telethon.tl.types import User
@@ -24,7 +26,7 @@ class TelethonUserEntiyMapper:
             'phone_number': member.phone,
             'photo_id': None,  # Reserved for Future Version
             'photo_base64': None,  # Reserved for Future Version
-            'photo_name': None  # Reserved for Future Version
+            'photo_name': None,  # Reserved for Future Version
             }
 
         return value

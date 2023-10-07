@@ -24,7 +24,7 @@ BANNER: str = f'''
 TEx - Telegram Explorer
 Version {VERSION}
 By: Th3 0bservator
-'''  # pylint: disable=R1732
+'''
 
 
 class TelegramMonitorRunner:
@@ -85,7 +85,7 @@ class TelegramMonitorRunner:
 
         if self.config is None:
             logger.fatal('[?] Unknown Config Parser')
-            raise Exception("Unknown Config Parser")  # pylint: disable=W0719
+            raise Exception("Unknown Config Parser")
 
         for pipeline_item in sequence_spec:
 

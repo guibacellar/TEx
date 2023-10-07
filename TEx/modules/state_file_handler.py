@@ -1,4 +1,5 @@
 """State File Handler."""
+from __future__ import annotations
 
 import json
 import logging
@@ -24,13 +25,13 @@ class LoadStateFileHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        state_file_name: str = config['MODULE_LoadStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
+        state_file_name: str = config['MODULE_LoadStateFileHandler']['file_name'].replace('{0}', config['CONFIGURATION']['phone_number'])
 
         if StateFileHandler.file_exist(state_file_name):
             data.update(
-                json.loads(StateFileHandler.read_file_text(state_file_name))
+                json.loads(StateFileHandler.read_file_text(state_file_name)),
                 )
-            logger.debug("\t\tState File Loaded.")
+            logger.debug('\t\tState File Loaded.')
 
 
 class SaveStateFileHandler(BaseModule):
@@ -46,12 +47,12 @@ class SaveStateFileHandler(BaseModule):
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
-        state_file_name: str = config['MODULE_SaveStateFileHandler']['file_name'].replace("{0}", config['CONFIGURATION']['phone_number'])
+        state_file_name: str = config['MODULE_SaveStateFileHandler']['file_name'].replace('{0}', config['CONFIGURATION']['phone_number'])
 
         # Remove Internal Controls
         del data['internals']
 
         StateFileHandler.write_file_text(
             state_file_name,
-            json.dumps(data)
+            json.dumps(data),
             )

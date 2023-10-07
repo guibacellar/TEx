@@ -1,4 +1,6 @@
 """Notifier Modules."""
+from __future__ import annotations
+
 from configparser import ConfigParser
 from typing import Dict, List
 
@@ -26,7 +28,7 @@ class NotifierEngine:
                 notifier.configure(url=config[register]['webhook'], config=config[register])
 
                 self.notifiers.update({
-                    register: {'instance': notifier}
+                    register: {'instance': notifier},
                     })
 
     def configure(self, config: ConfigParser) -> None:

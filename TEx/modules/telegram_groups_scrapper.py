@@ -1,4 +1,5 @@
 """Telegram Group Scrapper."""
+from __future__ import annotations
 
 import base64
 import json
@@ -17,9 +18,9 @@ from telethon.tl.types.messages import Dialogs
 
 from TEx.core.base_module import BaseModule
 from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
+from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.temp_file import TempFileHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramUserDatabaseManager
-from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -53,7 +54,7 @@ class TelegramGroupScrapper(BaseModule):
 
         # Get all Chats
         chats: List = await self.load_groups(
-            client=client
+            client=client,
             )
 
         # Get Only the Groups
@@ -63,31 +64,23 @@ class TelegramGroupScrapper(BaseModule):
 
             values: Dict = TelethonChannelEntityMapper.to_database_dict(
                 entity=chat,
-                target_phone_numer=config['CONFIGURATION']['phone_number']
+                target_phone_numer=config['CONFIGURATION']['phone_number'],
                 )
 
-            # Get Photo - TODO: Refactory - Separate in Method
-            if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
-                values['photo_id'] = chat.photo.photo_id
-                photo_name, photo_base64 = await self.get_profile_pic_b64(
-                    client=client,
-                    channel=chat,
-                    data_path=config['CONFIGURATION']['data_path'],
-                    force_reload=args['refresh_profile_photos']
-                    )
-
-                values['photo_base64'] = photo_base64
-                values['photo_name'] = photo_name
-            else:
-                values['photo_id'] = None
-                values['photo_base64'] = None
-                values['photo_name'] = None
+            # Process Photos
+            await self.__get_chat_photo(
+                args=args,
+                chat=chat,
+                client=client,
+                config=config,
+                data_values=values,
+                )
 
             # Get Members - TODO: Refactory - Separate in Method
             try:
                 members = await self.get_members(
                     client=client,
-                    channel=chat
+                    channel=chat,
                     )
 
                 # Sync with DB
@@ -99,19 +92,37 @@ class TelegramGroupScrapper(BaseModule):
                 if 'PeerChannel' in _ex.args[0]:
                     logger.info('\t\t\t...Unable to Download Chat Participants due PerChannel Restrictions...')
                     continue
-                raise _ex
+                raise
             except TypeError as _ex:
                 if "'ChannelParticipants' object is not subscriptable" in _ex.args[0]:
                     logger.info('\t\t\t...Unable to Download Chat Participants due ChannelParticipants Restrictions...')
                     continue
-                raise _ex
+                raise
 
             # Add Group to DB
             TelegramGroupDatabaseManager.insert_or_update(values)
 
+    async def __get_chat_photo(self, args: Dict, chat: telethon.Channel, client: TelegramClient, config: ConfigParser, data_values: Dict) -> None:
+        """Get Photo from Chat."""
+        if chat.photo is not None and isinstance(chat.photo, ChatPhoto):
+            data_values['photo_id'] = chat.photo.photo_id
+            photo_name, photo_base64 = await self.get_profile_pic_b64(
+                client=client,
+                channel=chat,
+                data_path=config['CONFIGURATION']['data_path'],
+                force_reload=args['refresh_profile_photos'],
+            )
+
+            data_values['photo_base64'] = photo_base64
+            data_values['photo_name'] = photo_name
+        else:
+            data_values['photo_id'] = None
+            data_values['photo_base64'] = None
+            data_values['photo_name'] = None
+
     async def load_groups(self, client: TelegramClient) -> List[telethon.tl.types.Channel]:
         """Load all Groups from Telegram."""
-        logger.info("\t\tEnumerating Groups")
+        logger.info('\t\tEnumerating Groups')
 
         # DownLoad Groups
         result: Dialogs = await client(GetDialogsRequest(
@@ -119,7 +130,7 @@ class TelegramGroupScrapper(BaseModule):
             offset_id=0,
             offset_peer=InputPeerEmpty(),
             limit=20000,
-            hash=0
+            hash=0,
             ))
 
         return [chat for chat in result.chats if isinstance(chat, telethon.tl.types.Channel)]
@@ -167,13 +178,13 @@ class TelegramGroupScrapper(BaseModule):
             generated_path: str = await client.download_profile_photo(
                 entity=channel,
                 file=target_path,
-                download_big=True
+                download_big=True,
                 )
         except ValueError as ex:
             if 'PeerChannel' in ex.args[0]:
                 return None, None
 
-            raise ex
+            raise
 
         # Get the Base64
         base_64_content: str = ''
@@ -189,9 +200,9 @@ class TelegramGroupScrapper(BaseModule):
             path=temp_file,
             content=json.dumps({
                 'path': pathlib.Path(generated_path).name,
-                'content': base_64_content
+                'content': base_64_content,
                 }),
-            validate_seconds=604800
+            validate_seconds=604800,
             )
 
         return pathlib.Path(generated_path).name, base_64_content
