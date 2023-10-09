@@ -21,6 +21,7 @@ nav:
   - 'Contact': 'contact.md'
   - 'Configuration':
     - 'Basic Configuration': 'configuration/basic.md'
+    - 'Proxy': 'configuration/proxy.md'
     - 'Complete Configuration File Example': 'configuration/complete_configuration_file_example.md'
   - 'How to Use':
       - 'Basic Usage': 'how_use/how_to_use_basic.md'
@@ -40,6 +41,8 @@ nav:
       - 'Text Report': 'report/report_text.md'
   - 'Maintenance':
       - 'Purging Old Data': 'maintenance/purge_old_data.md'
+  - 'Changelog':
+      - 'V0.3.0': 'changelog/v030.md'
 
 site_author: Th3 0bservator
 

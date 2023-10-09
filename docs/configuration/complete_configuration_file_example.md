@@ -10,6 +10,14 @@ phone_number=15552809753
 data_path=/usr/home/tex_data/
 device_model=AMD64
 
+[PROXY]
+type=HTTP
+address=127.0.0.1
+port=3128
+username=proxy username
+password=proxy password
+rdns=true
+
 [FINDER]
 enabled=true
 
