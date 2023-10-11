@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import logging
 import os.path
 import shutil
 import unittest
@@ -127,7 +128,7 @@ class TelegramExportTextGeneratorTest(unittest.TestCase):
             'order_desc': True,
             'filter': 'Message',
             'limit_days': 30,
-            'regex': '(.*http://.*),(.*https://.*)'
+            'regex': '(http[s]?:\/\/[^\"\',]*)'
         }
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
@@ -150,6 +151,17 @@ class TelegramExportTextGeneratorTest(unittest.TestCase):
             os.path.exists(os.path.join('_report', f'result_UN-c_3.txt'))
         )
 
+        # Check Output Files Content
+        with open(os.path.join('_report', f'result_UN-b_2.txt')) as file:
+            content = file.readlines()
+            self.assertEqual(1, len(content))
+            self.assertEqual('http://www.url.domain.com\n', content[0])
+
+        with open(os.path.join('_report', f'result_UN-c_3.txt')) as file:
+            content = file.readlines()
+            self.assertEqual(1, len(content))
+            self.assertEqual('http://www.url.domain.com/2\n', content[0])
+
     def test_run_generate_report_filtered(self):
         """Test Run Method."""
 
@@ -163,7 +175,7 @@ class TelegramExportTextGeneratorTest(unittest.TestCase):
             'order_desc': True,
             'filter': 'Message',
             'limit_days': 30,
-            'regex': '(.*http://.*),(.*https://.*)'
+            'regex': '((.*https:\/\/.*)|(.*http:\/\/.*))'
         }
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
@@ -185,3 +197,77 @@ class TelegramExportTextGeneratorTest(unittest.TestCase):
         self.assertFalse(
             os.path.exists(os.path.join('_report', f'result_UN-c_3.txt'))
         )
+
+    def test_run_disabled(self):
+        """Test Run Method Disabled."""
+
+        # Call Test Target Method
+        target: TelegramExportTextGenerator = TelegramExportTextGenerator()
+        args: Dict = {
+            'export_text': False,
+            'config': 'unittest_configfile.config',
+        }
+        data: Dict = {}
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
+
+        with self.assertLogs(level=logging.DEBUG) as captured:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                target.run(
+                    config=self.config,
+                    args=args,
+                    data=data
+                )
+            )
+
+            # Check Output Logs
+            expected_log_messages = [
+                '\t\tModule is Not Enabled...',
+            ]
+
+            self.assertEqual(len(expected_log_messages), len(captured.records))
+            for ix, record in enumerate(captured.records):
+                self.assertEqual(expected_log_messages[ix], record.message)
+
+    def test_run_invalid_regex(self):
+        """Test Run Method with Invalid RegEx."""
+
+        # Call Test Target Method
+        target: TelegramExportTextGenerator = TelegramExportTextGenerator()
+        args: Dict = {
+            'export_text': True,
+            'config': 'unittest_configfile.config',
+            'report_folder': '_report',
+            'group_id': '*',
+            'order_desc': True,
+            'filter': 'Message',
+            'limit_days': 30,
+            'regex': '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
+        }
+        data: Dict = {'internals': {'panic': False}}
+        TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
+
+        with self.assertLogs() as captured:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                target.run(
+                    config=self.config,
+                    args=args,
+                    data=data
+                )
+            )
+
+            # Check Output Logs
+            expected_log_messages = [
+                '\t\tFound 2 Groups',
+                '\t\tProcessing "UT-02" (2)',
+                '\t\t\tRetrieving Messages',
+                '\t\t\tFiltering',
+                '\t\tInvalid RegEx: "bad character range \\w-\\." - Pattern: ^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
+            ]
+
+            self.assertEqual(len(expected_log_messages), len(captured.records))
+            for ix, record in enumerate(captured.records):
+                self.assertEqual(expected_log_messages[ix], record.message)
+
+        self.assertTrue(data['internals']['panic'])

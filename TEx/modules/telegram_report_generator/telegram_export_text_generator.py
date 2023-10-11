@@ -70,13 +70,17 @@ class TelegramExportTextGenerator(BaseModule):
             )
 
         # Process Each Group
-        for group in groups:
-            logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
-            await self.__export_data(
-                args=args,
-                group=group,
-                report_root_folder=report_root_folder,
-                )
+        try:
+            for group in groups:
+                logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
+                await self.__export_data(
+                    args=args,
+                    group=group,
+                    report_root_folder=report_root_folder,
+                    )
+        except re.error as _ex:
+            logger.warning(msg=f'\t\tInvalid RegEx: "{str(_ex.msg)}" - Pattern: {str(_ex.pattern)}')
+            data['internals']['panic'] = True
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
         """Apply Filter on Gropus."""
@@ -118,19 +122,23 @@ class TelegramExportTextGenerator(BaseModule):
 
         # Filter Messages
         logger.info('\t\t\tFiltering')
-        filter_regexs: Optional[List[str]] = args['regex'].split(',') if args['regex'] else None
-        filtered_messages: List[str] = self.filter_messages(messages=messages, filter_regexs=filter_regexs)
+        filter_regex: Optional[str] = args['regex'] if args['regex'] else None
+        filtered_messages: List[str] = self.filter_messages(messages=messages, filter_regex=filter_regex)
 
         # if Has 0 Messages, Get Out
         if len(filtered_messages) == 0:
             return
 
+        # Dedup Messages
+        filtered_messages = list(dict.fromkeys(filtered_messages))
+
         logger.info('\t\t\tRendering')
         async with aiofiles.open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
 
             for message in filtered_messages:
-                await file.write(message.encode('utf-8'))
-                await file.write(b'\r\n')
+                if isinstance(message, str):
+                    await file.write(message.encode('utf-8'))
+                    await file.write(b'\r\n')
 
             await file.flush()
             await file.close()
@@ -138,25 +146,28 @@ class TelegramExportTextGenerator(BaseModule):
         # Add Meta in Group
         group.meta_message_count = len(filtered_messages)
 
-    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regexs: Optional[List[str]]) -> List[str]:
+    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regex: Optional[str]) -> List[str]:
         """Filter Messages."""
-        if not filter_regexs or len(filter_regexs) == 0:
+        if not filter_regex or len(filter_regex) == 0:
             return [item.raw for item in messages]
 
         h_messages: List[str] = []
 
-        # Compile all Regex
-        compiled_regex = [re.compile(item, flags=re.IGNORECASE | re.MULTILINE) for item in filter_regexs]
+        # Compile Regex
+        compiled_regex = re.compile(filter_regex, flags=re.IGNORECASE | re.MULTILINE)
 
         # Loop on Messages
         for message in messages:
 
             # Process Each Filter
-            for rgx in compiled_regex:
-                matches = rgx.findall(message.raw)
+            matches = compiled_regex.findall(message.raw)
 
-                if len(matches) > 0:
-                    h_messages.extend(matches)
+            if len(matches) > 0:
+                for match in matches:
+                    if isinstance(match, str):
+                        h_messages.append(match)
+                    elif isinstance(match, tuple):
+                        h_messages.extend(list(match))
 
         return h_messages
 
