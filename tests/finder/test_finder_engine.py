@@ -46,7 +46,8 @@ class FinderEngineTest(unittest.TestCase):
 
                 # Invoke Test Target
                 target.run(
-                    message=target_message
+                    message=target_message,
+                    source='+15558987453'
                 )
             )
 
@@ -54,5 +55,6 @@ class FinderEngineTest(unittest.TestCase):
         target.notification_engine.run.assert_awaited_once_with(
             notifiers=['NOTIFIER.DISCORD.NOT_002'],
             message=target_message,
-            rule_id='FINDER.RULE.UT_Finder_Demo'
+            rule_id='FINDER.RULE.UT_Finder_Demo',
+            source='+15558987453'
         )

@@ -44,11 +44,12 @@ class NotifierEngineTest(unittest.TestCase):
                 target.run(
                     notifiers=['NOTIFIER.DISCORD.NOT_001', 'NOTIFIER.DISCORD.NOT_002'],
                     message=base_messages_mockup_data[0],
-                    rule_id='RULE_UT_01'
+                    rule_id='RULE_UT_01',
+                    source='+15558987453'
                 )
             )
 
             discord_notifier_mockup.run.assert_has_awaits([
-                call(message=base_messages_mockup_data[0], rule_id='RULE_UT_01'),
-                call(message=base_messages_mockup_data[0], rule_id='RULE_UT_01'),
+                call(message=base_messages_mockup_data[0], rule_id='RULE_UT_01', source='+15558987453'),
+                call(message=base_messages_mockup_data[0], rule_id='RULE_UT_01', source='+15558987453'),
             ])

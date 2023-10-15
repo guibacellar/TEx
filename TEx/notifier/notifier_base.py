@@ -38,5 +38,5 @@ class BaseNotifier:
         return False, tag
 
     @abc.abstractmethod
-    async def run(self, message: NewMessage.Event, rule_id: str) -> None:
+    async def run(self, message: NewMessage.Event, rule_id: str, source: str) -> None:
         """Run the Notification Process."""

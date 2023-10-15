@@ -84,7 +84,10 @@ class TelegramGroupMessageListener(BaseModule):
                 values['from_type'] = None
 
         # Execute Finder
-        await self.finder.run(message=message)
+        await self.finder.run(
+            message=message,
+            source=self.target_phone_number,
+        )
 
         # Add to DB
         TelegramMessageDatabaseManager.insert(values)

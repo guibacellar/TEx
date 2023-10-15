@@ -50,8 +50,13 @@ class FinderEngine:
         self.__load_rules(config=config)
         self.notification_engine.configure(config=config)
 
-    async def run(self, message: NewMessage.Event) -> None:
-        """Execute the Finder with Raw Text."""
+    async def run(self, message: NewMessage.Event, source: str) -> None:
+        """Execute the Finder with Raw Text.
+
+        :param message: Message Object
+        :param source: Source Account/Phone Number
+        :return:
+        """
         if not self.is_finder_enabled:
             return
 
@@ -65,4 +70,5 @@ class FinderEngine:
                     notifiers=rule['notifier'].split(','),
                     message=message,
                     rule_id=rule['id'],
+                    source=source,
                     )

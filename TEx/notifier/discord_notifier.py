@@ -20,7 +20,7 @@ class DiscordNotifier(BaseNotifier):
         self.url = url
         self.configure_base(config=config)
 
-    async def run(self, message: NewMessage.Event, rule_id: str) -> None:
+    async def run(self, message: NewMessage.Event, rule_id: str, source: str) -> None:
         """Run Discord Notifier."""
         # Check and Update Deduplication Control
         is_duplicated, duplication_tag = self.check_is_duplicated(message=message.raw_text)
@@ -38,7 +38,8 @@ class DiscordNotifier(BaseNotifier):
             description=message.raw_text,
             )
 
-        embed.add_embed_field(name='Rule', value=rule_id, inline=False)
+        embed.add_embed_field(name='Source', value=source, inline=True)
+        embed.add_embed_field(name='Rule', value=rule_id, inline=True)
         embed.add_embed_field(name='Message ID', value=str(message.id), inline=False)
         embed.add_embed_field(name='Group Name', value=message.chat.title, inline=True)
         embed.add_embed_field(name='Group ID', value=message.chat.id, inline=True)

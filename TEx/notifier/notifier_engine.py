@@ -44,12 +44,19 @@ class NotifierEngine:
         """Configure Finder."""
         self.__load_notifiers(config)
 
-    async def run(self, notifiers: List[str], message: NewMessage.Event, rule_id: str) -> None:
-        """Dispatch all Notifications."""
+    async def run(self, notifiers: List[str], message: NewMessage.Event, rule_id: str, source: str) -> None:
+        """Dispatch all Notifications.
+
+        :param notifiers:
+        :param message: Message Object
+        :param rule_id: Triggered Rule ID
+        :param source: Source Account/Phone Number
+        :return:
+        """
         if len(notifiers) == 0:
             return
 
         for dispatcher_name in notifiers:
 
             target_notifier: BaseNotifier = self.notifiers[dispatcher_name]['instance']
-            await target_notifier.run(message=message, rule_id=rule_id)
+            await target_notifier.run(message=message, rule_id=rule_id, source=source)

@@ -49,7 +49,8 @@ class DiscordNotifierTest(unittest.TestCase):
                 # Invoke Test Target
                 target.run(
                     message=target_message,
-                    rule_id='RULE_UT_01'
+                    rule_id='RULE_UT_01',
+                    source='+15558987453'
                 )
             )
 
@@ -60,13 +61,13 @@ class DiscordNotifierTest(unittest.TestCase):
         self.assertEqual(call_arg.title, '**Channel 1972142108** (1972142108)')
         self.assertEqual(call_arg.description, 'Mocked Raw Text')
 
-        self.assertEqual(len(call_arg.fields), 6)
-        self.assertEqual(call_arg.fields[0], {'inline': False, 'name': 'Rule', 'value': 'RULE_UT_01'})
-        self.assertEqual(call_arg.fields[1], {'inline': False, 'name': 'Message ID', 'value': '5975883'})
-        self.assertEqual(call_arg.fields[2], {'inline': True, 'name': 'Group Name', 'value': 'Channel 1972142108'})
-        self.assertEqual(call_arg.fields[3], {'inline': True, 'name': 'Group ID', 'value': 1972142108})
-        self.assertEqual(call_arg.fields[5],
-                         {'inline': False, 'name': 'Tag', 'value': 'de33f5dda9c686c64d23b8aec2eebfc7'})
+        self.assertEqual(len(call_arg.fields), 7)
+        self.assertEqual(call_arg.fields[0], {'inline': True, 'name': 'Source', 'value': '+15558987453'})
+        self.assertEqual(call_arg.fields[1], {'inline': True, 'name': 'Rule', 'value': 'RULE_UT_01'})
+        self.assertEqual(call_arg.fields[2], {'inline': False, 'name': 'Message ID', 'value': '5975883'})
+        self.assertEqual(call_arg.fields[3], {'inline': True, 'name': 'Group Name', 'value': 'Channel 1972142108'})
+        self.assertEqual(call_arg.fields[4], {'inline': True, 'name': 'Group ID', 'value': 1972142108})
+        self.assertEqual(call_arg.fields[6], {'inline': False, 'name': 'Tag', 'value': 'de33f5dda9c686c64d23b8aec2eebfc7'})
 
         # Check if Webhook was Executed
         discord_webhook_mock.execute.assert_called_once()
@@ -104,7 +105,8 @@ class DiscordNotifierTest(unittest.TestCase):
                 # Invoke Test Target
                 target.run(
                     message=target_message,
-                    rule_id='RULE_UT_01'
+                    rule_id='RULE_UT_01',
+                    source='+15558987453'
                 )
             )
 
@@ -113,7 +115,8 @@ class DiscordNotifierTest(unittest.TestCase):
                 # Invoke Test Target Again
                 target.run(
                     message=target_message,
-                    rule_id='RULE_UT_01'
+                    rule_id='RULE_UT_01',
+                    source='+15558987453'
                 )
             )
 

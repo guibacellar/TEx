@@ -36,10 +36,11 @@ class ElasticSearchNotifier(BaseNotifier):
         self.index = config['index_name']
         self.pipeline = config['pipeline_name']
 
-    async def run(self, message: NewMessage.Event, rule_id: str) -> None:
+    async def run(self, message: NewMessage.Event, rule_id: str, source: str) -> None:
         """Run Elastic Search Notifier."""
         content: Dict = {
                 'time': message.date.astimezone(tz=pytz.utc),
+                'source': source,
                 'rule': rule_id,
                 'raw': message.raw_text,
                 'group_name': message.chat.title,
