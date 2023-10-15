@@ -5,6 +5,7 @@ from typing import Dict, List
 from telethon.events import NewMessage
 
 from TEx.notifier.discord_notifier import DiscordNotifier
+from TEx.notifier.elastic_search_notifier import ElasticSearchNotifier
 from TEx.notifier.notifier_base import BaseNotifier
 
 
@@ -27,6 +28,14 @@ class NotifierEngine:
 
                 self.notifiers.update({
                     register: {'instance': notifier}
+                    })
+
+            if 'ELASTIC_SEARCH' in register:
+                notifier_es: ElasticSearchNotifier = ElasticSearchNotifier()
+                notifier_es.configure(config=config[register])
+
+                self.notifiers.update({
+                    register: {'instance': notifier_es}
                     })
 
     def configure(self, config: ConfigParser) -> None:

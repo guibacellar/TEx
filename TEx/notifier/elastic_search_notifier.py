@@ -1,50 +1,66 @@
-"""Discord Notifier."""
+"""Elastic Search Notifier."""
 from configparser import SectionProxy
+from typing import Dict, Optional
 
-from discord_webhook import DiscordEmbed, DiscordWebhook
+import pytz
+from elasticsearch import AsyncElasticsearch
 from telethon.events import NewMessage
+from telethon.tl.types import PeerUser
 
 from TEx.notifier.notifier_base import BaseNotifier
 
 
-class DiscordNotifier(BaseNotifier):
-    """Basic Discord Notifier."""
+class ElasticSearchNotifier(BaseNotifier):
+    """Basic Elastic Search Notifier."""
 
     def __init__(self) -> None:
-        """Initialize Discord Notifier."""
+        """Initialize Elastic Search Notifier."""
         super().__init__()
         self.url: str = ''
+        self.client: AsyncElasticsearch = None
+        self.index: str = ''
+        self.pipeline: str = ''
 
-    def configure(self, url: str, config: SectionProxy) -> None:
+    def configure(self, config: SectionProxy) -> None:
         """Configure the Notifier."""
-        self.url = url
-        self.configure_base(config=config)
+        hosts_list: Optional[str] = config.get('address', fallback=None)
+
+        self.client = AsyncElasticsearch(
+            hosts=hosts_list.split(',') if hosts_list else None,
+            api_key=config.get('api_key', fallback=None),
+            verify_certs=config.get('verify_ssl_cert', fallback='True') == 'True',
+            cloud_id=config.get('cloud_id', fallback=None)
+        )
+        self.index = config['index_name']
+        self.pipeline = config['pipeline_name']
 
     async def run(self, message: NewMessage.Event, rule_id: str) -> None:
-        """Run Discord Notifier."""
-        # Check and Update Deduplication Control
-        is_duplicated, duplication_tag = self.check_is_duplicated(message=message.raw_text)
-        if is_duplicated:
-            return
+        """Run Elastic Search Notifier."""
+        content: Dict = {
+                'time': message.date.astimezone(tz=pytz.utc),
+                'rule': rule_id,
+                'raw': message.raw_text,
+                'group_name': message.chat.title,
+                'group_id': message.chat.id,
+                'from_id': message.from_id.user_id if isinstance(message.from_id, PeerUser) else '',
+                'to_id': message.to_id.channel_id if message.to_id is not None else None,
+                'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None,
+                'message_id': message.id,
+                'is_reply': message.is_reply,
+            }
 
-        # Run the Notification Process.
-        webhook = DiscordWebhook(
-            url=self.url,
-            rate_limit_retry=True
-            )
+        if hasattr(message, 'file') and message.file:
+            content['has_media'] = True
+            content['media_mime_type'] = message.file.mime_type if hasattr(message.file, 'mime_type') else None
+            content['media_size'] = message.file.size if hasattr(message.file, 'size') else None
+        else:
+            content['has_media'] = False
+            content['media_mime_type'] = None
+            content['media_size'] = None
 
-        embed = DiscordEmbed(
-            title=f'**{message.chat.title}** ({message.chat.id})',
-            description=message.raw_text
-            )
-
-        embed.add_embed_field(name="Rule", value=rule_id, inline=False)
-        embed.add_embed_field(name="Message ID", value=str(message.id), inline=False)
-        embed.add_embed_field(name="Group Name", value=message.chat.title, inline=True)
-        embed.add_embed_field(name="Group ID", value=message.chat.id, inline=True)
-        embed.add_embed_field(name="Message Date", value=str(message.date), inline=False)
-        embed.add_embed_field(name="Tag", value=duplication_tag, inline=False)
-
-        # add embed object to webhook
-        webhook.add_embed(embed)
-        webhook.execute()
+        await self.client.index(
+            index=self.index,
+            pipeline=self.pipeline,
+            id=f'{message.chat.id}_{message.id}',
+            document=content
+        )
