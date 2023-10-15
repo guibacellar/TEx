@@ -1,4 +1,6 @@
 """Notifier Modules."""
+from __future__ import annotations
+
 from configparser import ConfigParser
 from typing import Dict, List
 
@@ -27,7 +29,7 @@ class NotifierEngine:
                 notifier.configure(url=config[register]['webhook'], config=config[register])
 
                 self.notifiers.update({
-                    register: {'instance': notifier}
+                    register: {'instance': notifier},
                     })
 
             if 'ELASTIC_SEARCH' in register:
@@ -35,7 +37,7 @@ class NotifierEngine:
                 notifier_es.configure(config=config[register])
 
                 self.notifiers.update({
-                    register: {'instance': notifier_es}
+                    register: {'instance': notifier_es},
                     })
 
     def configure(self, config: ConfigParser) -> None:

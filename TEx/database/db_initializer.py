@@ -1,8 +1,7 @@
 """TEx Database Initializer."""
+from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase
 from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
-
-from TEx.database.db_manager import DbManager
 
 
 class DbInitializer:

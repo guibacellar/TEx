@@ -1,4 +1,6 @@
 """Elastic Search Notifier."""
+from __future__ import annotations
+
 from configparser import SectionProxy
 from typing import Dict, Optional
 
@@ -29,7 +31,7 @@ class ElasticSearchNotifier(BaseNotifier):
             hosts=hosts_list.split(',') if hosts_list else None,
             api_key=config.get('api_key', fallback=None),
             verify_certs=config.get('verify_ssl_cert', fallback='True') == 'True',
-            cloud_id=config.get('cloud_id', fallback=None)
+            cloud_id=config.get('cloud_id', fallback=None),
         )
         self.index = config['index_name']
         self.pipeline = config['pipeline_name']
@@ -62,5 +64,5 @@ class ElasticSearchNotifier(BaseNotifier):
             index=self.index,
             pipeline=self.pipeline,
             id=f'{message.chat.id}_{message.id}',
-            document=content
+            document=content,
         )

@@ -1,4 +1,5 @@
 """Photo Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, Optional
 
@@ -23,5 +24,5 @@ class PhotoMediaHandler:
             'mime_type': message.file.mime_type,
             'size_bytes': message.file.size,
             'title': None,
-            'name': None
+            'name': None,
             }

@@ -1,4 +1,5 @@
 """Web Image Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, List, Optional
 
@@ -28,5 +29,5 @@ class WebImageStickerHandler:
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
-            'name': None
+            'name': None,
             }

@@ -9,7 +9,6 @@ class AllMessagesFinder(BaseFinder):
 
     def __init__(self, config: SectionProxy) -> None:
         """Initialize All Messages Finder."""
-        pass
 
     async def find(self, raw_text: str) -> bool:
         """Find Message. Always Return True."""

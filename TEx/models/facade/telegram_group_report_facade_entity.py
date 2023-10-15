@@ -3,10 +3,10 @@
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 
 
-class TelegramGroupReportFacadeEntity:  # pylint: disable=R0902
+class TelegramGroupReportFacadeEntity:
     """Facade Entity for Report Generation."""
 
-    id: int  # noqa: A003
+    id: int
     constructor_id: str
     access_hash: str
     group_username: str

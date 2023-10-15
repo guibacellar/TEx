@@ -1,4 +1,5 @@
 """MP4 Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, List, Optional
 
@@ -16,7 +17,7 @@ class MediaMp4Handler:
         fn_attr_vid: List = [item for item in media.document.attributes if isinstance(item, DocumentAttributeVideo)]
 
         return {
-            'file_name': fn_attr[0].file_name if len(fn_attr) > 0 else "unknow.mp4",
+            'file_name': fn_attr[0].file_name if len(fn_attr) > 0 else 'unknow.mp4',
             'telegram_id': media.document.id,
             'extension': None,
             'height': fn_attr_vid[0].h if len(fn_attr_vid) > 0 else None,
@@ -25,5 +26,5 @@ class MediaMp4Handler:
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
-            'name': None
+            'name': None,
             }

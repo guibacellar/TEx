@@ -67,6 +67,10 @@ cachetools          = ">=5.3.1,<6"
 toml                = ">=0.10.2"
 tox                 = "^4.10.0"
 discord-webhook     = ">=1.3.0,<2"
+aiofiles            = "23.2.1"
+types-aiofiles      = "23.2.0.0"
+python-socks        = "2.4.3"
+async-timeout       = "4.0.3"
 elasticsearch       = {extras = ["async"], version = "8.10.0"}
 
 [tool.poetry.dev-dependencies]
@@ -74,30 +78,153 @@ pytest                  = ">=7.4.0"
 tox                     = ">=4.7.0"
 coverage                = ">=7.3.0"
 mypy                    = ">=1.4.1"
-pydocstyle              = ">=6.3.0"
-bandit                  = ">=1.7.5"
-pylint                  = ">=2.17.5"
-pylint-pytest           = ">=1.1.2"
 astroid                 = ">=2.15.6"
-pycodestyle             = ">=2.11.0"
 pep8-naming             = ">=0.13.3"
-flake8                  = ">=6.1.0"
-flake8-assertive        = ">=2.1.0"
-flake8-alfred           = ">=1.1.1"
-flake8-bugbear          = ">=23.7.10"
-flake8-builtins         = ">=2.1.0"
-flake8-blind-except     = ">=0.2.1"
-flake8-comprehensions   = ">=3.14.0"
-flake8-docstrings       = ">=1.7.0"
-flake8-import-order     = ">=0.18.2"
-flake8-rst-docstrings   = ">=0.3.0"
 types-pytz              = ">=2023.3.0.0"
 types-requests          = ">=2.31.0.2"
 types-cachetools        = ">=5.3.0.6"
 types-toml              = ">=0.10.8.7"
 mkdocs                  = ">=1.5.3,<2"
 mkdocs-material         = ">=9.4.2,<10"
+ruff                    = "0.0.292"
+parameterized           = "0.9.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py38"
+select = [
+    "F", # Pyflakes
+    "E", "W", # pycodestyle
+    "D", # pydocstyle
+    "PL", # Pylint
+
+    "I", # isort
+    "N", # pep8-naming
+    "UP", # pyupgrade
+
+    "ERA", # eradicate
+    "TRY", # tryceratops
+    "FLY", # flynt
+
+    "FIX", "TD", "YTT",  "ARG",  "INT",
+    "TCH", "TID", "SIM", "SLOT", "SLF",
+    "RET", "RSE", "Q",   "PT",   "UP",
+    "PYI", "T20", "PIE", "INP", "G",
+    "ICN", "ISC", "FA", "EXE", "EM",
+    "PYI", "T10", "DTZ", "C4", "COM",
+    "A", "B", "BLE", "S", "ASYNC",
+    "ANN", "PTH", # All Flake 8 Modules
+
+    "C90" # mccabe
+
+]
+unfixable = []
+
+exclude = [".venv", "tests", "runner.py", "__init__.py", "__main__.py"]
+ignore = [
+    "TCH003", # Conflicts \o/
+    "ANN101", # Don't make any sense
+    "G004",  # Logging with fString provides more legibilidade
+    "UP006", # TO BE ENABLED AFTER CHANGE MIN PYTHON VERSION TO 3.10 - Use `list` instead of `List` for type annotation
+    "UP007", # TO BE ENABLED AFTER CHANGE MIN PYTHON VERSION TO 3.10 - Use `X | Y` for type annotations
+    "PTH100", "PTH102", "PTH103", "PTH107", "PTH109", "PTH110", "PTH122", "PTH118", "PTH119", "PTH123", # Technical Debt - Reserved for Future Refactory - Requires wExtensive Tests
+]
+
+# Same as Black.
+line-length = 200
+show-fixes = true
+
+[tool.ruff.per-file-ignores]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.pylint]
+max-args=7
+max-branches=12
+max-public-methods=20
+max-returns=6
+max-statements=50
+
+[tool.ruff.flake8-unused-arguments]
+ignore-variadic-names = false
+
+[tool.ruff.flake8-type-checking]
+exempt-modules = [
+    "sqlalchemy",
+    "TEx",
+    "telethon",
+    "_hashlib",
+    "aiofiles"
+]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.flake8-self]
+extend-ignore-names = ["TBD"]
+
+[tool.ruff.flake8-quotes]
+avoid-escape = true
+docstring-quotes = "double"
+inline-quotes = "single"
+multiline-quotes = "double"
+
+[tool.ruff.flake8-import-conventions]
+[tool.ruff.flake8-import-conventions.aliases]
+# Declare the default aliases.
+numpy = "np"
+pandas = "pd"
+seaborn = "sns"
+scipy = "sp"
+
+[tool.ruff.flake8-implicit-str-concat]
+allow-multiline = true
+
+[tool.ruff.flake8-errmsg]
+max-string-length = 20
+
+[tool.ruff.flake8-builtins]
+builtins-ignorelist = ["id"]
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = false
+ignore-fully-untyped = false
+mypy-init-return = false
+suppress-dummy-args = false
+suppress-none-returning = false
+
+[tool.ruff.extend-per-file-ignores]
+"TEx/core/media_handler.py" = ["S324"]
+"TEx/core/media_download_handling/do_nothing_media_downloader.py" = ["ARG002", "ARG004"]
+"TEx/core/media_metadata_handling/do_nothing_media_handler.py" = ["ARG002", "ARG004"]
+
+"TEx/modules/data_structure_handler.py" = ["ARG002", "ARG004"]
+"TEx/modules/database_handler.py" = ["ARG002", "ARG004"]
+"TEx/modules/execution_configuration_handler.py" = ["ARG002", "ARG004"]
+"TEx/modules/input_args_handler.py" = ["ARG002", "ARG004", "B009"]
+"TEx/modules/state_file_handler.py" = ["ARG002", "ARG004"]
+
+"TEx/finder/all_messages_finder.py" = ["ARG002"]
+
+"TEx/notifier/notifier_base.py" = ["S324"]
+
+"TEx/modules/telegram_connection_manager.py" = ["ARG002", "ARG004", "BLE001"]
+"TEx/modules/telegram_groups_list.py" = ["ARG002", "ARG004"]
+"TEx/modules/telegram_groups_scrapper.py" = ["ARG002", "ARG004", "ASYNC101", "TRY400"] # REMOVE AND FIX ASYNC101 AFTER UPGRADE TO PYTHON 3.10
+"TEx/modules/telegram_maintenance/telegram_purge_old_data.py" = ["ARG002", "ARG004", "TRY400"]
+"TEx/modules/telegram_messages_listener.py" = ["ARG002", "ARG004"]
+"TEx/modules/telegram_messages_scrapper.py" = ["ARG002", "ARG004", "TRY400"]
+
+"TEx/modules/telegram_report_generator/telegram_export_file_generator.py" = ["ARG002", "ARG004", "S324", "ASYNC101"] # REMOVE AND FIX ASYNC101 AFTER UPGRADE TO PYTHON 3.10
+"TEx/modules/telegram_report_generator/telegram_export_text_generator.py" = ["ARG002", "ARG004", "S324"]
+"TEx/modules/telegram_report_generator/telegram_html_report_generator.py" = ["ARG002", "ARG004", "S324"]
+"TEx/modules/telegram_report_generator/telegram_report_sent_telegram.py" = ["ARG002", "ARG004", "S324"]
+
+"TEx/modules/telegram_stats_generator.py" = ["ARG002", "ARG004"]
+"TEx/modules/temp_file_manager.py" = ["ARG002", "ARG004"]

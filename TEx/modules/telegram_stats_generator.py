@@ -1,25 +1,22 @@
 """Telegram Statistics Generator."""
+from __future__ import annotations
+
 import datetime
 import logging
 import os
 import shutil
 from configparser import ConfigParser
-from io import TextIOWrapper
 from typing import Dict, List, TypedDict, cast
 
+import aiofiles
 import pytz
+from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.telegram_group_database import (
-    TelegramGroupDatabaseManager,
-    TelegramMediaDatabaseManager, TelegramMessageDatabaseManager
-    )
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity
-    )
-from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
-    TelegramGroupReportFacadeEntityMapper
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager, TelegramMessageDatabaseManager
+from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, TelegramGroupReportFacadeEntityMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -99,7 +96,7 @@ class TelegramStatsGenerator(BaseModule):
                 'stats_total_messages': stats_total_messages,
                 'stats_messages_per_groups': stats_messages_per_groups,
                 'stats_total_groups': stats_total_groups,
-                'stats_total_active_users': stats_total_active_users
+                'stats_total_active_users': stats_total_active_users,
                 })
 
     async def __load_groups(self, config: ConfigParser) -> List[TelegramGroupReportFacadeEntity]:
@@ -120,33 +117,33 @@ class TelegramStatsGenerator(BaseModule):
 
         return groups
 
-    async def __render_media_stats(self, file: TextIOWrapper, max_large_group_name: int, stats_messages_per_groups: List[Dict]) -> None:
+    async def __render_media_stats(self, file: AsyncTextIOWrapper, max_large_group_name: int, stats_messages_per_groups: List[Dict]) -> None:
         """Render Media Statistics."""
-        file.write('\n\n**** Media Statistics for Groups ****')
+        await file.write('\n\n**** Media Statistics for Groups ****')
         for single in stats_messages_per_groups:
             if not single['media'] or single['media'] == {}:
                 continue
 
-            file.write(f'\n{single["group"].ljust(max_large_group_name)}')
+            await file.write(f'\n{single["group"].ljust(max_large_group_name)}')
 
             for mimetype, stats in single['media'].items():
                 ct_media_count: str = f'{stats["count"]} entries'
                 ct_media_size_bytes: str = f'{stats["size_bytes"]} bytes'
                 ct_media_size_mbytes: str = f'{(stats["size_bytes"] / 1024 / 1024):.2f} mbytes'
 
-                file.write(
+                await file.write(
                     f'\n\t{mimetype.ljust(70)}: {ct_media_count.ljust(16)}: {ct_media_size_bytes} ({ct_media_size_mbytes})')
-            file.write('\n')
+            await file.write('\n')
 
-    async def __render_messages_stats(self, file: TextIOWrapper, max_large_group_name: int, stats_messages_per_groups: List[Dict]) -> None:
+    async def __render_messages_stats(self, file: AsyncTextIOWrapper, max_large_group_name: int, stats_messages_per_groups: List[Dict]) -> None:
         """Render Messages Statistics."""
-        file.write('\n\n**** Messages Statistics for Groups ****')
+        await file.write('\n\n**** Messages Statistics for Groups ****')
         for single in stats_messages_per_groups:
-            ct_group_name: str = single["group"]
+            ct_group_name: str = single['group']
             ct_total_messages: str = f'{single["messages"]} messages'
             ct_active_users: str = f'{single["active_users"]} active users'
 
-            file.write(
+            await file.write(
                 f'\n{ct_group_name.ljust(max_large_group_name)}: {ct_total_messages.ljust(16)}: {ct_active_users}')
 
     async def __get_group_stats(self, group: TelegramGroupReportFacadeEntity, limit_seconds: int) -> Dict:
@@ -160,26 +157,26 @@ class TelegramStatsGenerator(BaseModule):
         # Count Messages
         message_count: int = TelegramMessageDatabaseManager.count_messages_from_group(
             group_id=group.id,
-            message_datetime_limit_seconds=limit_seconds
+            message_datetime_limit_seconds=limit_seconds,
             )
 
         # Count Active Users
         active_user_count: int = TelegramMessageDatabaseManager.count_active_users_from_group(
             group_id=group.id,
-            message_datetime_limit_seconds=limit_seconds
+            message_datetime_limit_seconds=limit_seconds,
             )
 
         # Count Media
         media_stats: Dict = TelegramMediaDatabaseManager.stats_all_medias_from_group_by_mimetype(
             group_id=group.id,
-            file_datetime_limit_seconds=limit_seconds
+            file_datetime_limit_seconds=limit_seconds,
             )
 
         return {
             'group': f'{group.group_username}_{group.id}',
             'messages': message_count,
             'active_users': active_user_count,
-            'media': media_stats
+            'media': media_stats,
             }
 
     async def __render(self, params: RenderParams) -> None:
@@ -188,25 +185,26 @@ class TelegramStatsGenerator(BaseModule):
         stats_avg_messages_day = params['stats_total_messages'] / datetime.timedelta(seconds=params['limit_seconds']).days
 
         # Define the Largest Group Name
-        max_large_group_name: int = max([len(item['group']) for item in params['stats_messages_per_groups']]) + 1  # pylint: disable=R1728
+        max_large_group_name: int = max([len(item['group']) for item in params['stats_messages_per_groups']]) + 1
 
         logger.info('\t\t\tRendering')
-        with open(f'{params["report_root_folder"]}/stats.txt', 'wt', encoding='utf-8') as file:
+        report_folder: str = params['report_root_folder']
+        async with aiofiles.open(f'{report_folder}/stats.txt', 'w', encoding='utf-8') as file:
 
             # Compute Report Period
             end = datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S')
             start = (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(seconds=params['limit_seconds'])).strftime('%Y-%m-%d %H:%M:%S')
             now = datetime.datetime.now(tz=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S')
 
-            file.write(f'TEx Statistics Report ({params["target_phone_number"]})')
-            file.write(f'\nGenerated at {now} for period starting from {start} to {end}\n')
+            await file.write(f'TEx Statistics Report ({params["target_phone_number"]})')
+            await file.write(f'\nGenerated at {now} for period starting from {start} to {end}\n')
 
-            file.write(f'\nTotal Groups      : {params["stats_total_groups"]}')
-            file.write(f'\nTotal Messages    : {params["stats_total_messages"]} (~ {stats_avg_messages_day:.0f}/day)')
-            file.write(f'\nTotal Active Users: {params["stats_total_active_users"]}')
+            await file.write(f'\nTotal Groups      : {params["stats_total_groups"]}')
+            await file.write(f'\nTotal Messages    : {params["stats_total_messages"]} (~ {stats_avg_messages_day:.0f}/day)')
+            await file.write(f'\nTotal Active Users: {params["stats_total_active_users"]}')
 
             await self.__render_messages_stats(file, max_large_group_name, params['stats_messages_per_groups'])
             await self.__render_media_stats(file, max_large_group_name, params['stats_messages_per_groups'])
 
-            file.flush()
-            file.close()
+            await file.flush()
+            await file.close()
