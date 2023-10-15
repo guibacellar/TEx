@@ -11,6 +11,8 @@ import sys
 import types
 from configparser import ConfigParser
 from typing import Dict, List, Optional
+from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
 
 import toml
 
@@ -144,6 +146,7 @@ class TelegramMonitorRunner:
         """Setups Log Config."""
         logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.conf'))
         logging.getLogger('telethon').setLevel(level=logging.WARNING)
+        disable_warnings(InsecureRequestWarning)
 
     def __list_modules(self) -> None:
         """
