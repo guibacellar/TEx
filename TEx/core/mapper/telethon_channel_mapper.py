@@ -1,4 +1,6 @@
 """Telethon Channel Entity Mapper."""
+from __future__ import annotations
+
 from typing import Dict, Union
 
 from telethon.tl.types import Channel, Chat, User
@@ -16,7 +18,7 @@ class TelethonChannelEntityMapper:
         values: Dict = {
             'id': entity.id,
             'constructor_id': entity.CONSTRUCTOR_ID,
-            'source': target_phone_numer
+            'source': target_phone_numer,
             }
 
         # Apply Specific Mappers
@@ -44,7 +46,7 @@ class TelethonChannelEntityMapper:
             'restricted': entity.restricted if entity.restricted else False,
             'scam': entity.scam if entity.scam else False,
             'group_username': entity.username if entity.username else '',
-            'verified': entity.verified if entity.verified else False
+            'verified': entity.verified if entity.verified else False,
             }
 
     @staticmethod
@@ -60,7 +62,7 @@ class TelethonChannelEntityMapper:
             'restricted': False,
             'scam': False,
             'group_username': '',
-            'verified': False
+            'verified': False,
             }
 
     @staticmethod
@@ -76,5 +78,5 @@ class TelethonChannelEntityMapper:
             'restricted': entity.restricted if entity.restricted else False,
             'scam': entity.scam if entity.scam else False,
             'group_username': entity.username if entity.username else '',
-            'verified': entity.verified if entity.verified else False
+            'verified': entity.verified if entity.verified else False,
             }

@@ -1,4 +1,5 @@
 """Input Arguments Handler."""
+from __future__ import annotations
 
 import argparse
 import logging
@@ -24,7 +25,7 @@ class InputArgsHandler(BaseModule):
                     'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
                     'default': None, 'required': True,
                     },
-                }
+                },
             },
         'load_groups': {
             'help': 'Download and Refresh Groups and Members List',
@@ -35,9 +36,9 @@ class InputArgsHandler(BaseModule):
                     },
                 'refresh_profile_photos': {
                     'param': '--refresh_profile_photos', 'type': str, 'action': 'store_true', 'help': 'Force to Refresh all Profile Photos',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
-                }
+                },
             },
         'download_messages': {
             'help': 'Download Message History',
@@ -48,14 +49,14 @@ class InputArgsHandler(BaseModule):
                     },
                 'ignore_media': {
                     'param': '--ignore_media', 'type': str, 'action': 'store_true', 'help': 'Set to not Download Media from Messages',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
-                    'default': '*', 'required': False
+                    'default': '*', 'required': False,
                     },
-                }
+                },
             },
         'listen': {
             'help': 'Actively Listen all Chats',
@@ -67,14 +68,14 @@ class InputArgsHandler(BaseModule):
                 'ignore_media': {
                     'param': '--ignore_media', 'type': str, 'action': 'store_true',
                     'help': 'Set to not Download Media from Messages',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
-                    'default': '*', 'required': False
+                    'default': '*', 'required': False,
                     },
-                }
+                },
             },
         'list_groups': {
             'help': 'List all Downloaded Groups',
@@ -83,7 +84,7 @@ class InputArgsHandler(BaseModule):
                     'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
                     'default': None, 'required': True,
                     },
-                }
+                },
             },
         'report': {
             'help': 'Generate the Report with all Messages and Medias',
@@ -95,39 +96,39 @@ class InputArgsHandler(BaseModule):
                 'order_desc': {
                     'param': '--order_desc', 'type': str, 'action': 'store_true',
                     'help': 'Set the Date/Time Order to Descending',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
                 'filter': {
                     'param': '--filter', 'type': str, 'action': 'store',
                     'help': 'Filter Terms',
-                    'default': None, 'required': False
+                    'default': None, 'required': False,
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
                     'help': 'Limit Messages Period in Days',
-                    'default': 3650, 'required': False
+                    'default': 3650, 'required': False,
                     },
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
-                    'default': 'reports', 'required': False
+                    'default': 'reports', 'required': False,
                     },
                 'around_messages': {
                     'param': '--around_messages', 'type': int, 'action': 'store',
                     'help': 'Number of Messages to be Returned Around (Previous and After) the Message that was been filtered. Works together --filter',
-                    'default': 1, 'required': False
+                    'default': 1, 'required': False,
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
-                    'default': '*', 'required': False
+                    'default': '*', 'required': False,
                     },
                 'suppress_repeating_messages': {
                     'param': '--suppress_repeating_messages', 'type': str, 'action': 'store_true',
                     'help': 'Set the Date/Time Order to Descending',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
-                }
+                },
             },
         'export_text': {
             'help': 'Export all Messages using Regex Filters',
@@ -139,29 +140,29 @@ class InputArgsHandler(BaseModule):
                 'order_desc': {
                     'param': '--order_desc', 'type': str, 'action': 'store_true',
                     'help': 'Set the Date/Time Order to Descending',
-                    'default': False, 'required': False
+                    'default': False, 'required': False,
                     },
                 'regex': {
                     'param': '--regex', 'type': str, 'action': 'store',
                     'help': 'Filter Terms',
-                    'default': None, 'required': False
+                    'default': None, 'required': False,
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
                     'help': 'Limit Messages Period in Days',
-                    'default': 3650, 'required': False
+                    'default': 3650, 'required': False,
                     },
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
-                    'default': 'reports', 'required': False
+                    'default': 'reports', 'required': False,
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
-                    'default': '*', 'required': False
+                    'default': '*', 'required': False,
                     },
-                }
+                },
             },
         'export_file': {
             'help': 'Export all Files by Mime Type',
@@ -173,29 +174,29 @@ class InputArgsHandler(BaseModule):
                 'mime_type': {
                     'param': '--mime_type', 'type': str, 'action': 'store',
                     'help': 'Mimetype to be Exported',
-                    'default': None, 'required': False
+                    'default': None, 'required': False,
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
                     'help': 'Limit Messages Period in Days',
-                    'default': 3650, 'required': False
+                    'default': 3650, 'required': False,
                     },
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
-                    'default': 'reports', 'required': False
+                    'default': 'reports', 'required': False,
                     },
                 'group_id': {
                     'param': '--group_id', 'type': str, 'action': 'store',
                     'help': 'Target Group IDs. Ex: --group GroupA,GroupB,"Group C"',
-                    'default': '*', 'required': False
+                    'default': '*', 'required': False,
                     },
                 'filter': {
                     'param': '--filter', 'type': str, 'action': 'store',
                     'help': 'Filter by File Name parts. Ex: --filter my_apk,"My APK 2"',
-                    'default': '*', 'required': False
-                    }
-                }
+                    'default': '*', 'required': False,
+                    },
+                },
             },
         'sent_report_telegram': {
             'help': 'Sent the Current Report to a Telegram User using the Username',
@@ -206,24 +207,24 @@ class InputArgsHandler(BaseModule):
                     },
                 'destination_username': {
                     'param': '--destination_username', 'type': str, 'action': 'store', 'help': 'Telegram Account Username',
-                    'default': None, 'required': True
+                    'default': None, 'required': True,
                     },
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
-                    'default': 'reports', 'required': False
+                    'default': 'reports', 'required': False,
                     },
                 'title': {
                     'param': '--title', 'type': str, 'action': 'store',
                     'help': 'Report Title',
-                    'default': 'TEx Report @@now@@', 'required': True
+                    'default': 'TEx Report @@now@@', 'required': True,
                     },
                 'attachment_name': {
                     'param': '--attachment_name', 'type': str, 'action': 'store',
                     'help': 'Report Attachment FileName',
-                    'default': 'report_@@now@@', 'required': True
+                    'default': 'report_@@now@@', 'required': True,
                     },
-                }
+                },
             },
         'stats': {
             'help': 'Show Stats from a Phone Number Groups, Messages, Assets',
@@ -235,14 +236,14 @@ class InputArgsHandler(BaseModule):
                 'report_folder': {
                     'param': '--report_folder', 'type': str, 'action': 'store',
                     'help': 'Set the Report Output Folder',
-                    'default': 'reports', 'required': False
+                    'default': 'reports', 'required': False,
                     },
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
                     'help': 'Limit Statistics Period in Days',
-                    'default': 3650, 'required': False
+                    'default': 3650, 'required': False,
                     },
-                }
+                },
             },
         'purge_old_data': {
             'help': 'Purge old Messages, Media, etc',
@@ -254,9 +255,9 @@ class InputArgsHandler(BaseModule):
                 'limit_days': {
                     'param': '--limit_days', 'type': int, 'action': 'store',
                     'help': 'Limit Media Age Period in Days',
-                    'default': 365, 'required': False
+                    'default': 365, 'required': False,
                     },
-                }
+                },
             },
         'purge_temp_files': {
             'param': '--purge_temp_files',
@@ -270,8 +271,8 @@ class InputArgsHandler(BaseModule):
                     'param': '--config', 'type': str, 'action': 'store', 'help': 'Configuration File.',
                     'default': None, 'required': True,
                     },
-                }
-            }
+                },
+            },
         }
 
     async def can_activate(self, config: ConfigParser, args: Dict, data: Dict) -> bool:
@@ -285,11 +286,11 @@ class InputArgsHandler(BaseModule):
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         tex_version: str = toml.load(os.path.join('..', 'pyproject.toml'))['tool']['poetry']['version']
-        parent_parser = argparse.ArgumentParser(description=f'TEx - Telegram Monitor - {tex_version}')  # pylint: disable=R1732
+        parent_parser = argparse.ArgumentParser(description=f'TEx - Telegram Monitor - {tex_version}')
         sub_parser = parent_parser.add_subparsers(title='actions', dest='action')
 
         # Add Parameters to Arg Parser
-        for arg in InputArgsHandler.__ARGS:  # pylint: disable=C0206
+        for arg in InputArgsHandler.__ARGS:
             spec: Dict = InputArgsHandler.__ARGS[arg]
 
             parser_sub_command = sub_parser.add_parser(arg, help=spec['help'])
@@ -299,17 +300,17 @@ class InputArgsHandler(BaseModule):
 
                 parser_sub_command.add_argument(
                     sub_arg_spec['param'], action=sub_arg_spec['action'], dest=sub_arg,
-                    help=sub_arg_spec['help'], default=sub_arg_spec['default'], required=sub_arg_spec['required']
+                    help=sub_arg_spec['help'], default=sub_arg_spec['default'], required=sub_arg_spec['required'],
                     )
 
         # Parse Args
         input_args: argparse.Namespace = parent_parser.parse_args()
 
         # Add to Result Args
-        for arg in InputArgsHandler.__ARGS:  # pylint: disable=C0206
+        for arg in InputArgsHandler.__ARGS:
 
             args.update(
-                {arg: getattr(input_args, 'action') == arg}  # noqa: B009
+                {arg: getattr(input_args, 'action') == arg},
                 )
 
             if args[arg]:  # Parse Only If the Action was True
@@ -327,7 +328,7 @@ class InputArgsHandler(BaseModule):
             return [
                 {sub_arg: getattr(input_args, sub_arg)},
                 {'start_at': ''},
-                {'end_at': ''}
+                {'end_at': ''},
                 ]
 
         return [{sub_arg: getattr(input_args, sub_arg)}]

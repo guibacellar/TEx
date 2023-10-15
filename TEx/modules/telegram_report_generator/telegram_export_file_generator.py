@@ -1,4 +1,6 @@
 """Telegram Report Generator."""
+from __future__ import annotations
+
 import hashlib
 import logging
 import os
@@ -8,20 +10,13 @@ from operator import attrgetter
 from typing import Dict, List, cast
 
 from _hashlib import HASH
-
 from sqlalchemy.engine import ChunkedIteratorResult
 
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.telegram_group_database import (
-    TelegramGroupDatabaseManager,
-    TelegramMediaDatabaseManager
-    )
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity
-    )
-from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
-    TelegramGroupReportFacadeEntityMapper
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMediaDatabaseManager
+from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, TelegramGroupReportFacadeEntityMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -72,7 +67,7 @@ class TelegramExportFileGenerator(BaseModule):
         # Filter Groups
         groups = self.__filter_groups(
             args=args,
-            source=groups
+            source=groups,
             )
 
         # Process Each Group
@@ -82,7 +77,7 @@ class TelegramExportFileGenerator(BaseModule):
                 config=config,
                 args=args,
                 group=group,
-                report_root_folder=report_root_folder
+                report_root_folder=report_root_folder,
                 )
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
@@ -120,7 +115,7 @@ class TelegramExportFileGenerator(BaseModule):
             group_id=group.id,
             file_datetime_limit_seconds=limit_seconds,
             mime_type=args['mime_type'],
-            file_name_part=filter_by_filename
+            file_name_part=filter_by_filename,
             )
 
         # if Has 0 Messages, Get Out
@@ -134,11 +129,12 @@ class TelegramExportFileGenerator(BaseModule):
 
             # Compute Source File Hash
             file_hash: str = ''
-            with open(souce_media_path, "rb") as f:
-                tmp_hash: HASH = hashlib.md5()  # nosec
+            with open(souce_media_path, 'rb') as f:
+                tmp_hash: HASH = hashlib.md5()
                 while chunk := f.read(8192):
                     tmp_hash.update(chunk)
                 file_hash = tmp_hash.hexdigest()
+                f.close()
 
             # Check if Hash alread Exists in this Session
             if file_hash in TelegramExportFileGenerator.__HASH_CACHE:

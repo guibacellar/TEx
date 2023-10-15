@@ -7,6 +7,7 @@ import unittest
 from configparser import ConfigParser
 from typing import Dict
 from unittest import mock
+from parameterized import parameterized, parameterized_class
 
 from TEx.modules.telegram_connection_manager import TelegramConnector, TelegramDisconnector
 from tests.modules.common import TestsCommon
@@ -19,8 +20,12 @@ class TelegramConnectorTest(unittest.TestCase):
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
-    def test_run_connect(self):
-        """Test Run Method with Telegram Server Connection."""
+    @parameterized.expand([
+        ('With Proxy', True),
+        ('Without Proxy', False)
+    ])
+    def test_run_connect(self, name: str, use_proxy: bool):
+        """Test Run Method with Telegram Server Connection without Proxy Setting."""
 
         # Setup Mock
         telegram_client_mockup = mock.Mock()
@@ -37,6 +42,10 @@ class TelegramConnectorTest(unittest.TestCase):
         }
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
+
+        # If not Use Proxy, remove
+        if not use_proxy:
+            self.config.remove_section('PROXY')
 
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
@@ -55,12 +64,18 @@ class TelegramConnectorTest(unittest.TestCase):
                     '12345678',
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
-                    device_model='UT_DEVICE_01'
+                    device_model='UT_DEVICE_01',
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True} if use_proxy else None
                 )
 
                 # Check Logs
-                self.assertEqual(2, len(captured.records))
-                self.assertEqual('		User Authorized on Telegram: True', captured.records[1].message)
+                if use_proxy:
+                    self.assertEqual(3, len(captured.records))
+                    self.assertEqual('\t\tUsing HTTP Proxy', captured.records[1].message)
+                    self.assertEqual('		User Authorized on Telegram: True', captured.records[2].message)
+                else:
+                    self.assertEqual(2, len(captured.records))
+                    self.assertEqual('		User Authorized on Telegram: True', captured.records[1].message)
 
         # Validate Mock Calls
         telegram_client_mockup.start.assert_awaited_once_with(phone='5526986587745')
@@ -72,7 +87,11 @@ class TelegramConnectorTest(unittest.TestCase):
         self.assertEqual('5526986587745', data['telegram_connection']['target_phone_number'])
         self.assertEqual(telegram_client_mockup, data['telegram_client'])
 
-    def test_run_reuse(self):
+    @parameterized.expand([
+        ('With Proxy', True),
+        ('Without Proxy', False)
+    ])
+    def test_run_reuse(self, name: str, use_proxy: bool):
         """Test Run Method with Reused Connection."""
 
         # Setup Mock
@@ -103,6 +122,15 @@ class TelegramConnectorTest(unittest.TestCase):
         # Force Delete device_model from Configuration, to Ensure the FallBack System Works
         del self.config['CONFIGURATION']['device_model']
 
+        # If not Use Proxy, remove
+        if not use_proxy:
+            self.config.remove_section('PROXY')
+        else:
+            # Remove Password, Username and RDNS
+            del self.config['PROXY']['username']
+            del self.config['PROXY']['password']
+            del self.config['PROXY']['rdns']
+
         with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
@@ -120,12 +148,18 @@ class TelegramConnectorTest(unittest.TestCase):
                     'MyTestApiID2',
                     'MyTestApiHash2',
                     catch_up=True,
-                    device_model='TeX'
+                    device_model='TeX',
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444} if use_proxy else None
                 )
 
                 # Check Logs
-                self.assertEqual(1, len(captured.records))
-                self.assertEqual('		User Authorized on Telegram: False', captured.records[0].message)
+                if use_proxy:
+                    self.assertEqual(2, len(captured.records))
+                    self.assertEqual('\t\tUsing HTTP Proxy', captured.records[0].message)
+                    self.assertEqual('		User Authorized on Telegram: False', captured.records[1].message)
+                else:
+                    self.assertEqual(1, len(captured.records))
+                    self.assertEqual('		User Authorized on Telegram: False', captured.records[0].message)
 
         # Validate Mock Calls
         telegram_client_mockup.start.assert_awaited_once_with(phone='MyTestPhoneNumber2')
@@ -156,7 +190,8 @@ class TelegramConnectorTest(unittest.TestCase):
         }
         data: Dict = {
             'telegram_connection': {
-            }
+            },
+            'internals': {'panic': False}
         }
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
@@ -174,6 +209,9 @@ class TelegramConnectorTest(unittest.TestCase):
                 # Check Logs
                 self.assertEqual(1, len(captured.records))
                 self.assertEqual('\t\tNot Authenticated on Telegram. Please use the "connect" command.', captured.records[0].message)
+
+        # Check Panic Control
+        self.assertTrue(data['internals']['panic'])
 
     def test_constructor_call_with_auto_device_model(self):
         """Test If Auto Configuration for device_model works."""
@@ -214,7 +252,8 @@ class TelegramConnectorTest(unittest.TestCase):
                     '12345678',
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
-                    device_model=platform.uname().machine
+                    device_model=platform.uname().machine,
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True}
                 )
 
 
