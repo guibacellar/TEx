@@ -4,6 +4,7 @@ from typing import Dict, List
 
 from telethon.events import NewMessage
 
+from TEx.finder.all_messages_finder import AllMessagesFinder
 from TEx.finder.regex_finder import RegexFinder
 from TEx.notifier.notifier_engine import NotifierEngine
 
@@ -34,6 +35,12 @@ class FinderEngine:
                     'instance': RegexFinder(config=config[sec]),
                     'notifier': config[sec]['notifier']
                     })
+            elif config[sec]['type'] == 'all':
+                self.rules.append({
+                    'id': sec,
+                    'instance': AllMessagesFinder(config=config[sec]),
+                    'notifier': config[sec]['notifier']
+                })
 
     def configure(self, config: ConfigParser) -> None:
         """Configure Finder."""
