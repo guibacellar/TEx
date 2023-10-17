@@ -47,7 +47,7 @@ class ElasticSearchNotifier(BaseNotifier):
                 'group_id': message.chat.id,
                 'from_id': message.from_id.user_id if isinstance(message.from_id, PeerUser) else '',
                 'to_id': message.to_id.channel_id if message.to_id is not None else None,
-                'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None,
+                'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply and message.reply_to else None,
                 'message_id': message.id,
                 'is_reply': message.is_reply,
             }
