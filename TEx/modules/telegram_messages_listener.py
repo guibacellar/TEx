@@ -3,19 +3,22 @@ from __future__ import annotations
 
 import logging
 from configparser import ConfigParser
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, cast
 
 import pytz
 from telethon import TelegramClient, events
 from telethon.events import NewMessage
-from telethon.tl.types import Channel, Message, PeerUser, User
+from telethon.tl.patched import Message
+from telethon.tl.types import Channel, PeerUser, User
 
 from TEx.core.base_module import BaseModule
 from TEx.core.mapper.telethon_channel_mapper import TelethonChannelEntityMapper
+from TEx.core.mapper.telethon_message_mapper import TelethonMessageEntityMapper
 from TEx.core.mapper.telethon_user_mapper import TelethonUserEntiyMapper
 from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, TelegramUserDatabaseManager
 from TEx.finder.finder_engine import FinderEngine
+from TEx.models.facade.media_handler_facade_entity import MediaHandlingEntity
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -57,6 +60,7 @@ class TelegramGroupMessageListener(BaseModule):
         await self.__ensure_group_exists(event=event)
 
         # Create Dict with All Value
+        downloaded_media: Optional[MediaHandlingEntity] = await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None
         values: Dict = {
             'id': message.id,
             'group_id': event.chat.id,
@@ -64,10 +68,10 @@ class TelegramGroupMessageListener(BaseModule):
             'message': message.message,
             'raw': message.raw_text,
             'to_id': message.to_id.channel_id if message.to_id is not None else None,
-            'media_id': await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None,
+            'media_id': downloaded_media.media_id if downloaded_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None,
-            }
+        }
 
         # Process Sender ID
         if message.from_id is not None:
@@ -85,7 +89,7 @@ class TelegramGroupMessageListener(BaseModule):
 
         # Execute Finder
         await self.finder.run(
-            message=message,
+            await TelethonMessageEntityMapper.to_finder_notification_facade_entity(message=message, downloaded_media_info=downloaded_media),
             source=self.target_phone_number,
         )
 
@@ -134,7 +138,7 @@ class TelegramGroupMessageListener(BaseModule):
                 group_dict_data: Dict = TelethonChannelEntityMapper.to_database_dict(
                     entity=result,
                     target_phone_numer=self.target_phone_number,
-                    )
+                )
 
                 TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
 

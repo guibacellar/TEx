@@ -5,6 +5,7 @@ from configparser import ConfigParser
 from typing import Dict
 from unittest import mock
 
+from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from TEx.notifier.discord_notifier import DiscordNotifier
 from tests.modules.common import TestsCommon
 from tests.modules.mockups_groups_mockup_data import channel_1_mocked
@@ -23,11 +24,18 @@ class DiscordNotifierTest(unittest.TestCase):
         discord_webhook_mock = mock.AsyncMock()
         discord_webhook_mock.add_embed = mock.MagicMock()
 
-        target_message = mock.MagicMock()
-        target_message.raw_text = "Mocked Raw Text"
-        target_message.id = 5975883
-        target_message.data = datetime.datetime(2023, 10, 1, 9, 58, 22)
-        target_message.chat = channel_1_mocked
+        message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
+            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22),
+            raw_text="Mocked Raw Text",
+            group_name="Channel 1972142108",
+            group_id=1972142108,
+            from_id="1234",
+            to_id=9876,
+            reply_to_msg_id=5544,
+            message_id=5975883,
+            is_reply=False,
+            downloaded_media_info=None,
+        )
 
         target: DiscordNotifier = DiscordNotifier()
         args: Dict = {
@@ -48,7 +56,7 @@ class DiscordNotifierTest(unittest.TestCase):
 
                 # Invoke Test Target
                 target.run(
-                    message=target_message,
+                    entity=message_entity,
                     rule_id='RULE_UT_01',
                     source='+15558987453'
                 )
@@ -66,7 +74,7 @@ class DiscordNotifierTest(unittest.TestCase):
         self.assertEqual(call_arg.fields[1], {'inline': True, 'name': 'Rule', 'value': 'RULE_UT_01'})
         self.assertEqual(call_arg.fields[2], {'inline': False, 'name': 'Message ID', 'value': '5975883'})
         self.assertEqual(call_arg.fields[3], {'inline': True, 'name': 'Group Name', 'value': 'Channel 1972142108'})
-        self.assertEqual(call_arg.fields[4], {'inline': True, 'name': 'Group ID', 'value': 1972142108})
+        self.assertEqual(call_arg.fields[4], {'inline': True, 'name': 'Group ID', 'value': '1972142108'})
         self.assertEqual(call_arg.fields[6], {'inline': False, 'name': 'Tag', 'value': 'de33f5dda9c686c64d23b8aec2eebfc7'})
 
         # Check if Webhook was Executed
@@ -79,11 +87,18 @@ class DiscordNotifierTest(unittest.TestCase):
         discord_webhook_mock = mock.AsyncMock()
         discord_webhook_mock.add_embed = mock.MagicMock()
 
-        target_message = mock.MagicMock()
-        target_message.raw_text = "Mocked Raw Text 2"
-        target_message.id = 5975883
-        target_message.data = datetime.datetime(2023, 10, 1, 9, 58, 22)
-        target_message.chat = channel_1_mocked
+        message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
+            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22),
+            raw_text="Mocked Raw Text 2",
+            group_name="Channel 1972142108",
+            group_id=1972142108,
+            from_id="1234",
+            to_id=9876,
+            reply_to_msg_id=5544,
+            message_id=5975883,
+            is_reply=False,
+            downloaded_media_info=None,
+        )
 
         target: DiscordNotifier = DiscordNotifier()
         args: Dict = {
@@ -104,7 +119,7 @@ class DiscordNotifierTest(unittest.TestCase):
 
                 # Invoke Test Target
                 target.run(
-                    message=target_message,
+                    entity=message_entity,
                     rule_id='RULE_UT_01',
                     source='+15558987453'
                 )
@@ -114,7 +129,7 @@ class DiscordNotifierTest(unittest.TestCase):
 
                 # Invoke Test Target Again
                 target.run(
-                    message=target_message,
+                    entity=message_entity,
                     rule_id='RULE_UT_01',
                     source='+15558987453'
                 )

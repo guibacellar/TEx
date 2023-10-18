@@ -72,6 +72,7 @@ types-aiofiles      = "23.2.0.0"
 python-socks        = "2.4.3"
 async-timeout       = "4.0.3"
 elasticsearch       = {extras = ["async"], version = "8.10.0"}
+pydantic            = "2.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest                  = ">=7.4.0"

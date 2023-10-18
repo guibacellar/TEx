@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, Message, MessageMediaDocument
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, MessageMediaDocument
 
 
 class WebImageStickerHandler:
@@ -14,7 +15,8 @@ class WebImageStickerHandler:
         """Handle Media Metadata."""
         media: MessageMediaDocument = message.media
 
-        fn_attr: List = [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeFilename)]
+        fn_attr: List = [item for item in message.media.document.attributes if
+                         isinstance(item, DocumentAttributeFilename)]
 
         if not fn_attr or len(fn_attr) == 0:
             return None
@@ -23,11 +25,15 @@ class WebImageStickerHandler:
             'file_name': fn_attr[0].file_name,
             'telegram_id': media.document.id,
             'extension': None,
-            'height': [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeImageSize)][0].h,
-            'width': [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeImageSize)][0].w,
+            'height':
+                [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeImageSize)][
+                    0].h,
+            'width':
+                [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeImageSize)][
+                    0].w,
             'date_time': media.document.date,
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
             'name': None,
-            }
+        }

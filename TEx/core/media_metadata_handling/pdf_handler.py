@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, Message, MessageMediaPhoto
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, MessageMediaPhoto
 
 
 class PdfMediaHandler:
@@ -15,7 +16,8 @@ class PdfMediaHandler:
         media: MessageMediaPhoto = message.media
 
         return {
-            'file_name': [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)][0].file_name,
+            'file_name': [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)][
+                0].file_name,
             'telegram_id': media.document.id,
             'extension': None,
             'height': None,
@@ -25,4 +27,4 @@ class PdfMediaHandler:
             'size_bytes': media.document.size,
             'title': None,
             'name': None,
-            }
+        }

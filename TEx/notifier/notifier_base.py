@@ -7,7 +7,8 @@ from configparser import SectionProxy
 from typing import Optional, Tuple
 
 from cachetools import TTLCache
-from telethon.events import NewMessage
+
+from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 
 
 class BaseNotifier:
@@ -38,5 +39,5 @@ class BaseNotifier:
         return False, tag
 
     @abc.abstractmethod
-    async def run(self, message: NewMessage.Event, rule_id: str, source: str) -> None:
+    async def run(self, entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
         """Run the Notification Process."""

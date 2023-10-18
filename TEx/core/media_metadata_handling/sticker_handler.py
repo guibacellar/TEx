@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, Message, MessageMediaDocument
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, MessageMediaDocument
 
 
 class MediaStickerHandler:
@@ -16,7 +17,9 @@ class MediaStickerHandler:
         fn_attr_img: List = [item for item in media.document.attributes if isinstance(item, DocumentAttributeImageSize)]
 
         return {
-            'file_name': [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeFilename)][0].file_name,
+            'file_name':
+                [item for item in message.media.document.attributes if isinstance(item, DocumentAttributeFilename)][
+                    0].file_name,
             'telegram_id': media.document.id,
             'extension': None,
             'height': fn_attr_img[0].h if len(fn_attr_img) > 0 else None,
@@ -26,4 +29,4 @@ class MediaStickerHandler:
             'size_bytes': media.document.size,
             'title': None,
             'name': None,
-            }
+        }

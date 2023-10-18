@@ -104,7 +104,7 @@ class TelegramMessageDatabaseManager:
             DbManager.SESSIONS['data'].commit()
 
         except sqlalchemy.exc.IntegrityError as exc:
-            if 'UNIQUE' in exc.orig.args[0]:
+            if 'UNIQUE' in exc.orig.args[0]:  # type: ignore
                 return
 
             raise
@@ -294,11 +294,11 @@ class TelegramMediaDatabaseManager:
             parts_or_filter: List[BinaryExpression] = []
 
             for name_part in file_name_part:
-                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))
+                parts_or_filter.append(TelegramMediaOrmEntity.file_name.contains(name_part))  # type: ignore
 
             select_statement = select_statement.where(or_(*parts_or_filter))
 
-        return DbManager.SESSIONS['data'].execute(select_statement)
+        return DbManager.SESSIONS['data'].execute(select_statement)  # type: ignore
 
     @staticmethod
     def stats_all_medias_from_group_by_mimetype(group_id: int, file_datetime_limit_seconds: Optional[int] = None) -> Dict:
@@ -346,7 +346,7 @@ class TelegramMediaDatabaseManager:
         :param media_limit_days: Age of Media in Days
         :return: Number of Medias Removed
         """
-        statement: Delete = select(TelegramMediaOrmEntity).where(
+        statement: Delete = select(TelegramMediaOrmEntity).where(  # type: ignore
             TelegramMediaOrmEntity.date_time <= (datetime.datetime.now(tz=pytz.UTC) - datetime.timedelta(days=media_limit_days)),
             )
 

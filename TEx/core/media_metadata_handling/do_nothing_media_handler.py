@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from telethon.tl.types import Message
+from telethon.tl.patched import Message
 
 
 class DoNothingHandler:
