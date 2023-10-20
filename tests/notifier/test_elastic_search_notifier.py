@@ -103,7 +103,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         # Set Message
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
-            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22),
+            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22, tzinfo=pytz.UTC),
             raw_text="Mocked Raw Text",
             group_name="Channel 1972142108",
             group_id=1972142108,
@@ -142,7 +142,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         submited_document = call_arg['document']
         expected_document = {
-            'time': datetime.datetime(2023, 10, 1, 12, 58, 22, tzinfo=pytz.UTC),
+            'time': datetime.datetime(2023, 10, 1, 9, 58, 22, tzinfo=pytz.UTC),
             'source': '+15558987453',
             'rule': 'RULE_UT_01',
             'raw': 'Mocked Raw Text',
@@ -176,7 +176,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         # Set Message
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
-            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22),
+            date_time=datetime.datetime(2023, 10, 1, 9, 58, 22, tzinfo=pytz.UTC),
             raw_text="Mocked Raw Text 2",
             group_name="Channel 1972142101",
             group_id=1972142108,
@@ -215,7 +215,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         submited_document = call_arg['document']
         expected_document = {
-            'time': datetime.datetime(2023, 10, 1, 12, 58, 22, tzinfo=pytz.UTC),
+            'time': datetime.datetime(2023, 10, 1, 9, 58, 22, tzinfo=pytz.UTC),
             'source': '+15558987453',
             'rule': 'RULE_UT_01',
             'raw': 'Mocked Raw Text 2',
