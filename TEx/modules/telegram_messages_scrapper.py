@@ -41,6 +41,9 @@ class TelegramGroupMessageScrapper(BaseModule):
             logger.debug('\t\tModule is Not Enabled...')
             return
 
+        # Configure Media Handler
+        self.media_handler.configure(config=config)
+
         # Get Client
         client: TelegramClient = data['telegram_client']
 

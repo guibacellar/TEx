@@ -56,14 +56,16 @@ class TelegramGroupDatabaseManager:
             entity = TelegramGroupOrmEntity(id=entity_values['id'])
             is_update = False
 
+        cursor: CursorResult
+
         if is_update:
-            cursor: CursorResult = DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 update(TelegramGroupOrmEntity).
                 where(TelegramGroupOrmEntity.id == entity_values['id']).
                 values(entity_values),
                 )
         else:
-            cursor: CursorResult = DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 insert(TelegramGroupOrmEntity).
                 values(entity_values),
                 )
@@ -228,14 +230,16 @@ class TelegramUserDatabaseManager:
             entity = TelegramUserOrmEntity(id=entity_values['id'])
             is_update = False
 
+        cursor: CursorResult
+
         if is_update:
-            cursor: CursorResult = DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 update(TelegramUserOrmEntity).
                 where(TelegramUserOrmEntity.id == entity_values['id']).
                 values(entity_values),
                 )
         else:
-            cursor: CursorResult = DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 insert(TelegramUserOrmEntity).
                 values(entity_values),
                 )
