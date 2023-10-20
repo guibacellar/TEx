@@ -19,6 +19,7 @@ nav:
   - Home: 'index.md'
   - 'Authentication': 'authentication.md'
   - 'Contact': 'contact.md'
+  - 'Secret Chats': 'secret_chats.md'
   - 'Configuration':
     - 'Basic Configuration': 'configuration/basic.md'
     - 'Proxy': 'configuration/proxy.md'
