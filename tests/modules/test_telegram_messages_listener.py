@@ -427,7 +427,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
             print(message.message)
 
         # Check Logs
-        self.assertEqual(15, len(captured.records))
+        self.assertEqual(16, len(captured.records))
         self.assertEqual('\t\tApplied Groups Filtering... 1 selected', captured.records[0].message)
         self.assertEqual('\t\tListening Past Messages...', captured.records[1].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[2].message)
@@ -441,8 +441,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[10].message)
         self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[11].message)
         self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[12].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[13].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[14].message)
+        self.assertEqual('\t\t\t\tMedia Download is not Allowed, Ignoring...', captured.records[13].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[14].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[15].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
@@ -560,18 +561,13 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
             size_bytes=20611, group_id=10984
         )
 
-        # Check Message 7 - With text/plain
+        # Check Message 7 - With text/plain (But, not Downloaded by Media Filter)
         self.verify_single_message(
             message_obj=all_messages[6], message_id=4622199, group_id=10984,
             datetime=datetime.datetime(2022, 2, 16, 15, 15, 1),
             message_content='Message 8 - With text/plain', raw_message_content='Message 8 - With text/plain',
             to_id=1287139915, from_type='User', from_id=881571585,
-            expected_media_id=4929432170046423539
-        )
-        self.verify_media_data(
-            expected_media_id=4929432170046423539, filename='4622199_1645024499642.txt',
-            extension='.txt', mime_type='text/plain', name=None, height=None, width=None, size_bytes=11592,
-            group_id=10984
+            expected_media_id=None
         )
 
         # Check Message 8 - With text/plain

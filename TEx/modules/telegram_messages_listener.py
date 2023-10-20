@@ -155,6 +155,7 @@ class TelegramGroupMessageListener(BaseModule):
 
         # Set Finder
         self.finder.configure(config=config)
+        self.media_handler.configure(config=config)
 
         # Update Module Group Filtering Info
         if args['group_id'] and args['group_id'] != '*':

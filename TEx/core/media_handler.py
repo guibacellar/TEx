@@ -4,7 +4,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
-from typing import Dict, Optional
+from configparser import ConfigParser
+from typing import Dict, List, Optional
 
 from telethon.tl.types import Message, MessageMediaDocument, MessageMediaGeo, MessageMediaPhoto, MessageMediaWebPage
 
@@ -78,6 +79,34 @@ class UniversalTelegramMediaHandler:
             },
         }
 
+    def __init__(self) -> None:
+        """Class Initialization."""
+        self.default_mode: str = ''
+        self.default_max_download_size_bytes: int = 0
+        self.mime_type_mapping: Dict = {}
+
+    def configure(self, config: ConfigParser) -> None:
+        """Configure Media Parser."""
+        self.default_mode = config.get('MEDIA.DOWNLOAD', 'default', fallback='DISALLOW')
+        self.default_max_download_size_bytes = int(
+            config.get('MEDIA.DOWNLOAD',
+                       'max_download_size_bytes',
+                       fallback=UniversalTelegramMediaHandler.__MAX_DOWNLOAD_SIZE_BYTES),
+            )
+
+        # Get Specific Mappings
+        specific_keys: List[str] = [item for item in config.sections() if 'MEDIA.DOWNLOAD.' in item]
+        for key in specific_keys:
+            self.mime_type_mapping[key.replace('MEDIA.DOWNLOAD.', '')] = {
+                'enabled': config.get(key, 'enabled', fallback='DISALLOW'),
+                'max_download_size_bytes': int(
+                    config.get(key,
+                               'max_download_size_bytes',
+                               fallback=UniversalTelegramMediaHandler.__MAX_DOWNLOAD_SIZE_BYTES),
+                    ),
+                'groups': config.get(key, 'groups', fallback='*').split(','),
+            }
+
     async def handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[MediaHandlingEntity]:
         """Handle Message Media, Photo, File, etc."""
         executor_id: Optional[str] = self.__resolve_executor_id(message=message)
@@ -106,12 +135,10 @@ class UniversalTelegramMediaHandler:
                 file, ext = os.path.splitext(media_metadata['file_name'])
                 media_metadata['file_name'] = f'{hashlib.md5(file.encode("utf-8")).hexdigest()}{ext}'
 
-        # Check Media Size - TODO: TO Method
-        if media_metadata and \
-                'size_bytes' in media_metadata and \
-                media_metadata['size_bytes'] and \
-                media_metadata['size_bytes'] > UniversalTelegramMediaHandler.__MAX_DOWNLOAD_SIZE_BYTES:
-            logger.info('\t\t\t\tMedia too Large. Ignoring...')
+        # Check if Can Download Media
+        allow_download: bool = self.check_if_allow_download(media_metadata, group_id=str(group_id))
+        if not allow_download and media_metadata:
+            logger.info('\t\t\t\tMedia Download is not Allowed, Ignoring...')
             return None
 
         # Download Media
@@ -166,3 +193,24 @@ class UniversalTelegramMediaHandler:
                 logger.info(f'\t\t\tNot Supported Media Type {type(message.media)}. Ignoring...')
 
         return executor_id
+
+    def check_if_allow_download(self, media_metadata: Optional[Dict], group_id: str) -> bool:
+        """Check if Media Download are Allowed."""
+        if not media_metadata or \
+                'size_bytes' not in media_metadata or \
+                not media_metadata['size_bytes']:
+            return False
+
+        # Check Download Settings
+        mime_type: Optional[str] = media_metadata.get('mime_type')
+
+        if mime_type and mime_type in self.mime_type_mapping:
+
+            map_element: Dict = self.mime_type_mapping[mime_type]
+            h_result: bool = map_element['enabled'] == 'ALLOW' and \
+                media_metadata['size_bytes'] <= map_element['max_download_size_bytes'] and \
+                (map_element['groups'] == ['*'] or group_id in map_element['groups'])
+            return h_result
+
+        # Fallback for non-Configured Mime Type
+        return self.default_mode == 'ALLOW' and media_metadata['size_bytes'] <= self.default_max_download_size_bytes

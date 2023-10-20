@@ -56,19 +56,22 @@ class TelegramGroupDatabaseManager:
             entity = TelegramGroupOrmEntity(id=entity_values['id'])
             is_update = False
 
+        cursor: CursorResult
+
         if is_update:
-            DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 update(TelegramGroupOrmEntity).
                 where(TelegramGroupOrmEntity.id == entity_values['id']).
                 values(entity_values),
                 )
         else:
-            DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 insert(TelegramGroupOrmEntity).
                 values(entity_values),
                 )
 
         DbManager.SESSIONS['data'].commit()
+        cursor.close()
 
 
 class TelegramMessageDatabaseManager:
@@ -96,12 +99,13 @@ class TelegramMessageDatabaseManager:
     def insert(entity_values: Dict) -> None:
         """Insert or Update one Telegram Message."""
         try:
-            DbManager.SESSIONS['data'].execute(
+            cursor: CursorResult = DbManager.SESSIONS['data'].execute(
                 insert(TelegramMessageOrmEntity).
                 values(entity_values),
                 )
 
             DbManager.SESSIONS['data'].commit()
+            cursor.close()
 
         except sqlalchemy.exc.IntegrityError as exc:
             if 'UNIQUE' in exc.orig.args[0]:  # type: ignore
@@ -226,17 +230,21 @@ class TelegramUserDatabaseManager:
             entity = TelegramUserOrmEntity(id=entity_values['id'])
             is_update = False
 
+        cursor: CursorResult
+
         if is_update:
-            DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 update(TelegramUserOrmEntity).
                 where(TelegramUserOrmEntity.id == entity_values['id']).
                 values(entity_values),
                 )
         else:
-            DbManager.SESSIONS['data'].execute(
+            cursor = DbManager.SESSIONS['data'].execute(
                 insert(TelegramUserOrmEntity).
                 values(entity_values),
                 )
+
+        cursor.close()
 
 
 class TelegramMediaDatabaseManager:
@@ -263,6 +271,7 @@ class TelegramMediaDatabaseManager:
             values(entity_values),
             )
         session.commit()
+        cursor.close()
 
         return int(cursor.inserted_primary_key[0])
 

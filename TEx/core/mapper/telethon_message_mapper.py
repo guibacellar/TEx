@@ -61,4 +61,4 @@ class TelethonMessageEntityMapper:
                 chat_title=entity.username if entity.username else (entity.phone if entity.phone else ''),
             )
 
-        raise AttributeError(entity, 'Invalid entity type')
+        raise AttributeError(entity, 'Invalid entity type: ' + str(type(entity)))
