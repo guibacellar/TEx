@@ -113,6 +113,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 mocked_event = mock.AsyncMock()
                 mocked_event.chat = mocked_channel
                 mocked_event.get_chat = mock.AsyncMock(return_value=mocked_channel)
+                message.get_chat = mock.AsyncMock(return_value=mocked_channel)
 
                 if message.from_id:
                     mocked_event.from_id = mock.MagicMock()

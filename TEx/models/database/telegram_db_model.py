@@ -8,7 +8,7 @@ from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class TelegramDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
+class TelegramDataBaseDeclarativeBase(DeclarativeBase):
     """Global Telegram DB Declarative Base."""
 
 

@@ -42,7 +42,7 @@ class StateFileHandler:
         """
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
-            StateFileOrmEntity.__table__.delete().where(StateFileOrmEntity.path == path),
+            StateFileOrmEntity.__table__.delete().where(StateFileOrmEntity.path == path),  # type: ignore
             )
 
         entity: StateFileOrmEntity = StateFileOrmEntity(

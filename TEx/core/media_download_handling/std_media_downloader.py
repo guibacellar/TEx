@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 from typing import Dict, List
 
-from telethon.tl.types import Message
+from telethon.tl.patched import Message
 
 
 class StandardMediaDownloader:

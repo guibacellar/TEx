@@ -6,7 +6,9 @@ from typing import Dict
 from unittest import mock
 from unittest.mock import ANY, call
 
+from TEx.core.mapper.telethon_message_mapper import TelethonMessageEntityMapper
 from TEx.finder.finder_engine import FinderEngine
+from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from tests.modules.common import TestsCommon
 from tests.modules.mockups_groups_mockup_data import channel_1_mocked
 
@@ -23,8 +25,18 @@ class FinderEngineTest(unittest.TestCase):
         # Setup Mock
         notifier_engine_mock = mock.AsyncMock()
 
-        target_message = mock.MagicMock()
-        target_message.raw_text = "Mocked term3 Raw Text"
+        message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
+            date_time=datetime.datetime.utcnow(),
+            raw_text="Mocked term3 Raw Text",
+            group_name="Group 001",
+            group_id=123456,
+            from_id="1234",
+            to_id=9876,
+            reply_to_msg_id=5544,
+            message_id=969696,
+            is_reply=False,
+            downloaded_media_info=None,
+        )
 
         args: Dict = {
             'config': 'unittest_configfile.config'
@@ -46,13 +58,15 @@ class FinderEngineTest(unittest.TestCase):
 
                 # Invoke Test Target
                 target.run(
-                    message=target_message
+                    entity=message_entity,
+                    source='+15558987453'
                 )
             )
 
         # Check if Webhook was Executed
         target.notification_engine.run.assert_awaited_once_with(
             notifiers=['NOTIFIER.DISCORD.NOT_002'],
-            message=target_message,
-            rule_id='FINDER.RULE.UT_Finder_Demo'
+            entity=message_entity,
+            rule_id='FINDER.RULE.UT_Finder_Demo',
+            source='+15558987453'
         )

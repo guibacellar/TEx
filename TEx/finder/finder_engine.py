@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 from configparser import ConfigParser
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from telethon.events import NewMessage
-
+from TEx.finder.all_messages_finder import AllMessagesFinder
 from TEx.finder.regex_finder import RegexFinder
+from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from TEx.notifier.notifier_engine import NotifierEngine
 
 
@@ -36,6 +36,12 @@ class FinderEngine:
                     'instance': RegexFinder(config=config[sec]),
                     'notifier': config[sec]['notifier'],
                     })
+            elif config[sec]['type'] == 'all':
+                self.rules.append({
+                    'id': sec,
+                    'instance': AllMessagesFinder(config=config[sec]),
+                    'notifier': config[sec]['notifier'],
+                })
 
     def configure(self, config: ConfigParser) -> None:
         """Configure Finder."""
@@ -43,19 +49,25 @@ class FinderEngine:
         self.__load_rules(config=config)
         self.notification_engine.configure(config=config)
 
-    async def run(self, message: NewMessage.Event) -> None:
-        """Execute the Finder with Raw Text."""
-        if not self.is_finder_enabled:
+    async def run(self, entity: Optional[FinderNotificationMessageEntity], source: str) -> None:
+        """Execute the Finder with Raw Text.
+
+        :param entity: Facade Object
+        :param source: Source Account/Phone Number
+        :return:
+        """
+        if not self.is_finder_enabled or not entity:
             return
 
         for rule in self.rules:
-            is_found: bool = await rule['instance'].find(raw_text=message.raw_text)
+            is_found: bool = await rule['instance'].find(raw_text=entity.raw_text)
 
             if is_found:
 
                 # Runt the Notification Engine
                 await self.notification_engine.run(
                     notifiers=rule['notifier'].split(','),
-                    message=message,
+                    entity=entity,
                     rule_id=rule['id'],
+                    source=source,
                     )
