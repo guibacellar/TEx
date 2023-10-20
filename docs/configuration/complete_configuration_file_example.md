@@ -18,6 +18,10 @@ username=proxy username
 password=proxy password
 rdns=true
 
+[MEDIA.DOWNLOAD]
+default=ALLOW
+max_download_size_bytes=256000000
+
 [FINDER]
 enabled=true
 
