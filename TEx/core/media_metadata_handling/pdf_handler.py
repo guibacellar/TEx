@@ -16,8 +16,7 @@ class PdfMediaHandler:
         media: MessageMediaPhoto = message.media
 
         return {
-            'file_name': [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)][
-                0].file_name,
+            'file_name': [item for item in media.document.attributes if isinstance(item, DocumentAttributeFilename)][0].file_name,
             'telegram_id': media.document.id,
             'extension': None,
             'height': None,
@@ -27,4 +26,4 @@ class PdfMediaHandler:
             'size_bytes': media.document.size,
             'title': None,
             'name': None,
-        }
+            }

@@ -27,4 +27,4 @@ class TextPlainHandler:
             'size_bytes': media.document.size,
             'title': None,
             'name': None,
-        }
+            }

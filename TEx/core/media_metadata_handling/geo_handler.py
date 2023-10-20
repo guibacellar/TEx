@@ -29,4 +29,4 @@ class GeoMediaHandler:
             'size_bytes': None,
             'title': f'{geo.lat}|{geo.long}',
             'name': None,
-        }
+            }

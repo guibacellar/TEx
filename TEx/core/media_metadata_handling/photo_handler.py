@@ -26,4 +26,4 @@ class PhotoMediaHandler:
             'size_bytes': message.file.size,
             'title': None,
             'name': None,
-        }
+            }
