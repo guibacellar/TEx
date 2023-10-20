@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeVideo, Message, MessageMediaDocument
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeVideo, MessageMediaDocument
 
 
 class MediaMp4Handler:

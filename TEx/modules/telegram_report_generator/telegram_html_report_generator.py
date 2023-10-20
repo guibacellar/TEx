@@ -220,7 +220,7 @@ class TelegramReportGenerator(BaseModule):
                 reppeating_messages_signatures.append(message_hash)
 
             # Get the From Message User
-            from_user: Optional[TelegramUserOrmEntity] = self.get_user(message.from_id)
+            from_user: Optional[TelegramUserOrmEntity] = self.get_user(message.from_id) if message.from_id else None
 
             # Check if Append the Message on Previous Message OR Creates a New One
             is_user_bot: bool = from_user is not None and not from_user.is_bot
@@ -269,7 +269,7 @@ class TelegramReportGenerator(BaseModule):
                 )
 
             if media:
-                if media.mime_type == 'application/vnd.geo':
+                if media.mime_type == 'application/vnd.geo' and media.title:
                     media_geo = media.title.replace('|', ',')
 
                 else:
@@ -305,7 +305,7 @@ class TelegramReportGenerator(BaseModule):
     def render_to_from_message_info(self, message: TelegramMessageReportFacadeEntity, from_user: Optional[TelegramUserOrmEntity]) -> str:
         """Build and Return the TO/FROM Information for Message."""
         # Get Users
-        to_user: Optional[TelegramUserOrmEntity] = self.get_user(message.to_id)
+        to_user: Optional[TelegramUserOrmEntity] = self.get_user(message.to_id) if message.to_id else None
 
         to_from_information: str = ''
         if from_user:

@@ -7,7 +7,7 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class TempDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
+class TempDataBaseDeclarativeBase(DeclarativeBase):
     """Global Temporary Declarative Base."""
 
 

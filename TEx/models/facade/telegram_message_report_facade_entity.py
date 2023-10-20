@@ -18,9 +18,9 @@ class TelegramMessageReportFacadeEntity:
     message: str
     raw: str
 
-    from_id: int
-    from_type: str
-    to_id: int
+    from_id: Optional[int]
+    from_type: Optional[str]
+    to_id: Optional[int]
 
     meta_next: bool
     meta_previous: bool

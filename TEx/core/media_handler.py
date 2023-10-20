@@ -21,6 +21,7 @@ from TEx.core.media_metadata_handling.sticker_handler import MediaStickerHandler
 from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
 from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
 from TEx.database.telegram_group_database import TelegramMediaDatabaseManager
+from TEx.models.facade.media_handler_facade_entity import MediaHandlingEntity
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -77,7 +78,7 @@ class UniversalTelegramMediaHandler:
             },
         }
 
-    async def handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[int]:
+    async def handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[MediaHandlingEntity]:
         """Handle Message Media, Photo, File, etc."""
         executor_id: Optional[str] = self.__resolve_executor_id(message=message)
 
@@ -124,7 +125,14 @@ class UniversalTelegramMediaHandler:
         # Update Reference into DB
         if media_metadata is not None:
             media_metadata['group_id'] = group_id
-            return TelegramMediaDatabaseManager.insert(entity_values=media_metadata)
+            media_id: int = TelegramMediaDatabaseManager.insert(entity_values=media_metadata)
+
+            return MediaHandlingEntity(
+                media_id=media_id,
+                file_name=media_metadata['file_name'],
+                content_type=media_metadata['mime_type'],
+                size_bytes=media_metadata['size_bytes'],
+            )
 
         return None
 

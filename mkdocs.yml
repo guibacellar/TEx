@@ -31,9 +31,13 @@ nav:
       - 'Listen Messages': 'how_use/usage_message_listener.md'
       - 'Download Messages': 'how_use/usage_download_messages.md'
   - 'Notification System':
-      - 'Discord Notification Hook': 'notification_discord.md'
+      - 'Discord Notification Hook': 'notification/notification_discord.md'
+      - 'Elastic Search Connector':
+          - 'Configuration': 'notification/notification_elasticsearch.md'
+          - 'Index Template': 'notification/notification_elasticsearch_index_template.md'
   - 'Message Finder System':
-      - 'RegEx Finder': 'finder_regex.md'
+      - 'Catch All': 'finder/finder_catchall.md'
+      - 'RegEx Finder': 'finder/finder_regex.md'
   - 'Reports':
       - 'Export Files': 'report/report_export_files.md'
       - 'HTML Report': 'report/report_html.md'

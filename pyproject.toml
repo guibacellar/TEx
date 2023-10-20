@@ -71,6 +71,8 @@ aiofiles            = "23.2.1"
 types-aiofiles      = "23.2.0.0"
 python-socks        = "2.4.3"
 async-timeout       = "4.0.3"
+elasticsearch       = {extras = ["async"], version = "8.10.0"}
+pydantic            = "2.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest                  = ">=7.4.0"
@@ -92,7 +94,7 @@ parameterized           = "0.9.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-ackend = "poetry.core.masonry.api"
+backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 target-version = "py38"
@@ -208,6 +210,8 @@ suppress-none-returning = false
 "TEx/modules/execution_configuration_handler.py" = ["ARG002", "ARG004"]
 "TEx/modules/input_args_handler.py" = ["ARG002", "ARG004", "B009"]
 "TEx/modules/state_file_handler.py" = ["ARG002", "ARG004"]
+
+"TEx/finder/all_messages_finder.py" = ["ARG002"]
 
 "TEx/notifier/notifier_base.py" = ["S324"]
 
