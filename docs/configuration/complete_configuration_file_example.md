@@ -1,6 +1,6 @@
 # Complete Configuration File Example
 
-This is an example of a complete configuration file with three finder rules using two discord hooks.
+This is an example of a complete configuration file with four finder rules using two discord hooks and one elastic search connector.
 
 ```ini
 [CONFIGURATION]
@@ -29,12 +29,16 @@ notifier=NOTIFIER.DISCORD.MY_HOOK_1
 [FINDER.RULE.FindMessagesWithCreditCard]
 type=regex
 regex=(^4[0-9]{12}(?:[0-9]{3})?$)|(^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$)|(3[47][0-9]{13})|(^3(?:0[0-5]|[68][0-9])[0-9]{11}$)|(^6(?:011|5[0-9]{2})[0-9]{12}$)|(^(?:2131|1800|35\d{3})\d{11}$)
-notifier=NOTIFIER.DISCORD.MY_HOOK_2
+notifier=NOTIFIER.DISCORD.MY_HOOK_2,NOTIFIER.ELASTIC_SEARCH.GENERAL
 
 [FINDER.RULE.FindMessagesWithEmail]
 type=regex
 regex=^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$
 notifier=NOTIFIER.DISCORD.MY_HOOK_1,NOTIFIER.DISCORD.MY_HOOK_2
+
+[FINDER.RULE.CatchAll]
+type=all
+notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
 
 [NOTIFIER.DISCORD.MY_HOOK_1]
 webhook=https://discord.com/api/webhooks/1157896186751897357/o7foobar4txvAvKSdeadHiI-9XYeXaGlQtd-5PtrrX_eCE0XElWktpPqjrZ0KbeefPtQC
@@ -43,4 +47,11 @@ prevent_duplication_for_minutes=240
 [NOTIFIER.DISCORD.MY_HOOK_2]
 webhook=https://discord.com/api/webhooks/1128765187657681875/foobarqOMFp_4tM2ic2mbeefNPOZqJnBZZdfaubQv2vJgbYzfdeadZd5aqGX6FmCmbNjX
 prevent_duplication_for_minutes=240
+
+[NOTIFIER.ELASTIC_SEARCH.GENERAL]
+address=https://localhost:9200
+api_key=bHJtVEg0c0JnNkwwTnYtFFDEADlo6NS1rXzd6NVFSUmEtQ21mQldiUjEwUQ==
+verify_ssl_cert=False
+index_name=index-name
+pipeline_name=ent-search-generic-ingestion
 ```
