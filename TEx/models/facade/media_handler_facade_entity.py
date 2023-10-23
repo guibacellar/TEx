@@ -10,3 +10,5 @@ class MediaHandlingEntity(BaseModel):
     file_name: str
     content_type: str
     size_bytes: int
+    disk_file_path: str
+    is_ocr_supported: bool

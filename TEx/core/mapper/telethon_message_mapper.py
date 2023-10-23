@@ -21,7 +21,7 @@ class TelethonMessageEntityMapper:
         chat_title: str
 
     @staticmethod
-    async def to_finder_notification_facade_entity(message: Message, downloaded_media_info: Optional[MediaHandlingEntity]) -> \
+    async def to_finder_notification_facade_entity(message: Message, downloaded_media_info: Optional[MediaHandlingEntity], ocr_content: Optional[str]) -> \
     Optional[FinderNotificationMessageEntity]:
         """Map Telethon Event to FinderNotificationMessageEntity."""
         if not message:
@@ -31,9 +31,16 @@ class TelethonMessageEntityMapper:
             entity=await message.get_chat(),
         )
 
+        raw_text: str = message.raw_text
+        if ocr_content:
+            if raw_text and raw_text != '':
+                raw_text += '\n\n'
+
+            raw_text += ocr_content
+
         h_result: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
             date_time=message.date,
-            raw_text=message.raw_text,
+            raw_text=raw_text,
             group_name=mapped_chat_props.chat_title,
             group_id=mapped_chat_props.chat_id,
             from_id=message.from_id.user_id if isinstance(message.from_id, PeerUser) else None,
