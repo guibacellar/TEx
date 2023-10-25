@@ -24,17 +24,21 @@ TEx is a Telegram Explorer tool created to help Researchers, Investigators and L
 
 <!-- FEATURES -->
 ## Features
-- Connection Manager
+- Connection Manager (Handle Telegram Connection)
 - Group Information Scrapper
-- List Groups
+- List Groups (Scrap info for all groups, including members, members info and profile pic)
 - Automatic Group Information Sync
 - Automatic Users Information Sync
-- Messages Listener
-- Messages Scrapper
-- Download Media
+- Messages Listener (Listen all Incoming Messages)
+- Messages Scrapper (Scrap all Group Messages, since the first one)
+- Download Media (Including fine media settings like size, groups and/or media type)
 - HTML Report Generation
 - Export Downloaded Files
 - Export Messages
+- Message Finder System (Allow to Find, using terms or RegEx) patterns on messages
+- Message Notification System (Send alert's, finds, or all messages to Discord)
+- Elastic Search 8+ Native Integration
+- Image OCR using Tesseract
 
 
 <!-- INSTALLING -->

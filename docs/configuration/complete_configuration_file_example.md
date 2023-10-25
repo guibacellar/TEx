@@ -58,4 +58,12 @@ api_key=bHJtVEg0c0JnNkwwTnYtFFDEADlo6NS1rXzd6NVFSUmEtQ21mQldiUjEwUQ==
 verify_ssl_cert=False
 index_name=index-name
 pipeline_name=ent-search-generic-ingestion
+
+[OCR]
+enabled=true
+type=tesseract
+
+[OCR.TESSERACT]
+tesseract_cmd=/path/to/tesseract/cmd
+language=eng
 ```
