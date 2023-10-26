@@ -32,6 +32,14 @@ class UniversalTelegramMediaHandler:
 
     __MAX_DOWNLOAD_SIZE_BYTES: int = 256000000  # 256 MB
 
+    __IMAGE_OCR_MIME_TYPES: List[str] = [
+        'image/bmp', 'image/cis-cod', 'image/gif', 'image/ief', 'image/jpeg', 'image/pipeg', 'image/png',
+        'image/tiff', 'image/x-cmu-raster', 'image/x-cmx', 'image/x-icon', 'image/x-portable-anymap',
+        'image/x-portable-bitmap', 'image/x-portable-graymap', 'image/x-portable-pixmap', 'image/x-rgb',
+        'image/x-xbitmap', 'image/x-xpixmap', 'image/x-xwindowdump', 'image/x-jg', 'image/vnd.microsoft.icon',
+        'image/x-bmp', 'image/x-ms-bmp', 'image/svg+xml', 'image/webp',
+    ]
+
     __MEDIA_HANDLERS: Dict = {
         'video/mp4': {
             'metadata_handler': MediaMp4Handler.handle_metadata,
@@ -159,6 +167,8 @@ class UniversalTelegramMediaHandler:
                 file_name=media_metadata['file_name'],
                 content_type=media_metadata['mime_type'],
                 size_bytes=media_metadata['size_bytes'],
+                disk_file_path=os.path.join(target_file_path, media_metadata['file_name']),
+                is_ocr_supported=media_metadata['mime_type'] in UniversalTelegramMediaHandler.__IMAGE_OCR_MIME_TYPES,
             )
 
         return None

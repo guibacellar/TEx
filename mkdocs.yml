@@ -27,6 +27,7 @@ nav:
       - 'Configuration': 'configuration/media_download_configuration.md'
       - 'Examples': 'configuration/media_download_examples.md'
       - 'Content-Types': 'configuration/media_download_content_types.md'
+    - 'OCR': 'configuration/ocr.md'
     - 'Complete Configuration File Example': 'configuration/complete_configuration_file_example.md'
   - 'How to Use':
       - 'Basic Usage': 'how_use/how_to_use_basic.md'

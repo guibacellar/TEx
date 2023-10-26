@@ -73,6 +73,7 @@ python-socks        = "2.4.3"
 async-timeout       = "4.0.3"
 elasticsearch       = {extras = ["async"], version = "8.10.0"}
 pydantic            = "2.4.2"
+pytesseract         = "0.3.10"
 
 [tool.poetry.dev-dependencies]
 pytest                  = ">=7.4.0"
@@ -226,6 +227,11 @@ suppress-none-returning = false
 "TEx/modules/telegram_report_generator/telegram_export_text_generator.py" = ["ARG002", "ARG004", "S324"]
 "TEx/modules/telegram_report_generator/telegram_html_report_generator.py" = ["ARG002", "ARG004", "S324"]
 "TEx/modules/telegram_report_generator/telegram_report_sent_telegram.py" = ["ARG002", "ARG004", "S324"]
+
+"TEx/core/ocr/ocr_engine_factory.py" = ["TRY003"]
+"TEx/core/ocr/dummy_ocr_engine.py" = ["ARG002"]
+"TEx/core/ocr/tesseract_ocr_engine.py" = ["TRY003"]
+
 
 "TEx/modules/telegram_stats_generator.py" = ["ARG002", "ARG004"]
 "TEx/modules/temp_file_manager.py" = ["ARG002", "ARG004"]

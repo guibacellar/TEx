@@ -185,7 +185,14 @@ class ElasticSearchNotifierTest(unittest.TestCase):
             reply_to_msg_id=5544,
             message_id=5975883,
             is_reply=False,
-            downloaded_media_info=MediaHandlingEntity(media_id=99, file_name='utfile.pdf', content_type='application/pdf', size_bytes=5858),
+            downloaded_media_info=MediaHandlingEntity(
+                media_id=99,
+                file_name='utfile.pdf',
+                content_type='application/pdf',
+                size_bytes=5858,
+                disk_file_path='/folder/file.png',
+                is_ocr_supported=True
+            ),
         )
 
         with mock.patch('TEx.notifier.elastic_search_notifier.AsyncElasticsearch', return_value=elastic_search_api_mock):

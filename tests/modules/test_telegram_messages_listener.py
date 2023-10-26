@@ -3,29 +3,26 @@
 import asyncio
 import datetime
 import logging
+import os
 import shutil
 import unittest
 from configparser import ConfigParser
 from typing import Dict
 from unittest import mock
 
-import pytz
 from sqlalchemy import select
 from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.events import NewMessage
-from telethon.tl.types import Channel, ChatBannedRights, ChatPhoto, User, UserStatusRecently
+from telethon.tl.types import User, UserStatusRecently
 
-from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database import GROUPS_CACHE, USERS_CACHE
 from TEx.database.db_manager import DbManager
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import (
     TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramGroupOrmEntity, TelegramUserOrmEntity)
 from TEx.modules.telegram_messages_listener import TelegramGroupMessageListener
-from TEx.modules.telegram_messages_scrapper import TelegramGroupMessageScrapper
+from tests.core.ocr.unitest_echo_ocr_engine import UnitTestEchoOcrEngine
 from tests.modules.common import TestsCommon
-from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data, \
-    channel_1_mocked
+from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data
 
 
 class TelegramGroupMessageListenerTest(unittest.TestCase):
@@ -42,11 +39,13 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
     def tearDown(self) -> None:
         DbManager.SESSIONS['data'].close()
 
-    def test_run_listen_messages(self):
+    @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
+    def test_run_listen_messages(self, mocked_ocr_engine_factory):
         """Test Run Method for Listem Telegram Messages."""
 
         # Setup Mock
         telegram_client_mockup = mock.AsyncMock(side_effect=self.run_connect_side_effect)
+        mocked_ocr_engine_factory.get_instance = mock.Mock(return_value=UnitTestEchoOcrEngine(echo_message='brown dog jumped over the lazy fox.\n'))
 
         # Setup the IterParticipants Mockup
         async def async_generator_side_effect(items):
@@ -142,6 +141,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         # Asset Call run_until_disconnected
         telegram_client_mockup.run_until_disconnected.assert_awaited_once()
 
+        # Check if calls OCR Engine Factory Correctly
+        mocked_ocr_engine_factory.get_instance.assert_called_once_with(config=self.config)
+
         # Check Logs
         self.assertEqual(18, len(captured.records))
         self.assertEqual('\t\tListening Past Messages...', captured.records[0].message)
@@ -232,7 +234,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[1], message_id=183018, group_id=10984,
             datetime=datetime.datetime(2020, 5, 12, 21, 22, 35),
-            message_content='Message 2 - With Photo', raw_message_content='Message 2 - With Photo',
+            message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=5032983114749683815
         )
@@ -269,7 +272,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[4], message_id=183659, group_id=10984,
             datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
-            message_content='Message 5 - WebImage', raw_message_content='Message 5 - WebImage',
+            message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=771772508893348459
         )
@@ -336,7 +340,10 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
             group_id=12000
         )
 
-    def test_run_listen_messages_filtered(self):
+        # TODO: Check if calls OCR Engine Correctly
+
+    @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
+    def test_run_listen_messages_filtered(self, mocked_ocr_engine_factory):
         """Test Run Method for Listem Filtered Messages."""
 
         # Setup Mock
@@ -349,6 +356,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Mock the the Message Iterator Async Method
         telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        mocked_ocr_engine_factory.get_instance = mock.Mock(return_value=UnitTestEchoOcrEngine(echo_message='brown dog jumped over the lazy fox.\n'))
 
         # Add the Async Mocks to Messages
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
@@ -486,7 +494,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[0], message_id=183018, group_id=10984,
             datetime=datetime.datetime(2020, 5, 12, 21, 22, 35),
-            message_content='Message 2 - With Photo', raw_message_content='Message 2 - With Photo',
+            message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=5032983114749683815
         )
@@ -523,7 +532,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[3], message_id=183659, group_id=10984,
             datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
-            message_content='Message 5 - WebImage', raw_message_content='Message 5 - WebImage',
+            message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=771772508893348459
         )
@@ -728,6 +738,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         shutil.copyfile('resources/122761750_387013276008970_8208112669996447119_n.jpg',
                         '_data/resources/test_run_connect.jpg')
 
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile('resources/122761750_387013276008970_8208112669996447119_n.jpg', path)
+
         # Return the Path
         return '_data/resources/test_run_connect.jpg'
 
@@ -743,6 +756,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Copy Resources
         shutil.copyfile('resources/sticker.webp', '_data/resources/sticker.webp')
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile('resources/sticker.webp', path)
 
         # Return the Path
         return '_data/resources/sticker.webp'
