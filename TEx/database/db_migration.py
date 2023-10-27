@@ -2,12 +2,9 @@
 from __future__ import annotations
 
 import logging
-from typing import List
 
 import sqlalchemy
-from select import select
-from sqlalchemy import BinaryExpression, Index, MetaData, Table, delete, select, text
-from sqlalchemy.sql import or_
+from sqlalchemy import Index, MetaData, Table
 
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import TelegramMediaOrmEntity, TelegramMessageOrmEntity
@@ -28,7 +25,6 @@ class DatabaseMigrator:
     @staticmethod
     def __apply_migration_for_bind(db_name: str) -> None:
         """Apply Migrations."""
-
         meta: MetaData = sqlalchemy.MetaData()
         meta.reflect(bind=DbManager.SQLALCHEMY_BINDS[db_name])
 
@@ -39,7 +35,7 @@ class DatabaseMigrator:
             index_name='ix_telegram_message_group_id_date',
             version='V0.3.0',
             field_spec=(TelegramMessageOrmEntity.group_id, TelegramMessageOrmEntity.date_time.desc()),
-            db_name=db_name
+            db_name=db_name,
         )
 
         # ix_telegram_media_group_id_date - V0.3.0
@@ -49,7 +45,7 @@ class DatabaseMigrator:
             index_name='ix_telegram_media_group_id_date',
             version='V0.3.0',
             field_spec=(TelegramMediaOrmEntity.group_id, TelegramMediaOrmEntity.date_time.desc()),
-            db_name=db_name
+            db_name=db_name,
         )
 
     @staticmethod
@@ -62,7 +58,7 @@ class DatabaseMigrator:
         # ix_telegram_message_group_id_date - V0.3.0
         index_exists: bool = DatabaseMigrator.__check_index_exists(
             table=table,
-            index_name=index_name
+            index_name=index_name,
         )
 
         if not index_exists:
@@ -70,7 +66,7 @@ class DatabaseMigrator:
 
             new_index: Index = sqlalchemy.Index(
                 index_name,
-                *field_spec
+                *field_spec,
             )
             new_index.create(bind=DbManager.SQLALCHEMY_BINDS[db_name])
 

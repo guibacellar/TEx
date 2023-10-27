@@ -1,6 +1,4 @@
 """TEx Database Initializer."""
-import sqlalchemy
-
 from TEx.database.db_manager import DbManager
 from TEx.database.db_migration import DatabaseMigrator
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase

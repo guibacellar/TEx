@@ -232,6 +232,7 @@ suppress-none-returning = false
 "TEx/core/ocr/dummy_ocr_engine.py" = ["ARG002"]
 "TEx/core/ocr/tesseract_ocr_engine.py" = ["TRY003"]
 
+"TEx/database/db_manager.py" = ["ARG004"]
 
 "TEx/modules/telegram_stats_generator.py" = ["ARG002", "ARG004"]
 "TEx/modules/temp_file_manager.py" = ["ARG002", "ARG004"]
