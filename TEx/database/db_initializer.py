@@ -1,4 +1,6 @@
 """TEx Database Initializer."""
+import sqlalchemy
+
 from TEx.database.db_manager import DbManager
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase
 from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
@@ -14,5 +16,8 @@ class DbInitializer:
         DbManager.init_db(data_path=data_path)
 
         # Initialize Main DB
-        TempDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['temp'])
-        TelegramDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['data'])
+        TempDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['temp'], checkfirst=True)
+        TelegramDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['data'], checkfirst=True)
+
+        # Migrations
+        TelegramDataBaseDeclarativeBase.apply_migrations()
