@@ -10,7 +10,7 @@ from typing import Dict
 from unittest import mock
 
 import pytz
-from sqlalchemy import select
+from sqlalchemy import asc, select
 from telethon.tl.functions.messages import GetDialogsRequest
 
 from TEx.database.db_manager import DbManager
@@ -123,7 +123,7 @@ class TelegramGroupMessageScrapperTest(unittest.TestCase):
 
         # Check all Messages in SQLlite DB
         all_messages = DbManager.SESSIONS['data'].execute(
-            select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1)
+            select(TelegramMessageOrmEntity).where(TelegramMessageOrmEntity.group_id == 1).order_by(asc('date_time'))
         ).scalars().all()
 
         self.assertEqual(9, len(all_messages))

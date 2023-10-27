@@ -5,68 +5,14 @@ import datetime
 import logging
 from typing import Optional
 
-import sqlalchemy
-from sqlalchemy import Boolean, DateTime, Index, Integer, MetaData, String, Table
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-from TEx.database.db_manager import DbManager
 
 logger = logging.getLogger('TelegramExplorer')
 
 
 class TelegramDataBaseDeclarativeBase(DeclarativeBase):
     """Global Telegram DB Declarative Base."""
-
-    @staticmethod
-    def apply_migrations() -> None:
-        """Apply all Migrations."""
-        meta: MetaData = sqlalchemy.MetaData()
-        meta.reflect(bind=DbManager.SQLALCHEMY_BINDS['data'])
-
-        # ix_telegram_message_group_id_date - V0.3.0
-        TelegramDataBaseDeclarativeBase.__create_index(
-            metadata=meta,
-            table_name='telegram_message',
-            index_name='ix_telegram_message_group_id_date',
-            version='V0.3.0',
-            field_spec=(TelegramMessageOrmEntity.group_id, TelegramMessageOrmEntity.date_time.desc())
-        )
-
-        # ix_telegram_media_group_id_date - V0.3.0
-        TelegramDataBaseDeclarativeBase.__create_index(
-            metadata=meta,
-            table_name='telegram_media',
-            index_name='ix_telegram_media_group_id_date',
-            version='V0.3.0',
-            field_spec=(TelegramMediaOrmEntity.group_id, TelegramMediaOrmEntity.date_time.desc())
-        )
-
-    @staticmethod
-    def __create_index(metadata: MetaData, table_name: str, index_name: str, version: str, field_spec: tuple) -> None:
-
-        # Messages Table
-        table: Table = metadata.tables[table_name]
-
-        # ix_telegram_message_group_id_date - V0.3.0
-        index_exists: bool = TelegramDataBaseDeclarativeBase.__check_index_exists(
-            table=table,
-            index_name=index_name
-        )
-
-        if not index_exists:
-            logger.info(f'\t[*] APPLYING DB MIGRATION ({version}) - {index_name}')
-
-            new_index: Index = sqlalchemy.Index(
-                index_name,
-                *field_spec
-            )
-            new_index.create(bind=DbManager.SQLALCHEMY_BINDS['data'])
-
-    @staticmethod
-    def __check_index_exists(table: Table, index_name: str) -> bool:
-        """Check if Index Exists on Table."""
-        return len([item for item in table.indexes if item.name == index_name]) == 1
-
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     """Telegram Group ORM Model."""

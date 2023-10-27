@@ -2,6 +2,7 @@
 import sqlalchemy
 
 from TEx.database.db_manager import DbManager
+from TEx.database.db_migration import DatabaseMigrator
 from TEx.models.database.telegram_db_model import TelegramDataBaseDeclarativeBase
 from TEx.models.database.temp_db_models import TempDataBaseDeclarativeBase
 
@@ -20,4 +21,4 @@ class DbInitializer:
         TelegramDataBaseDeclarativeBase.metadata.create_all(DbManager.SQLALCHEMY_BINDS['data'], checkfirst=True)
 
         # Migrations
-        TelegramDataBaseDeclarativeBase.apply_migrations()
+        DatabaseMigrator.apply_migrations()
