@@ -2,15 +2,17 @@
 from __future__ import annotations
 
 import datetime
+import logging
 from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+logger = logging.getLogger('TelegramExplorer')
+
 
 class TelegramDataBaseDeclarativeBase(DeclarativeBase):
     """Global Telegram DB Declarative Base."""
-
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     """Telegram Group ORM Model."""
