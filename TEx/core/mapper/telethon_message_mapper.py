@@ -1,14 +1,18 @@
 """Telethon Event Entity Mapper."""
 from __future__ import annotations
 
+import logging
 from typing import Optional, Union
 
 from pydantic import BaseModel
+from telethon.errors import ChannelPrivateError
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, Chat, PeerUser, User
 
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from TEx.models.facade.media_handler_facade_entity import MediaHandlingEntity
+
+logger = logging.getLogger('TelegramExplorer')
 
 
 class TelethonMessageEntityMapper:
@@ -27,9 +31,12 @@ class TelethonMessageEntityMapper:
         if not message:
             return None
 
-        mapped_chat_props: TelethonMessageEntityMapper.ChatPropsModel = TelethonMessageEntityMapper.__map_chat_props(
-            entity=await message.get_chat(),
-        )
+        try:
+            mapped_chat_props: TelethonMessageEntityMapper.ChatPropsModel = TelethonMessageEntityMapper.__map_chat_props(
+                entity=await message.get_chat(),
+            )
+        except ChannelPrivateError as _ex:
+            return None
 
         raw_text: str = message.raw_text
         if ocr_content:

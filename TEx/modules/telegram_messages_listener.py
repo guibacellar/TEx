@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, cast
 
 import pytz
 from telethon import TelegramClient, events
+from telethon.errors.rpcerrorlist import ChannelPrivateError
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, PeerUser, User
@@ -63,7 +64,8 @@ class TelegramGroupMessageListener(BaseModule):
         await self.__ensure_group_exists(event=event)
 
         # Download Media
-        downloaded_media: Optional[MediaHandlingEntity] = await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None
+        downloaded_media: Optional[MediaHandlingEntity] = await self.media_handler.handle_medias(message, event.chat.id,
+                                                                                                 self.data_path) if self.download_media else None
 
         # Process OCR
         ocr_content: Optional[str] = None
@@ -138,7 +140,12 @@ class TelegramGroupMessageListener(BaseModule):
                 f'\t\tUser "{event.from_id.user_id}" was not found on DB. Performing automatic synchronization.')
 
             # Retrieve User
-            result: User = await event.get_sender()
+            result: Optional[User] = None
+            try:
+                result = await event.get_sender()
+            except ChannelPrivateError as _ex:
+                logger.warning(
+                    f'\t\tUnable to resolve User "{event.from_id.user_id}" due privacy restrictions')
 
             # Perform Synchronization
             if result:

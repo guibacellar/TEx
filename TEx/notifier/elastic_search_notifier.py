@@ -31,6 +31,8 @@ class ElasticSearchNotifier(BaseNotifier):
             api_key=config.get('api_key', fallback=None),
             verify_certs=config.get('verify_ssl_cert', fallback='True') == 'True',
             cloud_id=config.get('cloud_id', fallback=None),
+            request_timeout=10,
+            max_retries=5,
         )
         self.index = config['index_name']
         self.pipeline = config['pipeline_name']
