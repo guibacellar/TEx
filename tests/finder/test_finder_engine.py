@@ -44,24 +44,24 @@ class FinderEngineTest(unittest.TestCase):
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with mock.patch('TEx.finder.finder_engine.NotifierEngine', return_value=notifier_engine_mock):
-            target: FinderEngine = FinderEngine()
+        target: FinderEngine = FinderEngine()
 
-            # Execute Discord Notifier Configure Method
-            target.configure(
-                config=self.config
+        # Execute Discord Notifier Configure Method
+        target.configure(
+            config=self.config,
+            notification_engine=notifier_engine_mock
+        )
+        target.notification_engine = notifier_engine_mock
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+
+            # Invoke Test Target
+            target.run(
+                entity=message_entity,
+                source='+15558987453'
             )
-            target.notification_engine = notifier_engine_mock
-
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-
-                # Invoke Test Target
-                target.run(
-                    entity=message_entity,
-                    source='+15558987453'
-                )
-            )
+        )
 
         # Check if Webhook was Executed
         target.notification_engine.run.assert_has_awaits([
@@ -95,24 +95,24 @@ class FinderEngineTest(unittest.TestCase):
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with mock.patch('TEx.finder.finder_engine.NotifierEngine', return_value=notifier_engine_mock):
-            target: FinderEngine = FinderEngine()
+        target: FinderEngine = FinderEngine()
 
-            # Execute Discord Notifier Configure Method
-            target.configure(
-                config=self.config
+        # Execute Discord Notifier Configure Method
+        target.configure(
+            config=self.config,
+            notification_engine=notifier_engine_mock
+        )
+        target.notification_engine = notifier_engine_mock
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+
+            # Invoke Test Target
+            target.run(
+                entity=message_entity,
+                source='+15558987453'
             )
-            target.notification_engine = notifier_engine_mock
-
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-
-                # Invoke Test Target
-                target.run(
-                    entity=message_entity,
-                    source='+15558987453'
-                )
-            )
+        )
 
         # Check if Webhook was Executed
         target.notification_engine.run.assert_not_called()

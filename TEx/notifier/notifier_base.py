@@ -4,11 +4,12 @@ from __future__ import annotations
 import abc
 import hashlib
 from configparser import SectionProxy
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from cachetools import TTLCache
 
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
+from TEx.models.facade.signal_notification_model import SignalNotificationEntityModel
 
 
 class BaseNotifier:
@@ -39,5 +40,5 @@ class BaseNotifier:
         return False, tag
 
     @abc.abstractmethod
-    async def run(self, entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
+    async def run(self, entity: Union[FinderNotificationMessageEntity, SignalNotificationEntityModel], rule_id: str, source: str) -> None:
         """Run the Notification Process."""

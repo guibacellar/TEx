@@ -138,7 +138,6 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         self.assertEqual(call_arg['index'], 'test_index_name')
         self.assertEqual(call_arg['pipeline'], 'test_pipeline_name')
-        self.assertEqual(call_arg['id'], '1972142108_5975883')
 
         submited_document = call_arg['document']
         expected_document = {
@@ -218,7 +217,6 @@ class ElasticSearchNotifierTest(unittest.TestCase):
 
         self.assertEqual(call_arg['index'], 'test_index_name')
         self.assertEqual(call_arg['pipeline'], 'test_pipeline_name')
-        self.assertEqual(call_arg['id'], '1972142108_5975883')
 
         submited_document = call_arg['document']
         expected_document = {

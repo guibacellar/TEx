@@ -39,8 +39,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
     def tearDown(self) -> None:
         DbManager.SESSIONS['data'].close()
 
+    @mock.patch('TEx.modules.telegram_messages_listener.SignalsEngineFactory')
     @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
-    def test_run_listen_messages(self, mocked_ocr_engine_factory):
+    def test_run_listen_messages(self, mocked_ocr_engine_factory, mocked_signals_engine_factory):
         """Test Run Method for Listem Telegram Messages."""
 
         # Setup Mock
@@ -54,6 +55,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Mock the the Message Iterator Async Method
         telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.is_connected = mock.MagicMock(side_effect=[True, True, False, False])
 
         # Add the Async Mocks to Messages
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
@@ -63,6 +65,16 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
         [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
         [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+
+        # Setup the Signals Engine Mockup
+        mock_signals_engine = mock.MagicMock()
+        mock_signals_engine.keep_alive_interval = 1
+        mock_signals_engine.inc_messages_sent = mock.MagicMock()
+        mock_signals_engine.keep_alive = mock.AsyncMock()
+        mock_signals_engine.shutdown = mock.AsyncMock()
+        mock_signals_engine.init = mock.AsyncMock()
+        mock_signals_engine.new_group = mock.AsyncMock()
+        mocked_signals_engine_factory.get_instance = mock.MagicMock(return_value=mock_signals_engine)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -138,11 +150,37 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         # Assert Call catch_up
         telegram_client_mockup.catch_up.assert_awaited_once()
 
-        # Asset Call run_until_disconnected
-        telegram_client_mockup.run_until_disconnected.assert_awaited_once()
+        # Asset Call disconnect
+        telegram_client_mockup.disconnect.assert_called_once()
 
         # Check if calls OCR Engine Factory Correctly
         mocked_ocr_engine_factory.get_instance.assert_called_once_with(config=self.config)
+
+        # Check if calls Signals Engine Correctly
+        mock_signals_engine.init.assert_awaited_once()
+        mock_signals_engine.new_group.assert_has_awaits([
+            mock.call(group_id='10981', group_title='Channel Title Alpha'),
+            mock.call(group_id='10984', group_title='Channel Title Echo'),
+            mock.call(group_id='12099', group_title='johnsnow55'),
+            mock.call(group_id='12000', group_title='Chat 12000'),
+        ])
+        mock_signals_engine.inc_messages_sent.assert_has_calls([
+            mock.call(), mock.call(), mock.call(),
+            mock.call(), mock.call(), mock.call(),
+            mock.call(), mock.call(), mock.call()
+        ])
+        mock_signals_engine.keep_alive.assert_has_awaits([
+            mock.call(),
+            mock.call()
+        ])
+        mock_signals_engine.shutdown.assert_awaited_once()
+
+        # Check if calls Signals Engine Factory Correctly
+        mocked_signals_engine_factory.get_instance.assert_called_once_with(
+            config=self.config,
+            notification_engine=target.notification_engine,
+            source='5526986587745'
+        )
 
         # Check Logs
         self.assertEqual(18, len(captured.records))
@@ -342,8 +380,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # TODO: Check if calls OCR Engine Correctly
 
+    @mock.patch('TEx.modules.telegram_messages_listener.SignalsEngineFactory')
     @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
-    def test_run_listen_messages_filtered(self, mocked_ocr_engine_factory):
+    def test_run_listen_messages_filtered(self, mocked_ocr_engine_factory, mocked_signals_engine_factory):
         """Test Run Method for Listem Filtered Messages."""
 
         # Setup Mock
@@ -356,6 +395,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Mock the the Message Iterator Async Method
         telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.is_connected = mock.MagicMock(side_effect=[True, True, False, False])
         mocked_ocr_engine_factory.get_instance = mock.Mock(return_value=UnitTestEchoOcrEngine(echo_message='brown dog jumped over the lazy fox.\n'))
 
         # Add the Async Mocks to Messages
@@ -366,6 +406,16 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
         [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
         [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+
+        # Setup the Signals Engine Mockup
+        mock_signals_engine = mock.MagicMock()
+        mock_signals_engine.keep_alive_interval = 1
+        mock_signals_engine.inc_messages_sent = mock.MagicMock()
+        mock_signals_engine.keep_alive = mock.AsyncMock()
+        mock_signals_engine.shutdown = mock.AsyncMock()
+        mock_signals_engine.init = mock.AsyncMock()
+        mock_signals_engine.new_group = mock.AsyncMock()
+        mocked_signals_engine_factory.get_instance = mock.MagicMock(return_value=mock_signals_engine)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -421,15 +471,6 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 loop.run_until_complete(
                     target._TelegramGroupMessageListener__handler(event=mocked_event)
                     )
-
-        # Assert Event Handler Added
-        telegram_client_mockup.add_event_handler.assert_called_once_with(mock.ANY, NewMessage)
-
-        # Assert Call catch_up
-        telegram_client_mockup.catch_up.assert_awaited_once()
-
-        # Asset Call run_until_disconnected
-        telegram_client_mockup.run_until_disconnected.assert_awaited_once()
 
         for message in captured.records:
             print(message.message)

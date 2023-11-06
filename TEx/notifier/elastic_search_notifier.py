@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from configparser import SectionProxy
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import pytz
 from elasticsearch import AsyncElasticsearch
 
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
+from TEx.models.facade.signal_notification_model import SignalNotificationEntityModel
 from TEx.notifier.notifier_base import BaseNotifier
 
 
@@ -31,17 +32,40 @@ class ElasticSearchNotifier(BaseNotifier):
             api_key=config.get('api_key', fallback=None),
             verify_certs=config.get('verify_ssl_cert', fallback='True') == 'True',
             cloud_id=config.get('cloud_id', fallback=None),
-            request_timeout=10,
-            max_retries=5,
+            request_timeout=20,
+            max_retries=10,
+            ssl_show_warn=False,
         )
         self.index = config['index_name']
         self.pipeline = config['pipeline_name']
 
-    async def run(self, entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
+    async def run(self, entity: Union[FinderNotificationMessageEntity, SignalNotificationEntityModel], rule_id: str, source: str) -> None:
         """Run Elastic Search Notifier."""
         if not self.client:
             return
 
+        content: Dict
+
+        if isinstance(entity, FinderNotificationMessageEntity):
+            content = await self.__get_dict_for_finder_notification(
+                entity=entity,
+                rule_id=rule_id,
+                source=source,
+            )
+        else:
+            content = await self.__get_dict_for_signal_notification(
+                entity=entity,
+                source=source,
+            )
+
+        await self.client.index(
+            index=self.index,
+            pipeline=self.pipeline,
+            document=content,
+        )
+
+    async def __get_dict_for_finder_notification(self, entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> Dict:
+        """Return the Dict for Finder Notifications."""
         content: Dict = {
                 'time': entity.date_time.astimezone(tz=pytz.utc),
                 'source': source,
@@ -65,9 +89,16 @@ class ElasticSearchNotifier(BaseNotifier):
             content['media_mime_type'] = None
             content['media_size'] = None
 
-        await self.client.index(
-            index=self.index,
-            pipeline=self.pipeline,
-            id=f'{str(entity.group_id)}_{str(entity.message_id)}',
-            document=content,
-        )
+        return content
+
+    async def __get_dict_for_signal_notification(self, entity: SignalNotificationEntityModel, source: str) -> Dict:
+        """Return the Dict for Signal Notifications."""
+        content: Dict = {
+            'time': entity.date_time.astimezone(tz=pytz.utc),
+            'source': source,
+            'signal': entity.signal,
+            'content': entity.content,
+        }
+
+        return content
+
