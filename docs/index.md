@@ -17,7 +17,7 @@ Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/
 
 !!! warning "BETA VERSION"
     
-    Please note that this project has been in beta for a few weeks, so it is possible that you may encounter bugs that have not yet been mapped out.
+    Please note that V0.3.0 are the latest beta version for this project, so it is possible that you may encounter bugs that have not yet been mapped out.
     I kindly ask you to report the bugs at: [https://github.com/guibacellar/TEx/issues](https://github.com/guibacellar/TEx/issues)
 
 <!-- REQUIREMENTS -->
@@ -42,6 +42,7 @@ Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/
 - Message Notification System (Send alert's, finds, or all messages to Discord)
 - Elastic Search 8+ Native Integration
 - Image OCR using Tesseract
+- Signals for Helping Monitoring
 
 <!-- LIMITATIONS -->
 ## Know Limitations

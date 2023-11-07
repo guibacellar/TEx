@@ -1,6 +1,6 @@
 # Complete Configuration File Example
 
-This is an example of a complete configuration file with four finder rules using two discord hooks and one elastic search connector.
+This is an example of a complete configuration file with four finder rules using three discord hooks, two elastic search connector and signals configuration.
 
 ```ini
 [CONFIGURATION]
@@ -52,11 +52,22 @@ prevent_duplication_for_minutes=240
 webhook=https://discord.com/api/webhooks/1128765187657681875/foobarqOMFp_4tM2ic2mbeefNPOZqJnBZZdfaubQv2vJgbYzfdeadZd5aqGX6FmCmbNjX
 prevent_duplication_for_minutes=240
 
+[NOTIFIER.DISCORD.SIGNALS_HOOK]
+webhook=https://discord.com/api/webhooks/1128765187657681875/foobarqOMFp_457EDs2mbeefNPPeqJnBZZdfaubQvOKIUHYzfdeadZd5aqGX6FmCmbNjv
+prevent_duplication_for_minutes=0
+
 [NOTIFIER.ELASTIC_SEARCH.GENERAL]
 address=https://localhost:9200
 api_key=bHJtVEg0c0JnNkwwTnYtFFDEADlo6NS1rXzd6NVFSUmEtQ21mQldiUjEwUQ==
 verify_ssl_cert=False
 index_name=index-name
+pipeline_name=ent-search-generic-ingestion
+
+[NOTIFIER.ELASTIC_SEARCH.SIGNALS]
+address=https://localhost:9200
+api_key=bHJtVEg0c0JnNkwwTnYtFFDEADlo6NS1rXzd6NVFSUmEtQ21mQldiUjEwUQ==
+verify_ssl_cert=False
+index_name=index-name-for-signals
 pipeline_name=ent-search-generic-ingestion
 
 [OCR]
@@ -66,4 +77,13 @@ type=tesseract
 [OCR.TESSERACT]
 tesseract_cmd=/path/to/tesseract/cmd
 language=eng
+
+[SIGNALS]
+enabled=true
+keep_alive_interval=300
+
+keep_alive_notifer=NOTIFIER.ELASTIC_SEARCH.SIGNALS
+initialization_notifer=NOTIFIER.ELASTIC_SEARCH.SIGNALS
+shutdown_notifer=NOTIFIER.ELASTIC_SEARCH.SIGNALS
+new_group_notifer=NOTIFIER.DISCORD.SIGNALS_HOOK,NOTIFIER.ELASTIC_SEARCH.SIGNALS
 ```

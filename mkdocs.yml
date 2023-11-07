@@ -41,6 +41,8 @@ nav:
       - 'Elastic Search Connector':
           - 'Configuration': 'notification/notification_elasticsearch.md'
           - 'Index Template': 'notification/notification_elasticsearch_index_template.md'
+          - 'Signals Template': 'notification/notification_elasticsearch_signals_template.md'
+      - 'Signals': 'notification/signals.md'
   - 'Message Finder System':
       - 'Catch All': 'finder/finder_catchall.md'
       - 'RegEx Finder': 'finder/finder_regex.md'
