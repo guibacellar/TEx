@@ -1,9 +1,12 @@
 """Telegram Group Listener."""
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import logging
+import signal
 from configparser import ConfigParser
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 import pytz
 from telethon import TelegramClient, events
@@ -22,6 +25,8 @@ from TEx.core.ocr.ocr_engine_factory import OcrEngineFactory
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, TelegramUserDatabaseManager
 from TEx.finder.finder_engine import FinderEngine
 from TEx.models.facade.media_handler_facade_entity import MediaHandlingEntity
+from TEx.notifier.notifier_engine import NotifierEngine
+from TEx.notifier.signals_engine import SignalsEngine, SignalsEngineFactory
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -45,7 +50,21 @@ class TelegramGroupMessageListener(BaseModule):
         self.media_handler: UniversalTelegramMediaHandler = UniversalTelegramMediaHandler()
         self.target_phone_number: str = ''
         self.finder: FinderEngine = FinderEngine()
+        self.notification_engine: NotifierEngine = NotifierEngine()
         self.ocr_engine: OcrEngineBase
+        self.signals_engine: SignalsEngine
+        self.term_signal: bool = False
+        self.sleep_task: asyncio.Task
+
+    def __handle_term_signal(self, *args: Tuple) -> None:
+        """Handle the Interruption and Termination Signals."""
+        self.term_signal = True
+
+        # If Have an Active Sleep, Cancel
+        if self.sleep_task:
+            self.sleep_task.cancel()
+
+        logger.warning('\t\tTermination Signal Received, please wait to Stop Processing Gracefully.')
 
     async def __handler(self, event: NewMessage.Event) -> None:
         """Handle the Message."""
@@ -113,6 +132,9 @@ class TelegramGroupMessageListener(BaseModule):
         # Add to DB
         TelegramMessageDatabaseManager.insert(values)
 
+        # Update Signals Engine
+        self.signals_engine.inc_messages_sent()
+
     def __build_final_message(self, message: str, ocr_data: Optional[str]) -> str:
         """Compute Final Message for Dict."""
         h_result: str = ''
@@ -178,6 +200,12 @@ class TelegramGroupMessageListener(BaseModule):
 
                 TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
 
+                # Send Signal
+                await self.signals_engine.new_group(
+                    group_id=str(group_dict_data['id']),
+                    group_title=group_dict_data['title'],
+                )
+
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
         if not await self.can_activate(config, args, data):
@@ -190,14 +218,31 @@ class TelegramGroupMessageListener(BaseModule):
         self.target_phone_number = config['CONFIGURATION']['phone_number']
 
         try:
+            # Attach Termination Signals
+            signal.signal(signal.SIGINT, self.__handle_term_signal)  # type: ignore
+            signal.signal(signal.SIGTERM, self.__handle_term_signal)  # type: ignore
+
+            # Set Notification Engines
+            self.notification_engine.configure(config=config)
+
             # Set Finder
-            self.finder.configure(config=config)
+            self.finder.configure(
+                config=config,
+                notification_engine=self.notification_engine,
+            )
 
             # Setup Media Handler
             self.media_handler.configure(config=config)
 
             # Set OCR Engine
             self.ocr_engine = OcrEngineFactory.get_instance(config=config)
+
+            # Set Keep Alive Settings
+            self.signals_engine = SignalsEngineFactory.get_instance(
+                config=config,
+                notification_engine=self.notification_engine,
+                source=self.target_phone_number,
+            )
 
         except AttributeError as ex:
             logger.fatal(ex)
@@ -221,6 +266,43 @@ class TelegramGroupMessageListener(BaseModule):
 
         # Read all Messages from Now
         logger.info('\t\tListening New Messages...')
-        await client.run_until_disconnected()  # Code Stops Here until telegram disconnects
+
+        # Send Init Signal
+        await self.signals_engine.init()
+
+        # Loop Until Signal Termination
+        while not self.term_signal:
+
+            if client.is_connected():
+                self.sleep_task = asyncio.create_task(self.__sleep())
+                await self.sleep_task
+
+            else:
+                break  # Future: Handle Reconnection + Configure Reconnection in config file
+
+            # Send Keep-Alive Signal
+            await self.signals_engine.keep_alive()
+
+        # Disconnect Telegram Client
+        await self.__disconnect(client=client)
+
+    async def __disconnect(self, client: TelegramClient) -> None:
+        """Disconnect Telegram Client."""
+        # Disconnect the Client
+        client.disconnect()
+
+        # Wait Disconnect
+        while client.is_connected():
+            logger.info('\t\tWaiting Client Disconnection...')
+            await asyncio.sleep(1)
 
         logger.info('\t\tTelegram Client Disconnected...')
+
+        # Send Shutdown Signal
+        await self.signals_engine.shutdown()
+
+    async def __sleep(self) -> None:
+        """Allow Sleep Function to be Canceled."""
+        with contextlib.suppress(asyncio.CancelledError):
+            await asyncio.sleep(self.signals_engine.keep_alive_interval)
+

@@ -1,13 +1,17 @@
 """Notifier Modules."""
 from __future__ import annotations
 
+import logging
 from configparser import ConfigParser
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
+from TEx.models.facade.signal_notification_model import SignalNotificationEntityModel
 from TEx.notifier.discord_notifier import DiscordNotifier
 from TEx.notifier.elastic_search_notifier import ElasticSearchNotifier
 from TEx.notifier.notifier_base import BaseNotifier
+
+logger = logging.getLogger('TelegramExplorer')
 
 
 class NotifierEngine:
@@ -43,7 +47,7 @@ class NotifierEngine:
         """Configure Finder."""
         self.__load_notifiers(config)
 
-    async def run(self, notifiers: List[str], entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
+    async def run(self, notifiers: List[str], entity: Union[FinderNotificationMessageEntity, SignalNotificationEntityModel], rule_id: str, source: str) -> None:
         """Dispatch all Notifications.
 
         :param notifiers:
@@ -58,4 +62,9 @@ class NotifierEngine:
         for dispatcher_name in notifiers:
 
             target_notifier: BaseNotifier = self.notifiers[dispatcher_name]['instance']
-            await target_notifier.run(entity=entity, rule_id=rule_id, source=source)
+
+            try:
+                await target_notifier.run(entity=entity, rule_id=rule_id, source=source)
+
+            except Exception:  # Yes, Catch All
+                logging.exception('Unable to Send Notification')

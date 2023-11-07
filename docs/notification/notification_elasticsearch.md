@@ -10,7 +10,7 @@ Every Notification is defined in the configuration files.
 
 !!! warning "Index Template"
     
-    If you want, and we recommend, create a new Index Template before create your indexes. Please, check on "Notification System" > "Elastic Search Connector" > "Index Template" for more information.
+    If you want, and we recommend, create a new Index Template before create your indexes. Please, check on "Notification System" > "Elastic Search Connector" > "Index Template" and "Signals Template" for more information.
 
 **Configuration Spec:**
 
@@ -28,6 +28,7 @@ For each connector you must set a configuration using the default name schema *N
 
 **Changes on Configuration File (with Address)**
 ```ini
+[NOTIFIER.ELASTIC_SEARCH.ELASTIC_INDEX_01]
 address=https://elastic_search_url_1:9200,https://elastic_search_url_2:9200
 api_key=bHJtVEg0c0JnNkwwTnYtYTFdeadbeefrXzd6NVFSUmEtQ21mQldiUjEwUQ==
 verify_ssl_cert=False
@@ -37,6 +38,7 @@ pipeline_name=ent-search-generic-ingestion
 
 **Changes on Configuration File (with Cloud ID)**
 ```ini
+[NOTIFIER.ELASTIC_SEARCH.ELASTIC_INDEX_02]
 cloud_id=deployment-name:dXMtZWFzdDQuZ2Nw
 api_key=bHJtVEg0c0JnNkwwTnYtYTFdeadbeefrXzd6NVFSUmEtQ21mQldiUjEwUQ==
 verify_ssl_cert=True

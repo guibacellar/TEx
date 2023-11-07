@@ -17,7 +17,7 @@ class FinderEngine:
         """Initialize Finder Engine."""
         self.is_finder_enabled: bool = False
         self.rules: List[Dict] = []
-        self.notification_engine: NotifierEngine = NotifierEngine()
+        self.notification_engine: NotifierEngine
 
     def __is_finder_enabled(self, config: ConfigParser) -> bool:
         """Check if Finder Module is Enabled."""
@@ -43,11 +43,11 @@ class FinderEngine:
                     'notifier': config[sec]['notifier'],
                 })
 
-    def configure(self, config: ConfigParser) -> None:
+    def configure(self, config: ConfigParser, notification_engine: NotifierEngine) -> None:
         """Configure Finder."""
         self.is_finder_enabled = self.__is_finder_enabled(config=config)
         self.__load_rules(config=config)
-        self.notification_engine.configure(config=config)
+        self.notification_engine = notification_engine
 
     async def run(self, entity: Optional[FinderNotificationMessageEntity], source: str) -> None:
         """Execute the Finder with Raw Text.

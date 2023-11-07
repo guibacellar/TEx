@@ -17,10 +17,10 @@ class FinderNotificationMessageEntity(BaseModel):
     date_time: datetime
     raw_text: str
     group_name: Optional[str]
-    group_id: int
+    group_id: Optional[int]
     from_id: Optional[int]
     to_id: Optional[int]
     reply_to_msg_id: Optional[int]
-    message_id: int
-    is_reply: bool
+    message_id: Optional[int]
+    is_reply: Optional[bool]
     downloaded_media_info: Optional[MediaHandlingEntity]
