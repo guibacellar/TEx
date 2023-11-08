@@ -32,7 +32,7 @@ class ElasticSearchNotifier(BaseNotifier):
             api_key=config.get('api_key', fallback=None),
             verify_certs=config.get('verify_ssl_cert', fallback='True') == 'True',
             cloud_id=config.get('cloud_id', fallback=None),
-            request_timeout=20,
+            request_timeout=30,
             max_retries=10,
             ssl_show_warn=False,
         )

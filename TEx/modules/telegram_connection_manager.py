@@ -91,6 +91,7 @@ class TelegramConnector(BaseModule):
             catch_up=True,
             device_model=device_model,
             proxy=proxy_settings,
+            timeout=int(config['CONFIGURATION'].get('timeout', fallback='10')),
         )
 
     def __get_device_model_name(self, config: ConfigParser) -> str:

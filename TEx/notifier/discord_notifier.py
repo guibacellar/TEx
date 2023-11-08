@@ -1,10 +1,12 @@
 """Discord Notifier."""
 from __future__ import annotations
 
+import os
 from configparser import SectionProxy
 from typing import Union
 
-from discord_webhook import DiscordEmbed, DiscordWebhook
+import aiofiles
+from discord_webhook import AsyncDiscordWebhook, DiscordEmbed
 
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from TEx.models.facade.signal_notification_model import SignalNotificationEntityModel
@@ -26,6 +28,13 @@ class DiscordNotifier(BaseNotifier):
 
     async def run(self, entity: Union[FinderNotificationMessageEntity, SignalNotificationEntityModel], rule_id: str, source: str) -> None:
         """Run Discord Notifier."""
+        # Run the Notification Process
+        webhook = AsyncDiscordWebhook(  # type: ignore
+            url=self.url,
+            rate_limit_retry=True,
+            timeout=self.timeout_seconds,
+        )
+
         embed: DiscordEmbed
         if isinstance(entity, FinderNotificationMessageEntity):
             is_duplicated, duplication_tag = self.check_is_duplicated(message=entity.raw_text)
@@ -39,16 +48,45 @@ class DiscordNotifier(BaseNotifier):
                 duplication_tag=duplication_tag,
             )
 
+            # Handle Attachments
+            await self.__handle_attachment(
+                entity=entity,
+                webhook=webhook,
+                embed=embed,
+            )
+
         else:
             embed = await self.__get_signal_notification_embed(
                 entity=entity,
                 source=source,
             )
 
-        # Run the Notification Process
-        webhook = DiscordWebhook(url=self.url, rate_limit_retry=True)
         webhook.add_embed(embed)
-        webhook.execute()
+        await webhook.execute(remove_embeds=True)
+
+    async def __handle_attachment(self, entity: FinderNotificationMessageEntity, webhook: AsyncDiscordWebhook, embed: DiscordEmbed) -> None:
+        """Handle the Attachment Upload."""
+        if not entity.downloaded_media_info or not self.media_attachments_enabled:
+            return
+
+        # Check Max Size
+        if entity.downloaded_media_info.size_bytes > self.media_attachments_max_size_bytes:
+            return
+
+        # Upload File
+        if os.path.exists(entity.downloaded_media_info.disk_file_path):
+
+            # Open and Upload
+            async with aiofiles.open(entity.downloaded_media_info.disk_file_path, 'rb') as f:
+                webhook.add_file(file=await f.read(), filename=f'{entity.downloaded_media_info.file_name}')
+                await f.close()
+
+            # Add on Embed
+            if entity.downloaded_media_info.is_image():
+                embed.set_image(url=f'attachment://{entity.downloaded_media_info.file_name}')
+
+            elif entity.downloaded_media_info.is_video():
+                embed.set_video(url=f'attachment://{entity.downloaded_media_info.file_name}')
 
     async def __get_signal_notification_embed(self, entity: SignalNotificationEntityModel, source: str) -> DiscordEmbed:
         """Return the Embed Object for Signals."""

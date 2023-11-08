@@ -83,8 +83,9 @@ class TelegramGroupMessageListener(BaseModule):
         await self.__ensure_group_exists(event=event)
 
         # Download Media
-        downloaded_media: Optional[MediaHandlingEntity] = await self.media_handler.handle_medias(message, event.chat.id,
-                                                                                                 self.data_path) if self.download_media else None
+        downloaded_media: Optional[MediaHandlingEntity] = await self.media_handler.handle_medias(
+            message, event.chat.id, self.data_path,
+            ) if self.download_media else None
 
         # Process OCR
         ocr_content: Optional[str] = None
@@ -100,7 +101,7 @@ class TelegramGroupMessageListener(BaseModule):
             'date_time': message.date.astimezone(tz=pytz.utc),
             'message': self.__build_final_message(message.message, ocr_content),
             'raw': self.__build_final_message(message.raw_text, ocr_content),
-            'to_id': message.to_id.channel_id if message.to_id is not None else None,
+            'to_id': message.to_id.channel_id if message.to_id is not None and hasattr(message.to_id, 'channel_id') else None,
             'media_id': downloaded_media.media_id if downloaded_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None,

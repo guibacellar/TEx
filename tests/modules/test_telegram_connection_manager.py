@@ -65,7 +65,8 @@ class TelegramConnectorTest(unittest.TestCase):
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
                     device_model='UT_DEVICE_01',
-                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True} if use_proxy else None
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True} if use_proxy else None,
+                    timeout=20
                 )
 
                 # Check Logs
@@ -149,7 +150,8 @@ class TelegramConnectorTest(unittest.TestCase):
                     'MyTestApiHash2',
                     catch_up=True,
                     device_model='TeX',
-                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444} if use_proxy else None
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444} if use_proxy else None,
+                    timeout=20
                 )
 
                 # Check Logs
@@ -253,7 +255,8 @@ class TelegramConnectorTest(unittest.TestCase):
                     'deff1f2587358746548deadbeef58ddd',
                     catch_up=True,
                     device_model=platform.uname().machine,
-                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True}
+                    proxy={'proxy_type': 'HTTP', 'addr': '1.2.3.4', 'port': 4444, 'username': 'ut_username', 'password': 'ut_password', 'rdns': True},
+                    timeout=20
                 )
 
 

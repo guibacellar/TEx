@@ -47,6 +47,10 @@ class TesseractOcrEngine(OcrEngineBase):
     def run(self, file_path: str) -> Optional[str]:
         """Run Tesseract Engine and Return Detected Text."""
         try:
+
+            if not os.path.exists(file_path):
+                return ''
+
             return cast(str, tesseract.image_to_string(file_path, lang=self.language))
 
         except Exception as ex:
