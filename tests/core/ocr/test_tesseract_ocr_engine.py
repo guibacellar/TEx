@@ -113,8 +113,8 @@ class TesseractOcrEngineTest(unittest.TestCase):
         self.assertEqual(f'Tesseract command cannot be found at "/folder/to/cmd/file"', context.exception.args[0])
 
     @mock.patch('TEx.core.ocr.tesseract_ocr_engine.tesseract')
-    def test_run_ocr_error(self, mocked_tesseract):
-        """Test Tesseract Engine 'run' method returning a Exception."""
+    def test_run_ocr_file_not_found(self, mocked_tesseract):
+        """Test Tesseract Engine 'run' method returning Empty Value due a File not Found."""
 
         # Configure Mock
         mocked_tesseract.image_to_string = mock.MagicMock(side_effect=Exception())
@@ -123,8 +123,4 @@ class TesseractOcrEngineTest(unittest.TestCase):
         target: OcrEngineBase = TesseractOcrEngine()
 
         # Call Run
-        with self.assertLogs() as captured:
-            target.run(file_path='/path/to/target/image')
-
-        # Check Log Message
-        self.assertEqual('OCR Fail', captured.records[0].message)
+        self.assertEqual('', target.run(file_path='/path/to/target/image'))

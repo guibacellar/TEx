@@ -8,6 +8,7 @@ api_hash=my_api_hash
 phone_number=my_phone_number
 data_path=my_data_path
 device_model=device_model_name
+timeout=30
 ```
 
 * **api_id** > Required - Telegram API ID. From https://my.telegram.org/ > login > API development tools 
@@ -17,7 +18,10 @@ device_model=device_model_name
 * **device_model** > Optional - Defines which device model is passed to Telegram Servers.
     * If Blank or Absent - Uses 'TeX' for backwards compatibility
     * If set as 'AUTO' - Uses the computer/system device model
+* **timeout** > Optional - Defines the Timeout in seconds for Telegram Client.
+    * Default: 10
 
+  
 !!! warning "Note about 'device_model'"
 
     If you are using versions prior to 0.2.15 or have already connected to Telegram and have not configured the 'device_model' parameter, do not make the change, as Telegram may interpret this operation as an attack on your account.
@@ -32,4 +36,5 @@ api_hash=dead1f29db5d1fa56cc42757acbabeef
 phone_number=15552809753
 data_path=/usr/home/tex_data/
 device_model=AMD64
+timeout=15
 ```

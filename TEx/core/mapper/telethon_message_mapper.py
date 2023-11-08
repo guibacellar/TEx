@@ -51,7 +51,7 @@ class TelethonMessageEntityMapper:
             group_name=mapped_chat_props.chat_title,
             group_id=mapped_chat_props.chat_id,
             from_id=message.from_id.user_id if isinstance(message.from_id, PeerUser) else None,
-            to_id=message.to_id.channel_id if message.to_id is not None else None,
+            to_id=message.to_id.channel_id if message.to_id is not None and hasattr(message.to_id, 'channel_id') else None,
             reply_to_msg_id=message.reply_to.reply_to_msg_id if message.is_reply and message.reply_to else None,
             message_id=message.id,
             is_reply=message.is_reply,

@@ -9,6 +9,7 @@ api_hash=dead1f29db5d1fa56cc42757acbabeef
 phone_number=15552809753
 data_path=/usr/home/tex_data/
 device_model=AMD64
+timeout=30
 
 [PROXY]
 type=HTTP
@@ -47,14 +48,19 @@ notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
 [NOTIFIER.DISCORD.MY_HOOK_1]
 webhook=https://discord.com/api/webhooks/1157896186751897357/o7foobar4txvAvKSdeadHiI-9XYeXaGlQtd-5PtrrX_eCE0XElWktpPqjrZ0KbeefPtQC
 prevent_duplication_for_minutes=240
+timeout_seconds=30
+media_attachments_enabled=false
 
 [NOTIFIER.DISCORD.MY_HOOK_2]
 webhook=https://discord.com/api/webhooks/1128765187657681875/foobarqOMFp_4tM2ic2mbeefNPOZqJnBZZdfaubQv2vJgbYzfdeadZd5aqGX6FmCmbNjX
 prevent_duplication_for_minutes=240
+media_attachments_enabled=false
 
 [NOTIFIER.DISCORD.SIGNALS_HOOK]
 webhook=https://discord.com/api/webhooks/1128765187657681875/foobarqOMFp_457EDs2mbeefNPPeqJnBZZdfaubQvOKIUHYzfdeadZd5aqGX6FmCmbNjv
 prevent_duplication_for_minutes=0
+media_attachments_enabled=true
+media_attachments_max_size_bytes=10000000
 
 [NOTIFIER.ELASTIC_SEARCH.GENERAL]
 address=https://localhost:9200
