@@ -35,12 +35,14 @@ class FinderEngine:
                     'id': sec,
                     'instance': RegexFinder(config=config[sec]),
                     'notifier': config[sec]['notifier'],
+                    'type': config[sec]['type'],
                     })
             elif config[sec]['type'] == 'all':
                 self.rules.append({
                     'id': sec,
                     'instance': AllMessagesFinder(config=config[sec]),
                     'notifier': config[sec]['notifier'],
+                    'type': config[sec]['type'],
                 })
 
     def configure(self, config: ConfigParser, notification_engine: NotifierEngine) -> None:
@@ -85,7 +87,7 @@ class FinderEngine:
             is_found_on_text_downloaded_file: bool = False
 
             # Find into Downloaded File (If Applicable)
-            if not is_found_on_content and self.find_in_text_enabled:
+            if not is_found_on_content and self.find_in_text_enabled and rule['type'] != 'all':
                 is_found_on_text_downloaded_file = await self.__find_in_text_files(
                     entity=entity,
                     finder=finder,
