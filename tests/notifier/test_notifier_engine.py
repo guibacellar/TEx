@@ -54,6 +54,7 @@ class NotifierEngineTest(unittest.TestCase):
             message_id=55,
             is_reply=False,
             downloaded_media_info=None,
+            found_on='UT FOUND 7'
         )
 
         with mock.patch('TEx.notifier.notifier_engine.DiscordNotifier', return_value=discord_notifier_mockup):

@@ -114,6 +114,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
             message_id=5975883,
             is_reply=False,
             downloaded_media_info=None,
+            found_on='UT FOUND 6'
         )
 
         with mock.patch('TEx.notifier.elastic_search_notifier.AsyncElasticsearch', return_value=elastic_search_api_mock):
@@ -155,7 +156,8 @@ class ElasticSearchNotifierTest(unittest.TestCase):
             'is_reply': False,
             'has_media': False,
             'media_mime_type': None,
-            'media_size': None
+            'media_size': None,
+            'found_on': 'UT FOUND 6'
         }
 
         self.assertEqual(submited_document, expected_document)
@@ -193,6 +195,7 @@ class ElasticSearchNotifierTest(unittest.TestCase):
                 disk_file_path='/folder/file.png',
                 is_ocr_supported=True
             ),
+            found_on='UT FOUND 5'
         )
 
         with mock.patch('TEx.notifier.elastic_search_notifier.AsyncElasticsearch', return_value=elastic_search_api_mock):
@@ -234,7 +237,8 @@ class ElasticSearchNotifierTest(unittest.TestCase):
             'is_reply': False,
             'has_media': True,
             'media_mime_type': 'application/pdf',
-            'media_size': 5858
+            'media_size': 5858,
+            'found_on': 'UT FOUND 5'
         }
 
         self.assertEqual(submited_document, expected_document)

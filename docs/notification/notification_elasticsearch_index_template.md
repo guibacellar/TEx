@@ -4,104 +4,93 @@ If you want, create a new Index Template before create all Telegram Explorer ind
 
 This will help you to get the best of all data provided and allow's to extract many more value and informations from the data.
 
-**Index Template JSON**
+**Index Mapping JSON**
 ```json
 {
-  "settings": {
-    "index": {
-      "routing": {
-        "allocation": {
-          "include": {
-            "_tier_preference": "data_content"
-          }
-        }
-      }
+  "numeric_detection": false,
+  "dynamic_date_formats": [
+    "strict_date_optional_time",
+    "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
+  ],
+  "dynamic": "true",
+  "dynamic_templates": [],
+  "date_detection": true,
+  "properties": {
+    "from_id": {
+      "type": "long"
+    },
+    "media_size": {
+      "type": "long"
+    },
+    "group_name": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "reply_to_msg_id": {
+      "type": "long"
+    },
+    "has_media": {
+      "type": "boolean"
+    },
+    "raw": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "rule": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "to_id": {
+      "type": "long"
+    },
+    "message_id": {
+      "type": "text"
+    },
+    "source": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "is_reply": {
+      "type": "boolean"
+    },
+    "found_on": {
+      "type": "text"
+    },
+    "group_id": {
+      "type": "long"
+    },
+    "media_mime_type": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "time": {
+      "type": "date"
     }
-  },
-  "mappings": {
-    "dynamic": "true",
-    "dynamic_date_formats": [
-      "strict_date_optional_time",
-      "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
-    ],
-    "dynamic_templates": [],
-    "date_detection": true,
-    "numeric_detection": false,
-    "properties": {
-      "from_id": {
-        "type": "long"
-      },
-      "group_id": {
-        "type": "long"
-      },
-      "group_name": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "has_media": {
-        "type": "boolean"
-      },
-      "is_reply": {
-        "type": "boolean"
-      },
-      "media_mime_type": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "media_size": {
-        "type": "long"
-      },
-      "message_id": {
-        "type": "text"
-      },
-      "raw": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "reply_to_msg_id": {
-        "type": "long"
-      },
-      "rule": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "source": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "time": {
-        "type": "date"
-      },
-      "to_id": {
-        "type": "long"
-      }
-    }
-  },
-  "aliases": {}
+  }
 }
 ```

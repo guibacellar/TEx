@@ -78,6 +78,7 @@ class ElasticSearchNotifier(BaseNotifier):
                 'reply_to_msg_id': entity.reply_to_msg_id,
                 'message_id': entity.message_id,
                 'is_reply': entity.is_reply,
+                'found_on': entity.found_on,
             }
 
         if entity.downloaded_media_info:

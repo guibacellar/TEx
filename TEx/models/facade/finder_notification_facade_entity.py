@@ -24,3 +24,4 @@ class FinderNotificationMessageEntity(BaseModel):
     message_id: Optional[int]
     is_reply: Optional[bool]
     downloaded_media_info: Optional[MediaHandlingEntity]
+    found_on: str

@@ -126,6 +126,7 @@ class DiscordNotifier(BaseNotifier):
             embed.add_embed_field(name='Group Name', value=entity.group_name if entity.group_name else '', inline=True)
             embed.add_embed_field(name='Group ID', value=str(entity.group_id), inline=True)
 
+        embed.add_embed_field(name='Found On', value=entity.found_on, inline=False)
         embed.add_embed_field(name='Message Date', value=str(entity.date_time), inline=False)
         embed.add_embed_field(name='Tag', value=duplication_tag, inline=False)
 

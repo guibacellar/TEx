@@ -56,6 +56,7 @@ class TelethonMessageEntityMapper:
             message_id=message.id,
             is_reply=message.is_reply,
             downloaded_media_info=downloaded_media_info,
+            found_on='UNDEFINED',
         )
 
         return h_result
