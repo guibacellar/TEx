@@ -44,6 +44,7 @@ nav:
           - 'Signals Template': 'notification/notification_elasticsearch_signals_template.md'
       - 'Signals': 'notification/signals.md'
   - 'Message Finder System':
+      - 'Configuration': 'finder/configuration.md'
       - 'Catch All': 'finder/finder_catchall.md'
       - 'RegEx Finder': 'finder/finder_regex.md'
   - 'Reports':

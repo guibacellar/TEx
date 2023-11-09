@@ -21,3 +21,17 @@ class MediaHandlingEntity(BaseModel):
         """Return if Downloaded Image are a Video."""
         return self.content_type in ['application/ogg', 'video/mp4', 'video/quicktime', 'video/webm']
 
+    def allow_search_in_text_file(self) -> bool:
+        """Return if Allow to Find in the Text File."""
+        return self.content_type in [
+            'application/atom+xml',
+            'application/bittorrent',
+            'application/csv',
+            'application/html',
+            'application/json',
+            'application/ld+json',
+            'text/csv',
+            'text/html',
+            'text/plain',
+            'text/xml',
+        ]

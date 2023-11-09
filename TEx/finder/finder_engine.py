@@ -1,10 +1,14 @@
 """Finder Engine."""
 from __future__ import annotations
 
-from configparser import ConfigParser
+from configparser import ConfigParser, SectionProxy
 from typing import Dict, List, Optional
 
+import aiofiles
+import aiofiles.os
+
 from TEx.finder.all_messages_finder import AllMessagesFinder
+from TEx.finder.base_finder import BaseFinder
 from TEx.finder.regex_finder import RegexFinder
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 from TEx.notifier.notifier_engine import NotifierEngine
@@ -18,12 +22,8 @@ class FinderEngine:
         self.is_finder_enabled: bool = False
         self.rules: List[Dict] = []
         self.notification_engine: NotifierEngine
-
-    def __is_finder_enabled(self, config: ConfigParser) -> bool:
-        """Check if Finder Module is Enabled."""
-        return (
-            config.has_option('FINDER', 'enabled') and config['FINDER']['enabled'] == 'true'
-            )
+        self.find_in_text_enabled: bool = False
+        self.find_in_text_files_max_size_bytes: int = 0
 
     def __load_rules(self, config: ConfigParser) -> None:
         """Load Finder Rules."""
@@ -35,18 +35,34 @@ class FinderEngine:
                     'id': sec,
                     'instance': RegexFinder(config=config[sec]),
                     'notifier': config[sec]['notifier'],
+                    'type': config[sec]['type'],
                     })
             elif config[sec]['type'] == 'all':
                 self.rules.append({
                     'id': sec,
                     'instance': AllMessagesFinder(config=config[sec]),
                     'notifier': config[sec]['notifier'],
+                    'type': config[sec]['type'],
                 })
 
     def configure(self, config: ConfigParser, notification_engine: NotifierEngine) -> None:
         """Configure Finder."""
-        self.is_finder_enabled = self.__is_finder_enabled(config=config)
-        self.__load_rules(config=config)
+        finder_config_proxy: Optional[SectionProxy] = config['FINDER'] if config.has_section('FINDER') else None
+
+        if finder_config_proxy:
+
+            # Get Basic Props
+            self.is_finder_enabled = finder_config_proxy.get('enabled', fallback='false') == 'true'
+            self.find_in_text_enabled = finder_config_proxy.get('find_in_text_files_enabled', fallback='false') == 'true'
+            self.find_in_text_files_max_size_bytes = int(finder_config_proxy.get('find_in_text_files_max_size_bytes', fallback='10000000'))
+
+            # Load all Rules
+            self.__load_rules(config=config)
+
+        else:
+            self.find_in_text_enabled = False
+
+        # Set Notification Engine
         self.notification_engine = notification_engine
 
     async def run(self, entity: Optional[FinderNotificationMessageEntity], source: str) -> None:
@@ -59,10 +75,29 @@ class FinderEngine:
         if not self.is_finder_enabled or not entity:
             return
 
-        for rule in self.rules:
-            is_found: bool = await rule['instance'].find(raw_text=entity.raw_text)
+        cached_file_content: str = ''
 
-            if is_found:
+        for rule in self.rules:
+
+            # Resolve Finder
+            finder: BaseFinder = rule['instance']
+
+            # Find in Raw Text Content
+            is_found_on_content: bool = await finder.find(raw_text=entity.raw_text)
+            is_found_on_text_downloaded_file: bool = False
+
+            # Find into Downloaded File (If Applicable)
+            if not is_found_on_content and self.find_in_text_enabled and rule['type'] != 'all':
+                is_found_on_text_downloaded_file = await self.__find_in_text_files(
+                    entity=entity,
+                    finder=finder,
+                    file_content=cached_file_content,
+                )
+
+            if is_found_on_content or is_found_on_text_downloaded_file:
+
+                # Update found_on Flag
+                entity.found_on = 'MESSAGE' if is_found_on_content else f'FILE\n{entity.downloaded_media_info.disk_file_path}'  # type: ignore
 
                 # Runt the Notification Engine
                 await self.notification_engine.run(
@@ -71,3 +106,28 @@ class FinderEngine:
                     rule_id=rule['id'],
                     source=source,
                     )
+
+    async def __find_in_text_files(self, entity: FinderNotificationMessageEntity, finder: BaseFinder, file_content: str) -> bool:
+        """Try to Run the Finder Engine into the Downloaded Text File."""
+        if not entity.downloaded_media_info or not entity.downloaded_media_info.allow_search_in_text_file():
+            return False
+
+        # Check if File Exists
+        file_exists: bool = await aiofiles.os.path.exists(entity.downloaded_media_info.disk_file_path)
+        if not file_exists:
+            return False
+
+        # Check Max Size
+        max_size_exceeded: bool = entity.downloaded_media_info.size_bytes > self.find_in_text_files_max_size_bytes
+        if max_size_exceeded:
+            return False
+
+        # Open and Read the File
+        if file_content == '':
+            async with aiofiles.open(entity.downloaded_media_info.disk_file_path, 'rb') as f:
+                file_bytes = await f.read()
+                file_content = file_bytes.decode('UTF-8')
+                await f.close()
+
+        # Run Finder
+        return await finder.find(raw_text=file_content)

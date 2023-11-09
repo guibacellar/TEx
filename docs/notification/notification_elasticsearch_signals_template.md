@@ -4,62 +4,60 @@ In order to use the Signal Notification with Elastic Search, you should create a
 
 This will help you to get the best of all signals provided.
 
-**Index Template JSON**
+**Index Mapping JSON**
 ```json
 {
-  "settings": {
-    "index": {
-      "routing": {
-        "allocation": {
-          "include": {
-            "_tier_preference": "data_content"
-          }
-        }
-      }
+  "numeric_detection": false,
+  "dynamic_date_formats": [
+    "strict_date_optional_time",
+    "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
+  ],
+  "dynamic": "true",
+  "dynamic_templates": [],
+  "date_detection": true,
+  "properties": {
+    "source": {
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "type": "text"
+    },
+    "time": {
+      "type": "date"
+    },
+    "signal": {
+      "eager_global_ordinals": false,
+      "index_phrases": false,
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "norms": true,
+      "index": true,
+      "store": false,
+      "type": "text",
+      "index_options": "positions"
+    },
+    "content": {
+      "eager_global_ordinals": false,
+      "index_phrases": false,
+      "fielddata_frequency_filter": {
+        "min": 0.01,
+        "max": 1,
+        "min_segment_size": 50
+      },
+      "fielddata": true,
+      "norms": true,
+      "index": true,
+      "store": false,
+      "type": "text",
+      "index_options": "positions"
     }
-  },
-  "mappings": {
-    "dynamic": "true",
-    "dynamic_date_formats": [
-      "strict_date_optional_time",
-      "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
-    ],
-    "dynamic_templates": [],
-    "date_detection": true,
-    "numeric_detection": false,
-    "properties": {
-      "content": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "signal": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "source": {
-        "type": "text",
-        "fielddata": true,
-        "fielddata_frequency_filter": {
-          "min": 0.01,
-          "max": 1,
-          "min_segment_size": 50
-        }
-      },
-      "time": {
-        "type": "date"
-      }
-    }
-  },
-  "aliases": {}
+  }
 }
 ```
