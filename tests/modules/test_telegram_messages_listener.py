@@ -54,16 +54,24 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 yield item
 
         # Mock the the Message Iterator Async Method
-        telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.iter_messages = mock.MagicMock(
+            return_value=async_generator_side_effect(base_messages_mockup_data))
 
         # Add the Async Mocks to Messages
-        [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
-        [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_binary)
-        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
-        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
-        [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
-        [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
-        [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+        [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_photo)
+        [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_binary)
+        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_websticker)
+        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_text_plain)
+        [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_pdf)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -119,18 +127,21 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                     mocked_event.from_id.user_id = message.from_id.user_id
 
                     mocked_event.get_sender = mock.AsyncMock(return_value=User(
-                        id=message.from_id.user_id, is_self=False, contact=False, mutual_contact=False, deleted=False, bot=False,
+                        id=message.from_id.user_id, is_self=False, contact=False, mutual_contact=False, deleted=False,
+                        bot=False,
                         bot_chat_history=False, bot_nochats=False, verified=False, restricted=False, min=False,
                         bot_inline_geo=False, support=False, scam=False, apply_min_photo=True, fake=False,
-                        access_hash=8055169766985985814, first_name=f'userfirstname_{message.from_id.user_id}', last_name=None, username=f'userusername_{message.from_id.user_id}',
-                        phone=None, photo=None, status=UserStatusRecently(), bot_info_version=None, restriction_reason=[],
+                        access_hash=8055169766985985814, first_name=f'userfirstname_{message.from_id.user_id}',
+                        last_name=None, username=f'userusername_{message.from_id.user_id}',
+                        phone=None, photo=None, status=UserStatusRecently(), bot_info_version=None,
+                        restriction_reason=[],
                         bot_inline_placeholder=None, lang_code=None))
 
                 mocked_event.message = message
 
                 loop.run_until_complete(
                     target._TelegramGroupMessageListener__handler(event=mocked_event)
-                    )
+                )
 
         # Assert Event Handler Added
         telegram_client_mockup.add_event_handler.assert_called_once_with(mock.ANY, NewMessage)
@@ -146,21 +157,46 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual('\t\tListening Past Messages...', captured.records[0].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[1].message)
         self.assertEqual('\t\tTelegram Client Disconnected...', captured.records[2].message)
-        self.assertEqual('\t\tGroup "10981" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[3].message)
-        self.assertEqual('\t\tUser "5566" was not found on DB. Performing automatic synchronization.', captured.records[4].message)
-        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[5].message)
-        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[6].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[7].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[8].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[9].message)
-        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[10].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[11].message)
-        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[12].message)
-        self.assertEqual('		Group "12099" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[13].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[14].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[15].message)
-        self.assertEqual('		Group "12000" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[16].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[17].message)
+        self.assertEqual(
+            '\t\tGroup "10981" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            captured.records[3].message)
+        self.assertEqual('\t\tUser "5566" was not found on DB. Performing automatic synchronization.',
+                         captured.records[4].message)
+        self.assertEqual(
+            '\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            captured.records[5].message)
+        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35',
+                         captured.records[6].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13',
+            captured.records[7].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30',
+            captured.records[8].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47',
+            captured.records[9].message)
+        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.',
+                         captured.records[10].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26',
+            captured.records[11].message)
+        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.',
+                         captured.records[12].message)
+        self.assertEqual(
+            '		Group "12099" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            captured.records[13].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01',
+            captured.records[14].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.',
+                         captured.records[15].message)
+        self.assertEqual(
+            '		Group "12000" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            captured.records[16].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17',
+            captured.records[17].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
@@ -169,23 +205,23 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual(len(all_groups), 4)
 
         self.verify_single_group(all_groups[0], '2918368265874677535', '2200278116', False,
-                            False, 'CTA', False, 10981, False,
-                                False, '5526986587745', 'Channel Title Alpha', False
+                                 False, 'CTA', False, 10981, False,
+                                 False, '5526986587745', 'Channel Title Alpha', False
                                  )
 
         self.verify_single_group(all_groups[1], '-81612359763615430348', '2200278116', False,
-                            False, 'cte', False, 10984, False,
-                                False, '5526986587745', 'Channel Title Echo', False
+                                 False, 'cte', False, 10984, False,
+                                 False, '5526986587745', 'Channel Title Echo', False
                                  )
 
         self.verify_single_group(all_groups[2], '', '1103884886', False,
-                            False, '', False, 12000, False,
-                                False, '5526986587745', 'Chat 12000', False
+                                 False, '', False, 12000, False,
+                                 False, '5526986587745', 'Chat 12000', False
                                  )
 
         self.verify_single_group(all_groups[3], '-771864453243322064', '2880827680', False,
-                            False, 'johnsnow55', False, 12099, False,
-                                False, '5526986587745', 'johnsnow55', False
+                                 False, 'johnsnow55', False, 12099, False,
+                                 False, '5526986587745', 'johnsnow55', False
                                  )
 
         # Check Synchronized Users
@@ -194,9 +230,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         ).scalars().all()
         self.assertEqual(len(all_users), 4)
         self.verify_single_user(all_users[0], user_id=5566, is_bot=False, is_fake=False, is_self=False,
-                            is_scam=False, is_verified=False, first_name='userfirstname_5566', last_name=None,
-                            username='userusername_5566', phone_number=None, photo_id=None, photo_base64=None,
-                            photo_name=None)
+                                is_scam=False, is_verified=False, first_name='userfirstname_5566', last_name=None,
+                                username='userusername_5566', phone_number=None, photo_id=None, photo_base64=None,
+                                photo_name=None)
 
         self.verify_single_user(all_users[1], user_id=6699, is_bot=False, is_fake=False, is_self=False,
                                 is_scam=False, is_verified=False, first_name='userfirstname_6699', last_name=None,
@@ -347,16 +383,24 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 yield item
 
         # Mock the the Message Iterator Async Method
-        telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.iter_messages = mock.MagicMock(
+            return_value=async_generator_side_effect(base_messages_mockup_data))
 
         # Add the Async Mocks to Messages
-        [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
-        [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_binary)
-        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_websticker)
-        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
-        [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
-        [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
-        [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+        [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_photo)
+        [message for message in base_messages_mockup_data if message.id == 183644][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_binary)
+        [message for message in base_messages_mockup_data if message.id == 183659][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_websticker)
+        [message for message in base_messages_mockup_data if message.id == 183771][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_mp4)
+        [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_text_plain)
+        [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(
+            side_effect=self.coroutine_download_pdf)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -400,18 +444,21 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                     mocked_event.from_id.user_id = message.from_id.user_id
 
                     mocked_event.get_sender = mock.AsyncMock(return_value=User(
-                        id=message.from_id.user_id, is_self=False, contact=False, mutual_contact=False, deleted=False, bot=False,
+                        id=message.from_id.user_id, is_self=False, contact=False, mutual_contact=False, deleted=False,
+                        bot=False,
                         bot_chat_history=False, bot_nochats=False, verified=False, restricted=False, min=False,
                         bot_inline_geo=False, support=False, scam=False, apply_min_photo=True, fake=False,
-                        access_hash=8055169766985985814, first_name=f'userfirstname_{message.from_id.user_id}', last_name=None, username=f'userusername_{message.from_id.user_id}',
-                        phone=None, photo=None, status=UserStatusRecently(), bot_info_version=None, restriction_reason=[],
+                        access_hash=8055169766985985814, first_name=f'userfirstname_{message.from_id.user_id}',
+                        last_name=None, username=f'userusername_{message.from_id.user_id}',
+                        phone=None, photo=None, status=UserStatusRecently(), bot_info_version=None,
+                        restriction_reason=[],
                         bot_inline_placeholder=None, lang_code=None))
 
                 mocked_event.message = message
 
                 loop.run_until_complete(
                     target._TelegramGroupMessageListener__handler(event=mocked_event)
-                    )
+                )
 
         # Assert Event Handler Added
         telegram_client_mockup.add_event_handler.assert_called_once_with(mock.ANY, NewMessage)
@@ -431,17 +478,35 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual('\t\tListening Past Messages...', captured.records[1].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[2].message)
         self.assertEqual('\t\tTelegram Client Disconnected...', captured.records[3].message)
-        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[4].message)
-        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[5].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[6].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[7].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[8].message)
-        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[9].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[10].message)
-        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[11].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[12].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[13].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[14].message)
+        self.assertEqual(
+            '\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).',
+            captured.records[4].message)
+        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35',
+                         captured.records[5].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13',
+            captured.records[6].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30',
+            captured.records[7].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47',
+            captured.records[8].message)
+        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.',
+                         captured.records[9].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26',
+            captured.records[10].message)
+        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.',
+                         captured.records[11].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01',
+            captured.records[12].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.',
+                         captured.records[13].message)
+        self.assertEqual(
+            '\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17',
+            captured.records[14].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
@@ -450,8 +515,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual(len(all_groups), 1)
 
         self.verify_single_group(all_groups[0], '-81612359763615430348', '2200278116', False,
-                            False, 'cte', False, 10984, False,
-                                False, '5526986587745', 'Channel Title Echo', False
+                                 False, 'cte', False, 10984, False,
+                                 False, '5526986587745', 'Channel Title Echo', False
                                  )
 
         # Check Synchronized Users
@@ -603,7 +668,6 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         telegram_client_mockup.iter_messages = mock.MagicMock(
             return_value=async_generator_side_effect(base_messages_mockup_data))
 
-
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
         args: Dict = {
@@ -641,7 +705,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.assertEqual(1, len(captured.records))
         self.assertEqual('\t\tModule is Not Enabled...', captured.records[0].message)
 
-    def verify_single_group(self, group_obj, access_hash=None, constructor_id=None, fake=None, gigagroup=None, username=None,
+    def verify_single_group(self, group_obj, access_hash=None, constructor_id=None, fake=None, gigagroup=None,
+                            username=None,
                             has_geo=None, group_id=None, restricted=None, scam=None, source=None, title=None,
                             verified=None, group_type=None):
 
@@ -781,4 +846,3 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Return the Path
         return '_data/resources/mat.pdf'
-

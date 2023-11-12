@@ -31,12 +31,12 @@ class DiscordNotifier(BaseNotifier):
         webhook = DiscordWebhook(
             url=self.url,
             rate_limit_retry=True
-            )
+        )
 
         embed = DiscordEmbed(
             title=f'**{message.chat.title}** ({message.chat.id})',
             description=message.raw_text
-            )
+        )
 
         embed.add_embed_field(name="Rule", value=rule_id, inline=False)
         embed.add_embed_field(name="Message ID", value=str(message.id), inline=False)

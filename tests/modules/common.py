@@ -32,7 +32,6 @@ class TestsCommon:
 
     @staticmethod
     def execute_basic_pipeline_steps_for_initialization(config, args, data):
-
         execution_configuration_loader: ExecutionConfigurationHandler = ExecutionConfigurationHandler()
 
         loop = asyncio.get_event_loop()

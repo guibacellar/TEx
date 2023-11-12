@@ -25,7 +25,6 @@ from TEx.core.media_metadata_handling.text_handler import TextPlainHandler
 from TEx.core.media_metadata_handling.webimage_handler import WebImageStickerHandler
 from TEx.database.telegram_group_database import TelegramMediaDatabaseManager
 
-
 logger = logging.getLogger('TelegramExplorer')
 
 
@@ -36,48 +35,48 @@ class UniversalTelegramMediaHandler:
         'video/mp4': {
             'metadata_handler': MediaMp4Handler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'application/x-tgsticker': {
             'metadata_handler': MediaStickerHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'image/webp': {
             'metadata_handler': WebImageStickerHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'text/plain': {
             'metadata_handler': TextPlainHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'photo': {
             'metadata_handler': PhotoMediaHandler.handle_metadata,
             'downloader': PhotoMediaDownloader.download
-            },
+        },
         'application/pdf': {
             'metadata_handler': PdfMediaHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'application/x-ms-dos-executable': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'application/vnd.android.package-archive': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'application/vnd.generic.binary': {
             'metadata_handler': GenericBinaryMediaHandler.handle_metadata,
             'downloader': StandardMediaDownloader.download
-            },
+        },
         'geo': {
             'metadata_handler': GeoMediaHandler.handle_metadata,
             'downloader': DoNothingMediaDownloader.download
-            },
+        },
         'do_nothing': {
             'metadata_handler': DoNothingHandler.handle_metadata,
             'downloader': DoNothingMediaDownloader.download
-            }
         }
+    }
 
     async def handle_medias(self, message: Message, group_id: int, data_path: str) -> Optional[int]:
         """Handle Message Media, Photo, File, etc."""
@@ -96,7 +95,7 @@ class UniversalTelegramMediaHandler:
         # Get Media Metadata
         media_metadata: Optional[Dict] = executor_spec['metadata_handler'](
             message=message
-            )
+        )
 
         # Handle Unicode Chars on Media File Name - TODO: TO Method
         if media_metadata and media_metadata['file_name']:
@@ -121,7 +120,7 @@ class UniversalTelegramMediaHandler:
             message=message,
             media_metadata=media_metadata,
             data_path=target_file_path
-            )
+        )
 
         # Update Reference into DB
         if media_metadata is not None:
@@ -151,7 +150,8 @@ class UniversalTelegramMediaHandler:
                 executor_id = 'geo'
 
             elif isinstance(message.media, MessageMediaPhoto):
-                logger.info(f'\t\t\tDownloading Photo from Message {message.id} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
+                logger.info(
+                    f'\t\t\tDownloading Photo from Message {message.id} at {message.date.strftime("%Y-%m-%d %H:%M:%S")}')
                 executor_id = 'photo'
 
             else:

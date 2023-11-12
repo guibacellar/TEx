@@ -17,7 +17,7 @@ class TelethonChannelEntityMapper:
             'id': entity.id,
             'constructor_id': entity.CONSTRUCTOR_ID,
             'source': target_phone_numer
-            }
+        }
 
         # Apply Specific Mappers
         if isinstance(entity, Channel):
@@ -35,17 +35,17 @@ class TelethonChannelEntityMapper:
     def __map_channel(entity: Channel) -> Dict:
         """Map Telethon Channel to TEx Dict to Insert into DB."""
         return {
-            'gigagroup': entity.gigagroup if entity.gigagroup else False,
-            'has_geo': entity.has_geo if entity.has_geo else False,
-            'participants_count': entity.participants_count if entity.participants_count else 0,
-            'title': entity.title if entity.title else '',
+            'gigagroup': entity.gigagroup or False,
+            'has_geo': entity.has_geo or False,
+            'participants_count': entity.participants_count or 0,
+            'title': entity.title or '',
             'access_hash': str(entity.access_hash),
-            'fake': entity.fake if entity.fake else False,
-            'restricted': entity.restricted if entity.restricted else False,
-            'scam': entity.scam if entity.scam else False,
-            'group_username': entity.username if entity.username else '',
-            'verified': entity.verified if entity.verified else False
-            }
+            'fake': entity.fake or False,
+            'restricted': entity.restricted or False,
+            'scam': entity.scam or False,
+            'group_username': entity.username or '',
+            'verified': entity.verified or False
+        }
 
     @staticmethod
     def __map_chat(entity: Chat) -> Dict:
@@ -53,15 +53,15 @@ class TelethonChannelEntityMapper:
         return {
             'gigagroup': False,
             'has_geo': False,
-            'participants_count': entity.participants_count if entity.participants_count else 0,
-            'title': entity.title if entity.title else '',
+            'participants_count': entity.participants_count or 0,
+            'title': entity.title or '',
             'access_hash': '',
             'fake': False,
             'restricted': False,
             'scam': False,
             'group_username': '',
             'verified': False
-            }
+        }
 
     @staticmethod
     def __map_user(entity: User) -> Dict:
@@ -70,11 +70,11 @@ class TelethonChannelEntityMapper:
             'gigagroup': False,
             'has_geo': False,
             'participants_count': 0,
-            'title': entity.username if entity.username else (entity.phone if entity.phone else ''),
+            'title': entity.username or (entity.phone or ''),
             'access_hash': str(entity.access_hash),
-            'fake': entity.fake if entity.fake else False,
-            'restricted': entity.restricted if entity.restricted else False,
-            'scam': entity.scam if entity.scam else False,
-            'group_username': entity.username if entity.username else '',
-            'verified': entity.verified if entity.verified else False
-            }
+            'fake': entity.fake or False,
+            'restricted': entity.restricted or False,
+            'scam': entity.scam or False,
+            'group_username': entity.username or '',
+            'verified': entity.verified or False
+        }

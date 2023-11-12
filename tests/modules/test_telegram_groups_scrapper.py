@@ -58,35 +58,53 @@ class TelegramGroupScrapperTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-                target.run(
-                    config=self.config,
-                    args=args,
-                    data=data
-                )
+            self._extracted_from_test_run_download_groups_simulate_channel_private_error_25(
+                target, args, data, captured
             )
 
-            # Check Logs
-            self.assertEqual(15, len(captured.records))
-            self.assertEqual('		Enumerating Groups', captured.records[0].message)
-            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[2].message)
+    # TODO Rename this here and in `test_run_download_groups_simulate_channel_private_error`
+    def _extracted_from_test_run_download_groups_simulate_channel_private_error_25(self, target, args, data, captured):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            target.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )
 
-            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture', captured.records[3].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[4].message)
+        # Check Logs
+        self.assertEqual(15, len(captured.records))
+        self.assertEqual('		Enumerating Groups', captured.records[0].message)
+        self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture',
+                         captured.records[1].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[2].message)
 
-            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture', captured.records[5].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[6].message)
+        self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture',
+                         captured.records[3].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[4].message)
 
-            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture', captured.records[7].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[8].message)
+        self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture',
+                         captured.records[5].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[6].message)
 
-            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture', captured.records[9].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[10].message)
+        self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture',
+                         captured.records[7].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[8].message)
 
-            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[11].message)
-            self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...', captured.records[12].message)
+        self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture',
+                         captured.records[9].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[10].message)
+
+        self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture',
+                         captured.records[11].message)
+        self.assertEqual('			...Unable to Download Chat Participants due Private Chat Restrictions...',
+                         captured.records[12].message)
 
     def test_run_download_groups_simulate_peer_channel_restrictions_error(self):
         """Test Run Method for Scrap Telegram Groups - Simulates a PeerChannel Restrictions."""
@@ -112,35 +130,54 @@ class TelegramGroupScrapperTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-                target.run(
-                    config=self.config,
-                    args=args,
-                    data=data
-                )
+            self._extracted_from_test_run_download_groups_simulate_peer_channel_restrictions_error_25(
+                target, args, data, captured
             )
 
-            # Check Logs
-            self.assertEqual(15, len(captured.records))
-            self.assertEqual('		Enumerating Groups', captured.records[0].message)
-            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[2].message)
+    # TODO Rename this here and in `test_run_download_groups_simulate_peer_channel_restrictions_error`
+    def _extracted_from_test_run_download_groups_simulate_peer_channel_restrictions_error_25(self, target, args, data,
+                                                                                             captured):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            target.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )
 
-            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture', captured.records[3].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[4].message)
+        # Check Logs
+        self.assertEqual(15, len(captured.records))
+        self.assertEqual('		Enumerating Groups', captured.records[0].message)
+        self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture',
+                         captured.records[1].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[2].message)
 
-            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture', captured.records[5].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[6].message)
+        self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture',
+                         captured.records[3].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[4].message)
 
-            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture', captured.records[7].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[8].message)
+        self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture',
+                         captured.records[5].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[6].message)
 
-            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture', captured.records[9].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[10].message)
+        self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture',
+                         captured.records[7].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[8].message)
 
-            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[11].message)
-            self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...', captured.records[12].message)
+        self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture',
+                         captured.records[9].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[10].message)
+
+        self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture',
+                         captured.records[11].message)
+        self.assertEqual('			...Unable to Download Chat Participants due PerChannel Restrictions...',
+                         captured.records[12].message)
 
     def test_run_download_groups_simulate_channel_participants_not_iterable_error(self):
         """Test Run Method for Scrap Telegram Groups - Simulates a ChannelParticipants Not Iterable Error."""
@@ -151,7 +188,8 @@ class TelegramGroupScrapperTest(unittest.TestCase):
         # Setup the Download Profile Photos Mockup
         telegram_client_mockup.download_profile_photo = mock.AsyncMock(side_effect=self.coroutine_downloadfile)
 
-        telegram_client_mockup.iter_participants = mock.MagicMock(side_effect=TypeError("'ChannelParticipants' object is not subscriptable"))
+        telegram_client_mockup.iter_participants = mock.MagicMock(
+            side_effect=TypeError("'ChannelParticipants' object is not subscriptable"))
 
         target: TelegramGroupScrapper = TelegramGroupScrapper()
         args: Dict = {
@@ -166,38 +204,66 @@ class TelegramGroupScrapperTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-                target.run(
-                    config=self.config,
-                    args=args,
-                    data=data
-                )
+            self._extracted_from_test_run_download_groups_simulate_channel_participants_not_iterable_error_26(
+                target, args, data, captured
             )
 
-            # Check Logs
-            self.assertEqual(15, len(captured.records))
-            self.assertEqual('		Enumerating Groups', captured.records[0].message)
-            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[2].message)
+    # TODO Rename this here and in `test_run_download_groups_simulate_channel_participants_not_iterable_error`
+    def _extracted_from_test_run_download_groups_simulate_channel_participants_not_iterable_error_26(self, target, args,
+                                                                                                     data, captured):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            target.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )
 
-            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture', captured.records[3].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[4].message)
+        # Check Logs
+        self.assertEqual(15, len(captured.records))
+        self.assertEqual('		Enumerating Groups', captured.records[0].message)
+        self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture',
+                         captured.records[1].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[2].message)
 
-            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture', captured.records[5].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[6].message)
+        self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture',
+                         captured.records[3].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[4].message)
 
-            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture', captured.records[7].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[8].message)
+        self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture',
+                         captured.records[5].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[6].message)
 
-            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture', captured.records[9].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[10].message)
+        self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture',
+                         captured.records[7].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[8].message)
 
-            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[11].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[12].message)
+        self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture',
+                         captured.records[9].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[10].message)
 
-            self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture', captured.records[13].message)
-            self.assertEqual('			...Unable to Download Chat Participants due ChannelParticipants Restrictions...', captured.records[14].message)
+        self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture',
+                         captured.records[11].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[12].message)
+
+        self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture',
+                         captured.records[13].message)
+        self.assertEqual(
+            '			...Unable to Download Chat Participants due ChannelParticipants Restrictions...',
+            captured.records[14].message)
 
     def test_run_download_groups(self):
         """Test Run Method for Scrap Telegram Groups."""
@@ -241,13 +307,20 @@ class TelegramGroupScrapperTest(unittest.TestCase):
             # Check Logs
             self.assertEqual(8, len(captured.records))
             self.assertEqual('		Enumerating Groups', captured.records[0].message)
-            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture', captured.records[1].message)
-            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture', captured.records[2].message)
-            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture', captured.records[3].message)
-            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture', captured.records[4].message)
-            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture', captured.records[5].message)
-            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture', captured.records[6].message)
-            self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture', captured.records[7].message)
+            self.assertEqual('		Processing "Channel Title Alpha (10981)" Members and Group Profile Picture',
+                             captured.records[1].message)
+            self.assertEqual('		Processing "Channel Title Beta (10982)" Members and Group Profile Picture',
+                             captured.records[2].message)
+            self.assertEqual('		Processing "Channel Title Delta (10983)" Members and Group Profile Picture',
+                             captured.records[3].message)
+            self.assertEqual('		Processing "Channel Title Echo (10984)" Members and Group Profile Picture',
+                             captured.records[4].message)
+            self.assertEqual('		Processing "Channel Title Charlie (10985)" Members and Group Profile Picture',
+                             captured.records[5].message)
+            self.assertEqual('		Processing "Channel Title Fox (10989)" Members and Group Profile Picture',
+                             captured.records[6].message)
+            self.assertEqual('		Processing "None (10999)" Members and Group Profile Picture',
+                             captured.records[7].message)
 
         # Check all Groups in SQLlite DB
         all_groups = DbManager.SESSIONS['data'].execute(

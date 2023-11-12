@@ -20,7 +20,13 @@ class StateFileHandler:
         :param path: File Path
         :return:
         """
-        return bool(DbManager.SESSIONS['temp'].query(StateFileOrmEntity).filter_by(path=path).count() > 0)
+        return (
+            DbManager.SESSIONS['temp']
+            .query(StateFileOrmEntity)
+            .filter_by(path=path)
+            .count()
+            > 0
+        )
 
     @staticmethod
     def read_file_text(path: str) -> str:
@@ -29,7 +35,9 @@ class StateFileHandler:
         :param path: File Path
         :return: File Content
         """
-        entity: StateFileOrmEntity = cast(StateFileOrmEntity, DbManager.SESSIONS['temp'].query(StateFileOrmEntity).filter_by(path=path).first())
+        entity: StateFileOrmEntity = cast(StateFileOrmEntity,
+                                          DbManager.SESSIONS['temp'].query(StateFileOrmEntity).filter_by(
+                                              path=path).first())
         return str(entity.data)
 
     @staticmethod
@@ -44,13 +52,13 @@ class StateFileHandler:
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
             StateFileOrmEntity.__table__.delete().where(StateFileOrmEntity.path == path)
-            )
+        )
 
         entity: StateFileOrmEntity = StateFileOrmEntity(
             path=path,
             data=content,
             created_at=int(datetime.now(tz=pytz.UTC).timestamp())
-            )
+        )
         DbManager.SESSIONS['temp'].add(entity)
 
         # Execute

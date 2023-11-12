@@ -35,7 +35,6 @@ from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, ba
 class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
@@ -56,7 +55,7 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
         shutil.copy(
             os.path.join('resources', 'mat.pdf'),
             os.path.join('_data', 'media', '2', '55_mat.pdf')
-            )
+        )
         media_id = TelegramMediaDatabaseManager.insert(
             {
                 'file_name': '55_mat.pdf',
@@ -65,7 +64,7 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
                 'extension': 'pdf',
                 'height': 0,
                 'width': 0,
-                'date_time': datetime.datetime.utcnow()-datetime.timedelta(days=31),
+                'date_time': datetime.datetime.utcnow() - datetime.timedelta(days=31),
                 'mime_type': 'application/pdf',
                 'size_bytes': 58964,
                 'title': 'mat pdf',
@@ -91,22 +90,22 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
             'verified': False, 'title': 'UT-02', 'source': '5526986587745'
         })
         TelegramMessageDatabaseManager.insert({
-            'id': 55, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc)-datetime.timedelta(days=31),
+            'id': 55, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc) - datetime.timedelta(days=31),
             'message': 'Message 1', 'raw': 'Raw Message 1', 'from_id': None, 'from_type': None,
             'to_id': None, 'media_id': media_id
         })
         TelegramMessageDatabaseManager.insert({
-            'id': 56, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc)-datetime.timedelta(days=30),
+            'id': 56, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc) - datetime.timedelta(days=30),
             'message': 'Message 2', 'raw': 'Raw Message 2', 'from_id': None, 'from_type': None,
             'to_id': None, 'media_id': None
         })
         TelegramMessageDatabaseManager.insert({
-            'id': 57, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc)-datetime.timedelta(days=29),
+            'id': 57, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc) - datetime.timedelta(days=29),
             'message': 'Message 2', 'raw': 'Raw Message 2', 'from_id': None, 'from_type': None,
             'to_id': None, 'media_id': None
         })
         TelegramMessageDatabaseManager.insert({
-            'id': 58, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc)-datetime.timedelta(days=28),
+            'id': 58, 'group_id': 2, 'date_time': datetime.datetime.now(tz=pytz.utc) - datetime.timedelta(days=28),
             'message': 'Message 3', 'raw': 'Raw Message 3', 'from_id': None, 'from_type': None,
             'to_id': None, 'media_id': None
         })
@@ -155,11 +154,7 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        # Validate Data Before Execution
-        self.assertEqual(2, len(TelegramGroupDatabaseManager.get_all_by_phone_number(phone_number='5526986587745')))
-        self.assertEqual(0, len(TelegramMessageDatabaseManager.get_all_messages_from_group(group_id=1)))
-        self.assertEqual(4, len(TelegramMessageDatabaseManager.get_all_messages_from_group(group_id=2)))
-        self.assertEqual(1, len(TelegramMediaDatabaseManager.get_all_medias_from_group_and_mimetype(group_id=2, mime_type='application/pdf').all()))
+        self._extracted_from_test_purge_old_data_15(4, 1)
         self.assertTrue(os.path.exists(os.path.join('_data', 'media', '2', '55_mat.pdf')))
 
         # Execute Module
@@ -173,15 +168,28 @@ class TelegramMaintenancePurgeOldDataTest(unittest.TestCase):
                 )
             )
 
-        # Check DB Groups
-        self.assertEqual(2, len(TelegramGroupDatabaseManager.get_all_by_phone_number(phone_number='5526986587745')))
-
-        # Check DB Messages
-        self.assertEqual(0, len(TelegramMessageDatabaseManager.get_all_messages_from_group(group_id=1)))
-        self.assertEqual(2, len(TelegramMessageDatabaseManager.get_all_messages_from_group(group_id=2)))
-
-        # Check DB Medias
-        self.assertEqual(0, len(TelegramMediaDatabaseManager.get_all_medias_from_group_and_mimetype(group_id=2, mime_type='application/pdf').all()))
-
+        self._extracted_from_test_purge_old_data_15(2, 0)
         # Check File is Deleted
         self.assertFalse(os.path.exists(os.path.join('_data', 'media', '2', '55_mat.pdf')))
+
+    # TODO Rename this here and in `test_purge_old_data`
+    def _extracted_from_test_purge_old_data_15(self, arg0, arg1):
+        # Validate Data Before Execution
+        self.assertEqual(2, len(TelegramGroupDatabaseManager.get_all_by_phone_number(phone_number='5526986587745')))
+        self.assertEqual(0, len(TelegramMessageDatabaseManager.get_all_messages_from_group(group_id=1)))
+        self.assertEqual(
+            arg0,
+            len(
+                TelegramMessageDatabaseManager.get_all_messages_from_group(
+                    group_id=2
+                )
+            ),
+        )
+        self.assertEqual(
+            arg1,
+            len(
+                TelegramMediaDatabaseManager.get_all_medias_from_group_and_mimetype(
+                    group_id=2, mime_type='application/pdf'
+                ).all()
+            ),
+        )

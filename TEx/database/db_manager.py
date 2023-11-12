@@ -20,15 +20,15 @@ class DbManager:
                 f'sqlite:///{os.path.join(data_path, "temp_local.db")}?nolock=1&check_same_thread=false',
                 connect_args={'check_same_thread': False},
                 echo=False, logging_name='sqlalchemy', isolation_level='READ UNCOMMITTED'
-                ),
+            ),
             'data': create_engine(
                 f'sqlite:///{os.path.join(data_path, "data_local.db")}?nolock=1&check_same_thread=false',
                 connect_args={'check_same_thread': False},
                 echo=False, logging_name='sqlalchemy', isolation_level='READ UNCOMMITTED'
-                )
-            }
+            )
+        }
 
         DbManager.SESSIONS = {
             'temp': sessionmaker(autocommit=False, autoflush=False, bind=DbManager.SQLALCHEMY_BINDS['temp'])(),
             'data': sessionmaker(autocommit=False, autoflush=False, bind=DbManager.SQLALCHEMY_BINDS['data'])()
-            }
+        }

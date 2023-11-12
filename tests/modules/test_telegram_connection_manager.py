@@ -15,7 +15,6 @@ from tests.modules.common import TestsCommon
 class TelegramConnectorTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
@@ -38,7 +37,8 @@ class TelegramConnectorTest(unittest.TestCase):
         data: Dict = {}
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
-        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient',
+                        return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -103,7 +103,8 @@ class TelegramConnectorTest(unittest.TestCase):
         # Force Delete device_model from Configuration, to Ensure the FallBack System Works
         del self.config['CONFIGURATION']['device_model']
 
-        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient',
+                        return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -173,7 +174,8 @@ class TelegramConnectorTest(unittest.TestCase):
 
                 # Check Logs
                 self.assertEqual(1, len(captured.records))
-                self.assertEqual('\t\tNot Authenticated on Telegram. Please use the "connect" command.', captured.records[0].message)
+                self.assertEqual('\t\tNot Authenticated on Telegram. Please use the "connect" command.',
+                                 captured.records[0].message)
 
     def test_constructor_call_with_auto_device_model(self):
         """Test If Auto Configuration for device_model works."""
@@ -197,7 +199,8 @@ class TelegramConnectorTest(unittest.TestCase):
         # Force Auto Mode
         self.config['CONFIGURATION']['device_model'] = 'AUTO'
 
-        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient', return_value=telegram_client_mockup) as client_base:
+        with mock.patch('TEx.modules.telegram_connection_manager.TelegramClient',
+                        return_value=telegram_client_mockup) as client_base:
             with self.assertLogs() as captured:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -221,7 +224,6 @@ class TelegramConnectorTest(unittest.TestCase):
 class TelegramDisconnectorTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 

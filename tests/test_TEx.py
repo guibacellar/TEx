@@ -6,4 +6,4 @@ import unittest
 class TexTest(unittest.TestCase):
 
     def test_foo(self):
-        assert True
+        pass

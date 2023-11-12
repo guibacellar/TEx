@@ -36,7 +36,7 @@ class TelegramMonitorRunner:
         'temp_file_manager.py',
         '__init__.py',
         '__pycache__'
-        ]
+    ]
     """List of Modules to Suppress on SysOut Report"""
 
     def __init__(self) -> None:
@@ -64,13 +64,15 @@ class TelegramMonitorRunner:
         data: Dict = {'internals': {'panic': False}}
 
         # Execute Pre Pipeline
-        self.__execute_sequence(args, data, self.config['PIPELINE']['pre_pipeline_sequence'].split('\n'), 'Initialization')
+        self.__execute_sequence(args, data, self.config['PIPELINE']['pre_pipeline_sequence'].split('\n'),
+                                'Initialization')
 
         # Execute Pipeline
         self.__execute_sequence(args, data, self.config['PIPELINE']['pipeline_sequence'].split('\n'), 'Pipeline')
 
         # Execute Post Pipeline
-        self.__execute_sequence(args, data, self.config['PIPELINE']['post_pipeline_sequence'].split('\n'), 'Termination')
+        self.__execute_sequence(args, data, self.config['PIPELINE']['post_pipeline_sequence'].split('\n'),
+                                'Termination')
 
         return 0
 
@@ -99,9 +101,10 @@ class TelegramMonitorRunner:
 
             loop.run_until_complete(
                 self.__execute_pipeline_item(args, data, module_instance, pipeline_item)
-                )
+            )
 
-    async def __execute_pipeline_item(self, args: Dict, data: Dict, module_instance: BaseModule, pipeline_item: str) -> None:
+    async def __execute_pipeline_item(self, args: Dict, data: Dict, module_instance: BaseModule,
+                                      pipeline_item: str) -> None:
 
         if not self.config:
             return
@@ -111,7 +114,7 @@ class TelegramMonitorRunner:
             config=self.config,
             args=args,
             data=data
-            )
+        )
 
         if not can_activate_module:
             return
@@ -123,7 +126,7 @@ class TelegramMonitorRunner:
             config=self.config,
             args=args,
             data=data
-            )
+        )
 
     def check_python_version(self) -> bool:
         """Check if the Current Python Version is Supported."""
@@ -131,11 +134,12 @@ class TelegramMonitorRunner:
         major = sys.version_info[0]
         minor = sys.version_info[1]
 
-        python_version = str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
+        python_version = f"{str(sys.version_info[0])}.{str(sys.version_info[1])}.{str(sys.version_info[2])}"
 
         # Python Deprecated Version Check
-        if major != 3 or major == 3 and minor <= 9:
-            logger.warning('**** Python 3.8 and Python 3.9 is deprecated. Please, consider upgrade your Python runtime version. **** ')
+        if major != 3 or minor <= 9:
+            logger.warning(
+                '**** Python 3.8 and Python 3.9 is deprecated. Please, consider upgrade your Python runtime version. **** ')
             logger.fatal(f'Current Installed Version is: {python_version}')
 
         return True
