@@ -20,7 +20,13 @@ class TempFileHandler:
         :param path: File Path
         :return:
         """
-        return bool(DbManager.SESSIONS['temp'].query(TempDataOrmEntity).filter_by(path=path).count() > 0)
+        return (
+            DbManager.SESSIONS['temp']
+            .query(TempDataOrmEntity)
+            .filter_by(path=path)
+            .count()
+            > 0
+        )
 
     @staticmethod
     def read_file_text(path: str) -> str:
@@ -29,7 +35,9 @@ class TempFileHandler:
         :param path: File Path
         :return: File Content
         """
-        entity: TempDataOrmEntity = cast(TempDataOrmEntity, DbManager.SESSIONS['temp'].query(TempDataOrmEntity).filter_by(path=path).first())
+        entity: TempDataOrmEntity = cast(TempDataOrmEntity,
+                                         DbManager.SESSIONS['temp'].query(TempDataOrmEntity).filter_by(
+                                             path=path).first())
         return str(entity.data)
 
     @staticmethod
@@ -38,8 +46,8 @@ class TempFileHandler:
         total: int = DbManager.SESSIONS['temp'].execute(
             TempDataOrmEntity.__table__.delete().where(
                 TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp())
-                )
-            ).rowcount
+            )
+        ).rowcount
 
         DbManager.SESSIONS['temp'].flush()
         DbManager.SESSIONS['temp'].commit()
@@ -66,14 +74,14 @@ class TempFileHandler:
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
             TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path)
-            )
+        )
 
         entity: TempDataOrmEntity = TempDataOrmEntity(
             path=path,
             data=content,
             created_at=int(datetime.now(tz=pytz.UTC).timestamp()),
             valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds
-            )
+        )
         DbManager.SESSIONS['temp'].add(entity)
 
         # Execute

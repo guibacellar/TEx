@@ -41,18 +41,21 @@ class TelegramGroupList(BaseModule):
         logger.info(f'\t\tFound {len(db_groups)} Groups')
 
         # Get the Bigger Username Size
-        max_username_size: int = max(  # pylint: disable=R1728
-            [len(item.group_username) if item.group_username is not None else 0 for item in db_groups]
-            )
+        max_username_size: int = max(
+            len(item.group_username) if item.group_username is not None else 0
+            for item in db_groups
+        )
 
         # Get the Bigger Title Size
-        max_title_size: int = max(  # pylint: disable=R1728
-            [len(item.title) if item.title is not None else 0 for item in db_groups]
-            )
+        max_title_size: int = max(
+            len(item.title) if item.title is not None else 0 for item in db_groups
+        )
 
         # Print Groups
         logger.info(f'\t\tID       \t{"Username".ljust(max_username_size)}\t{"Title".ljust(max_title_size)}')
         for group in db_groups:
-            formatted_username: str = group.group_username.ljust(max_username_size) if group.group_username is not None else 'UNDEFINED'.ljust(max_username_size)
-            formatted_title: str = group.title.ljust(max_title_size) if group.title is not None else 'UNDEFINED'.ljust(max_title_size)
+            formatted_username: str = group.group_username.ljust(
+                max_username_size) if group.group_username is not None else 'UNDEFINED'.ljust(max_username_size)
+            formatted_title: str = group.title.ljust(max_title_size) if group.title is not None else 'UNDEFINED'.ljust(
+                max_title_size)
             logger.info(f'\t\t{group.id}\t{formatted_username}\t{formatted_title}')

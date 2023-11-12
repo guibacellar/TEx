@@ -15,7 +15,6 @@ from tests.modules.common import TestsCommon
 class TelegramGroupListTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
@@ -52,21 +51,25 @@ class TelegramGroupListTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with self.assertLogs() as captured:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-                target.run(
-                    config=self.config,
-                    args=args,
-                    data=data
-                )
-            )
+            self._extracted_from_test_run_14(target, args, data, captured)
 
-            # Check Logs
-            self.assertEqual(4, len(captured.records))
-            self.assertEqual('		Found 2 Groups', captured.records[0].message)
-            self.assertEqual('		ID       	Username	Title', captured.records[1].message)
-            self.assertEqual('		1	UN-A	UT-01', captured.records[2].message)
-            self.assertEqual('		2	UN-b	UT-02', captured.records[3].message)
+    # TODO Rename this here and in `test_run`
+    def _extracted_from_test_run_14(self, target, args, data, captured):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            target.run(
+                config=self.config,
+                args=args,
+                data=data
+            )
+        )
+
+        # Check Logs
+        self.assertEqual(4, len(captured.records))
+        self.assertEqual('		Found 2 Groups', captured.records[0].message)
+        self.assertEqual('		ID       	Username	Title', captured.records[1].message)
+        self.assertEqual('		1	UN-A	UT-01', captured.records[2].message)
+        self.assertEqual('		2	UN-b	UT-02', captured.records[3].message)
 
     def test_run_disabled(self):
         """Test Run Method Disabled."""

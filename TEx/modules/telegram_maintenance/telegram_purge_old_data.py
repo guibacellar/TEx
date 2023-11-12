@@ -41,7 +41,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
                     group_name=group.title,
                     max_age=int(args['limit_days']),
                     media_root_path=config['CONFIGURATION']['data_path']
-                    )
+                )
             except ValueError as ex:
                 logger.info('\t\t\tUnable to Purge Old Messages...')
                 logger.error(ex)
@@ -58,7 +58,7 @@ class TelegramMaintenancePurgeOldData(BaseModule):
         all_medias: List[TelegramMediaOrmEntity] = TelegramMediaDatabaseManager.get_all_medias_by_age(
             group_id=group_id,
             media_limit_days=max_age
-            )
+        )
         media_count: int = len(all_medias)
         logger.info(f'\t\t\t{len(all_medias)} Medias to be Removed')
 
@@ -80,5 +80,5 @@ class TelegramMaintenancePurgeOldData(BaseModule):
         total_messages: int = TelegramMessageDatabaseManager.remove_all_messages_by_age(
             group_id=group_id,
             limit_days=max_age
-            )
+        )
         logger.info(f'\t\t\t{total_messages} Messages Removed')

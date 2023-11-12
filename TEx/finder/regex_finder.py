@@ -14,10 +14,4 @@ class RegexFinder(BaseFinder):
 
     async def find(self, raw_text: str) -> bool:
         """Apply Find Logic."""
-        if not raw_text or len(raw_text) == 0:
-            return False
-
-        if len(self.regex.findall(raw_text)) > 0:
-            return True
-
-        return False
+        return len(self.regex.findall(raw_text)) > 0 if raw_text else False

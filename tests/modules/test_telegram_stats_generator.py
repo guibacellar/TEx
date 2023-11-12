@@ -21,7 +21,6 @@ from tests.modules.mockups_groups_mockup_data import base_users_mockup_data
 class TelegramStatsGeneratorTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
@@ -160,7 +159,13 @@ class TelegramStatsGeneratorTest(unittest.TestCase):
 
         self.assertEqual('**** Media Statistics for Groups ****\n', report_content[11])
         self.assertEqual('UN-A_1 \n', report_content[12])
-        self.assertEqual('\tapplication/txt                                                       : 1 entries       : 99 bytes (0.00 mbytes)\n', report_content[13])
+        self.assertEqual(
+            '\tapplication/txt                                                       : 1 entries       : 99 bytes (0.00 mbytes)\n',
+            report_content[13])
         self.assertEqual('UN-b_2 \n', report_content[15])
-        self.assertEqual('\tapplication/pdf                                                       : 2 entries       : 579 bytes (0.00 mbytes)\n', report_content[16])
-        self.assertEqual('\tapplication/txt                                                       : 1 entries       : 999 bytes (0.00 mbytes)\n', report_content[17])
+        self.assertEqual(
+            '\tapplication/pdf                                                       : 2 entries       : 579 bytes (0.00 mbytes)\n',
+            report_content[16])
+        self.assertEqual(
+            '\tapplication/txt                                                       : 1 entries       : 999 bytes (0.00 mbytes)\n',
+            report_content[17])

@@ -11,14 +11,12 @@ from tests.modules.common import TestsCommon
 class StateFileHandlerTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('config.ini')
 
         TestsCommon.basic_test_setup()
 
     def test_run(self):
-
         target_load: LoadStateFileHandler = LoadStateFileHandler()
         target_save: SaveStateFileHandler = SaveStateFileHandler()
         args: Dict = {'config': 'unittest_configfile.config'}
@@ -46,4 +44,3 @@ class StateFileHandlerTest(unittest.TestCase):
         )
 
         self.assertEqual(load_data, save_data)
-

@@ -63,10 +63,11 @@ class TelegramGroupMessageListener(BaseModule):
             'message': message.message,
             'raw': message.raw_text,
             'to_id': message.to_id.channel_id if message.to_id is not None else None,
-            'media_id': await self.media_handler.handle_medias(message, event.chat.id, self.data_path) if self.download_media else None,
+            'media_id': await self.media_handler.handle_medias(message, event.chat.id,
+                                                               self.data_path) if self.download_media else None,
             'is_reply': message.is_reply,
             'reply_to_msg_id': message.reply_to.reply_to_msg_id if message.is_reply else None
-            }
+        }
 
         # Process Sender ID
         if message.from_id is not None:
@@ -128,7 +129,7 @@ class TelegramGroupMessageListener(BaseModule):
                 group_dict_data: Dict = TelethonChannelEntityMapper.to_database_dict(
                     entity=result,
                     target_phone_numer=self.target_phone_number
-                    )
+                )
 
                 TelegramGroupDatabaseManager.insert_or_update(group_dict_data)
 

@@ -21,7 +21,8 @@ class TelegramConnector(BaseModule):
 
         :return:
         """
-        return cast(bool, args['connect'] or args['load_groups'] or args['download_messages'] or args['sent_report_telegram'] or args['listen'])
+        return cast(bool, args['connect'] or args['load_groups'] or args['download_messages'] or args[
+            'sent_report_telegram'] or args['listen'])
 
     async def run(self, config: ConfigParser, args: Dict, data: Dict) -> None:
         """Execute Module."""
@@ -46,7 +47,7 @@ class TelegramConnector(BaseModule):
                 config['CONFIGURATION']['api_hash'],
                 catch_up=True,
                 device_model=device_model
-                )
+            )
             await client.start(phone=config['CONFIGURATION']['phone_number'])
             client.session.save()
 
@@ -55,7 +56,7 @@ class TelegramConnector(BaseModule):
                 'api_id': config['CONFIGURATION']['api_id'],
                 'api_hash': config['CONFIGURATION']['api_hash'],
                 'target_phone_number': config['CONFIGURATION']['phone_number']
-                }
+            }
 
         else:  # Reuse Previous Connection
 
@@ -73,7 +74,7 @@ class TelegramConnector(BaseModule):
                 data['telegram_connection']['api_hash'],
                 catch_up=True,
                 device_model=device_model
-                )
+            )
             await client.start(phone=data['telegram_connection']['target_phone_number'])
 
         data['telegram_client'] = client
@@ -86,7 +87,8 @@ class TelegramConnector(BaseModule):
         :return:
         """
         # Get Value from Configuration File
-        device_model_name: str = config['CONFIGURATION']['device_model'] if 'device_model' in config['CONFIGURATION'] else 'TeX'
+        device_model_name: str = config['CONFIGURATION']['device_model'] if 'device_model' in config[
+            'CONFIGURATION'] else 'TeX'
 
         # Check for Automatic Configuration
         if device_model_name == 'AUTO':

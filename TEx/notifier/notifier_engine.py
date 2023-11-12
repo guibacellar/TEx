@@ -21,13 +21,12 @@ class NotifierEngine:
 
         for register in registered_notifiers:
             if 'DISCORD' in register:
-
                 notifier: DiscordNotifier = DiscordNotifier()
                 notifier.configure(url=config[register]['webhook'], config=config[register])
 
                 self.notifiers.update({
                     register: {'instance': notifier}
-                    })
+                })
 
     def configure(self, config: ConfigParser) -> None:
         """Configure Finder."""
@@ -35,10 +34,9 @@ class NotifierEngine:
 
     async def run(self, notifiers: List[str], message: NewMessage.Event, rule_id: str) -> None:
         """Dispatch all Notifications."""
-        if len(notifiers) == 0:
+        if not notifiers:
             return
 
         for dispatcher_name in notifiers:
-
             target_notifier: BaseNotifier = self.notifiers[dispatcher_name]['instance']
             await target_notifier.run(message=message, rule_id=rule_id)

@@ -12,12 +12,10 @@ from TEx.modules.input_args_handler import InputArgsHandler
 class InputArgsHandlerTest(unittest.TestCase):
 
     def setUp(self) -> None:
-
         self.config = ConfigParser()
         self.config.read('../../config.ini')
 
     def test_report_commands_complete(self):
-
         sys.argv = [
             '__main__.py',
             'report',
@@ -28,7 +26,7 @@ class InputArgsHandlerTest(unittest.TestCase):
             '--report_folder', 'reports/ut01',
             '--around_messages', '7',
             '--group_id', '99,5,78,56987'
-            ]
+        ]
 
         target: InputArgsHandler = InputArgsHandler()
         args: Dict = {}
@@ -52,7 +50,6 @@ class InputArgsHandlerTest(unittest.TestCase):
         self.assertEqual('99,5,78,56987', args['group_id'])
 
     def test_report_commands_default(self):
-
         sys.argv = [
             '__main__.py',
             'report',

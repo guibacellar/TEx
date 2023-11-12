@@ -37,22 +37,9 @@ class DiscordNotifierTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with mock.patch('TEx.notifier.discord_notifier.DiscordWebhook', return_value=discord_webhook_mock):
-            # Execute Discord Notifier Configure Method
-            target.configure(
-                config=self.config['NOTIFIER.DISCORD.NOT_001'],
-                url='url.domain/path'
+            loop = self._extracted_from_test_run_duplication_control_23(
+                target, target_message
             )
-
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-
-                # Invoke Test Target
-                target.run(
-                    message=target_message,
-                    rule_id='RULE_UT_01'
-                )
-            )
-
         # Check is Embed was Added into Webhook
         discord_webhook_mock.add_embed.assert_called_once()
         call_arg = discord_webhook_mock.add_embed.call_args[0][0]
@@ -92,22 +79,9 @@ class DiscordNotifierTest(unittest.TestCase):
         TestsCommon.execute_basic_pipeline_steps_for_initialization(config=self.config, args=args, data=data)
 
         with mock.patch('TEx.notifier.discord_notifier.DiscordWebhook', return_value=discord_webhook_mock):
-            # Execute Discord Notifier Configure Method
-            target.configure(
-                config=self.config['NOTIFIER.DISCORD.NOT_001'],
-                url='url.domain/path'
+            loop = self._extracted_from_test_run_duplication_control_23(
+                target, target_message
             )
-
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-
-                # Invoke Test Target
-                target.run(
-                    message=target_message,
-                    rule_id='RULE_UT_01'
-                )
-            )
-
             loop.run_until_complete(
 
                 # Invoke Test Target Again
@@ -122,3 +96,14 @@ class DiscordNotifierTest(unittest.TestCase):
 
         # Check if Webhook was Executed Exact 1 Time
         discord_webhook_mock.execute.assert_called_once()
+
+    # TODO Rename this here and in `test_run_no_duplication` and `test_run_duplication_control`
+    def _extracted_from_test_run_duplication_control_23(self, target, target_message):
+        target.configure(
+            config=self.config['NOTIFIER.DISCORD.NOT_001'], url='url.domain/path'
+        )
+        result = asyncio.get_event_loop()
+        result.run_until_complete(
+            target.run(message=target_message, rule_id='RULE_UT_01')
+        )
+        return result
