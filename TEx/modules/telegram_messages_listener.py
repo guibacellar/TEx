@@ -23,6 +23,7 @@ from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.core.ocr.ocr_engine_base import OcrEngineBase
 from TEx.core.ocr.ocr_engine_factory import OcrEngineFactory
 from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager, TelegramUserDatabaseManager
+from TEx.exporter.exporter_engine import ExporterEngine
 from TEx.finder.finder_engine import FinderEngine
 from TEx.models.facade.media_handler_facade_entity import MediaHandlingEntity
 from TEx.notifier.notifier_engine import NotifierEngine
@@ -51,6 +52,7 @@ class TelegramGroupMessageListener(BaseModule):
         self.target_phone_number: str = ''
         self.finder: FinderEngine = FinderEngine()
         self.notification_engine: NotifierEngine = NotifierEngine()
+        self.exporter_engine: ExporterEngine = ExporterEngine()
         self.ocr_engine: OcrEngineBase
         self.signals_engine: SignalsEngine
         self.term_signal: bool = False
@@ -226,10 +228,14 @@ class TelegramGroupMessageListener(BaseModule):
             # Set Notification Engines
             self.notification_engine.configure(config=config)
 
+            # Set Data Export Engines
+            self.exporter_engine.configure(config=config)
+
             # Set Finder
             self.finder.configure(
                 config=config,
                 notification_engine=self.notification_engine,
+                exporter_engine=self.exporter_engine
             )
 
             # Setup Media Handler
