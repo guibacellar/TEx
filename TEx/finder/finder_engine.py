@@ -51,6 +51,20 @@ class FinderEngine:
             elif cf_proxy['type'] == 'all':
                 rule_spec['instance'] = AllMessagesFinder(config=config[sec])
 
+            # Normalize Notifier Setting
+            rule_spec['notifier'] = list(
+                filter(lambda item: item != '', rule_spec['notifier'])
+            )
+            if len(rule_spec['notifier']) == 0:
+                rule_spec['notifier'] = None
+
+            # Normalize Exporter Setting
+            rule_spec['exporter'] = list(
+                filter(lambda item: item != '', rule_spec['exporter'])
+            )
+            if len(rule_spec['exporter']) == 0:
+                rule_spec['exporter'] = None
+
             self.rules.append(rule_spec)
 
     def configure(self, config: ConfigParser, notification_engine: NotifierEngine, exporter_engine: ExporterEngine) -> None:
@@ -119,12 +133,13 @@ class FinderEngine:
                     )
 
                 # Run the Data Export Engine
-                await self.exporter_engine.run(
-                    exporters=rule['exporter'],
-                    entity=entity,
-                    rule_id=rule['id'],
-                    source=source,
-                )
+                if rule['exporter']:
+                    await self.exporter_engine.run(
+                        exporters=rule['exporter'],
+                        entity=entity,
+                        rule_id=rule['id'],
+                        source=source,
+                    )
 
     async def __find_in_text_files(self, entity: FinderNotificationMessageEntity, finder: BaseFinder, file_content: str) -> bool:
         """Try to Run the Finder Engine into the Downloaded Text File."""

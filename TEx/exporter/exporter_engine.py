@@ -8,7 +8,6 @@ from typing import Dict, List, Union
 from TEx.exporter.pandas_rolling_exporter import PandasRollingExporter
 from TEx.exporter.exporter_base import BaseExporter
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
-from TEx.models.facade.signal_notification_model import SignalNotificationEntityModel
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -40,15 +39,34 @@ class ExporterEngine:
 
     async def run(self, exporters: List[str], entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
         """Dispatch all Exporting Processes."""
-        if len(exporters) == 0:
-            return
+        try:
+            if len(exporters) == 0:
+                return
 
-        for dispatcher_name in exporters:
+            for dispatcher_name in exporters:
+
+                if not dispatcher_name or dispatcher_name == '' or dispatcher_name not in self.exporters:
+                    pass ## TODO: REMOVE
+
+                target_exporter: BaseExporter = self.exporters[dispatcher_name]['instance']
+
+                try:
+                    await target_exporter.run(entity=entity, rule_id=rule_id, source=source)
+
+                except Exception as _ex:  # Yes, Catch All
+                    logging.exception('Unable to Export Data')
+
+        except Exception as __ex: ## TODO: REMOVE
+            pass
+
+    async def shutdown(self) -> None:
+        """Shutdown all Exporters and Flush all to Disk."""
+        for dispatcher_name in self.exporters:
 
             target_exporter: BaseExporter = self.exporters[dispatcher_name]['instance']
 
             try:
-                await target_exporter.run(entity=entity, rule_id=rule_id, source=source)
+                target_exporter.shutdown()
 
-            except Exception:  # Yes, Catch All
-                logging.exception('Unable to Export Data')
+            except Exception as _ex:  # Yes, Catch All
+                logging.exception(f'Unable to Shutdown the "{dispatcher_name}" Exporter Gracefully. Data may be lost.')

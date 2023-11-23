@@ -293,6 +293,14 @@ class TelegramGroupMessageListener(BaseModule):
         # Disconnect Telegram Client
         await self.__disconnect(client=client)
 
+        # Shutdown All Exporters
+        await self.__shutdown_exporters()
+
+    async def __shutdown_exporters(self) -> None:
+        """Shutdown all Exporters."""
+        logger.info('\t\tShutdown File Exporters...')
+        await self.exporter_engine.shutdown()
+
     async def __disconnect(self, client: TelegramClient) -> None:
         """Disconnect Telegram Client."""
         # Disconnect the Client
