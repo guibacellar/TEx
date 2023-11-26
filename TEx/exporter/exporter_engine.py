@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import logging
 from configparser import ConfigParser
-from typing import Dict, List, Union
+from typing import Dict, List
 
-from TEx.exporter.pandas_rolling_exporter import PandasRollingExporter
 from TEx.exporter.exporter_base import BaseExporter
+from TEx.exporter.pandas_rolling_exporter import PandasRollingExporter
 from TEx.models.facade.finder_notification_facade_entity import FinderNotificationMessageEntity
 
 logger = logging.getLogger('TelegramExplorer')
@@ -27,7 +27,7 @@ class ExporterEngine:
             if 'ROLLING_PANDAS' in register:
 
                 exporter: PandasRollingExporter = PandasRollingExporter()
-                exporter.configure(config=config[register])
+                exporter.configure(config=config[register], source=config['CONFIGURATION']['phone_number'])
 
                 self.exporters.update({
                     register: {'instance': exporter},
@@ -37,27 +37,20 @@ class ExporterEngine:
         """Configure Finder."""
         self.__load_exporters(config)
 
-    async def run(self, exporters: List[str], entity: FinderNotificationMessageEntity, rule_id: str, source: str) -> None:
+    async def run(self, exporters: List[str], entity: FinderNotificationMessageEntity, rule_id: str) -> None:
         """Dispatch all Exporting Processes."""
-        try:
-            if len(exporters) == 0:
-                return
+        if len(exporters) == 0:
+            return
 
-            for dispatcher_name in exporters:
+        for dispatcher_name in exporters:
 
-                if not dispatcher_name or dispatcher_name == '' or dispatcher_name not in self.exporters:
-                    pass ## TODO: REMOVE
+            target_exporter: BaseExporter = self.exporters[dispatcher_name]['instance']
 
-                target_exporter: BaseExporter = self.exporters[dispatcher_name]['instance']
+            try:
+                await target_exporter.run(entity=entity, rule_id=rule_id)
 
-                try:
-                    await target_exporter.run(entity=entity, rule_id=rule_id, source=source)
-
-                except Exception as _ex:  # Yes, Catch All
-                    logging.exception('Unable to Export Data')
-
-        except Exception as __ex: ## TODO: REMOVE
-            pass
+            except Exception as _ex:  # Yes, Catch All
+                logging.exception('Unable to Export Data')
 
     async def shutdown(self) -> None:
         """Shutdown all Exporters and Flush all to Disk."""

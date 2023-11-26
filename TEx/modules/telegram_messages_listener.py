@@ -235,7 +235,7 @@ class TelegramGroupMessageListener(BaseModule):
             self.finder.configure(
                 config=config,
                 notification_engine=self.notification_engine,
-                exporter_engine=self.exporter_engine
+                exporter_engine=self.exporter_engine,
             )
 
             # Setup Media Handler

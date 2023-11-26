@@ -41,7 +41,8 @@ class PandasRollingExporterTest(unittest.TestCase):
 
         # Execute Configure Method
         target.configure(
-            config=self.config['EXPORTER.ROLLING_PANDAS.TEST_EXPORTER_001']
+            config=self.config['EXPORTER.ROLLING_PANDAS.TEST_EXPORTER_001'],
+            source='+15558987453'
             )
 
         # Check Configurations
@@ -128,7 +129,7 @@ class PandasRollingExporterTest(unittest.TestCase):
 
         # Set Message
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
-            date_time=datetime.datetime(2023, 11, 22, 58, 22, tzinfo=pytz.UTC),
+            date_time=datetime.datetime(2023, 11, 22, 10, 22, tzinfo=pytz.UTC),
             raw_text="Mocked Raw Text",
             group_name="Channel 1972142108",
             group_id=1972142108,
@@ -144,7 +145,8 @@ class PandasRollingExporterTest(unittest.TestCase):
         # Execute Configure Method
         mocked_date_time.now = mock.MagicMock(return_value=datetime.datetime(year=2023, month=11, day=22, hour=10, minute=5, second=33, microsecond=99))
         target.configure(
-            config=self.config['EXPORTER.ROLLING_PANDAS.TEST_EXPORTER_001']
+            config=self.config['EXPORTER.ROLLING_PANDAS.TEST_EXPORTER_001'],
+            source='+15558987453'
         )
 
         # Execute the Runner
@@ -153,7 +155,7 @@ class PandasRollingExporterTest(unittest.TestCase):
         # Run 10
         for i in range(10):
             loop.run_until_complete(
-                target.run(entity=message_entity, rule_id='RULE_UT_01', source='+15558987453')
+                target.run(entity=message_entity, rule_id='RULE_UT_01')
             )
 
         # Force Change Time (+1 Minute) to Rollup the File
@@ -163,7 +165,7 @@ class PandasRollingExporterTest(unittest.TestCase):
         # Run 9 Times
         for i in range(9):
             loop.run_until_complete(
-                target.run(entity=message_entity, rule_id='RULE_UT_01', source='+15558987453')
+                target.run(entity=message_entity, rule_id='RULE_UT_01')
             )
 
         # Force Change Time (+1 Minute) to Rollup the File
@@ -173,7 +175,18 @@ class PandasRollingExporterTest(unittest.TestCase):
         # Run 14 Times
         for i in range(14):
             loop.run_until_complete(
-                target.run(entity=message_entity, rule_id='RULE_UT_01', source='+15558987453')
+                target.run(entity=message_entity, rule_id='RULE_UT_01')
             )
 
+        # Repeat 3 Times to Ensure the Code that handle multi files with same pattern to run
+        for i in range(3):
+            # Force Flush
+            target._PandasRollingExporter__flush()
+
+            # Run Again to Call the Multiple File with same name Handling
+            loop.run_until_complete(
+                target.run(entity=message_entity, rule_id='RULE_UT_01')
+            )
+
+        # Shutdown Engine
         target.shutdown()

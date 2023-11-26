@@ -53,14 +53,14 @@ class FinderEngine:
 
             # Normalize Notifier Setting
             rule_spec['notifier'] = list(
-                filter(lambda item: item != '', rule_spec['notifier'])
+                filter(lambda item: item != '', rule_spec['notifier']),
             )
             if len(rule_spec['notifier']) == 0:
                 rule_spec['notifier'] = None
 
             # Normalize Exporter Setting
             rule_spec['exporter'] = list(
-                filter(lambda item: item != '', rule_spec['exporter'])
+                filter(lambda item: item != '', rule_spec['exporter']),
             )
             if len(rule_spec['exporter']) == 0:
                 rule_spec['exporter'] = None
@@ -138,7 +138,6 @@ class FinderEngine:
                         exporters=rule['exporter'],
                         entity=entity,
                         rule_id=rule['id'],
-                        source=source,
                     )
 
     async def __find_in_text_files(self, entity: FinderNotificationMessageEntity, finder: BaseFinder, file_content: str) -> bool:

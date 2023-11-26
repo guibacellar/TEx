@@ -208,6 +208,8 @@ suppress-none-returning = false
 "TEx/core/media_download_handling/do_nothing_media_downloader.py" = ["ARG002", "ARG004"]
 "TEx/core/media_metadata_handling/do_nothing_media_handler.py" = ["ARG002", "ARG004"]
 
+"TEx/exporter/pandas_rolling_exporter.py" = ["ARG002"]
+
 "TEx/modules/data_structure_handler.py" = ["ARG002", "ARG004"]
 "TEx/modules/database_handler.py" = ["ARG002", "ARG004"]
 "TEx/modules/execution_configuration_handler.py" = ["ARG002", "ARG004"]
