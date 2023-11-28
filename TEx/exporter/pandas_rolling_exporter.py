@@ -142,3 +142,6 @@ class PandasRollingExporter(BaseExporter):
     def shutdown(self) -> None:
         """Gracefully Shutdown the Exporter and Flush All Remaining Data into Disk."""
         self.__flush()
+
+        # Remove Old Files
+        self._keep_last_files_only(directory_path=self.file_root_path, file_count=self.keep_last_files)
