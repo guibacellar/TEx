@@ -28,7 +28,9 @@ nav:
       - 'Examples': 'configuration/media_download_examples.md'
       - 'Content-Types': 'configuration/media_download_content_types.md'
     - 'OCR': 'configuration/ocr.md'
-    - 'Complete Configuration File Example': 'configuration/complete_configuration_file_example.md'
+    - 'Examples':
+      - 'Scenario-Based Examples': 'configuration/scenario_based_examples.md'
+      - 'Complete Configuration File Example': 'configuration/complete_configuration_file_example.md'
   - 'How to Use':
       - 'Basic Usage': 'how_use/how_to_use_basic.md'
       - 'Connecting to Telegram Servers': 'how_use/usage_connection.md'
@@ -36,6 +38,10 @@ nav:
       - 'List Groups': 'how_use/usage_list_groups.md'
       - 'Listen Messages': 'how_use/usage_message_listener.md'
       - 'Download Messages': 'how_use/usage_download_messages.md'
+  - 'Message Finder System':
+      - 'Configuration': 'finder/configuration.md'
+      - 'Catch All': 'finder/finder_catchall.md'
+      - 'RegEx Finder': 'finder/finder_regex.md'
   - 'Notification System':
       - 'Discord Notification Hook': 'notification/notification_discord.md'
       - 'Elastic Search Connector':
@@ -43,10 +49,8 @@ nav:
           - 'Index Template': 'notification/notification_elasticsearch_index_template.md'
           - 'Signals Template': 'notification/notification_elasticsearch_signals_template.md'
       - 'Signals': 'notification/signals.md'
-  - 'Message Finder System':
-      - 'Configuration': 'finder/configuration.md'
-      - 'Catch All': 'finder/finder_catchall.md'
-      - 'RegEx Finder': 'finder/finder_regex.md'
+  - 'Message Exporter System':
+      - 'Pandas Rolling Exporter': 'exporting/pandas_rolling.md'
   - 'Reports':
       - 'Export Files': 'report/report_export_files.md'
       - 'HTML Report': 'report/report_html.md'
