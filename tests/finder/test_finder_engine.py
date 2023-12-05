@@ -25,6 +25,7 @@ class FinderEngineTest(unittest.TestCase):
 
         # Setup Mock
         notifier_engine_mock = mock.AsyncMock()
+        exporter_engine_mock = mock.AsyncMock()
 
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
             date_time=datetime.datetime.utcnow(),
@@ -51,7 +52,8 @@ class FinderEngineTest(unittest.TestCase):
         # Execute Discord Notifier Configure Method
         target.configure(
             config=self.config,
-            notification_engine=notifier_engine_mock
+            notification_engine=notifier_engine_mock,
+            exporter_engine=exporter_engine_mock
         )
         target.notification_engine = notifier_engine_mock
 
@@ -81,6 +83,7 @@ class FinderEngineTest(unittest.TestCase):
 
         # Setup Mock
         notifier_engine_mock = mock.AsyncMock()
+        exporter_engine_mock = mock.AsyncMock()
 
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
             date_time=datetime.datetime.utcnow(),
@@ -107,7 +110,8 @@ class FinderEngineTest(unittest.TestCase):
         # Execute Discord Notifier Configure Method
         target.configure(
             config=self.config,
-            notification_engine=notifier_engine_mock
+            notification_engine=notifier_engine_mock,
+            exporter_engine=exporter_engine_mock
         )
         target.notification_engine = notifier_engine_mock
 
@@ -129,6 +133,7 @@ class FinderEngineTest(unittest.TestCase):
 
         # Setup Mock
         notifier_engine_mock = mock.AsyncMock()
+        exporter_engine_mock = mock.AsyncMock()
 
         message_entity: FinderNotificationMessageEntity = FinderNotificationMessageEntity(
             date_time=datetime.datetime.utcnow(),
@@ -162,7 +167,8 @@ class FinderEngineTest(unittest.TestCase):
         # Execute Discord Notifier Configure Method
         target.configure(
             config=self.config,
-            notification_engine=notifier_engine_mock
+            notification_engine=notifier_engine_mock,
+            exporter_engine=exporter_engine_mock
         )
         target.notification_engine = notifier_engine_mock
 

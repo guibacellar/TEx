@@ -8,7 +8,7 @@ Every Notification is defined in the configuration files.
 
 **Configuration Spec:**
 
-For each notification hook you must set a configuration using the default name schema *NOTIFIER.DISCORD.<HOOK_NAME>*
+For each notification hook you must set a configuration using the default name schema *NOTIFIER.DISCORD.<HOOK_NAME\>*
 
 **Parameters:**
 

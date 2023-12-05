@@ -14,7 +14,7 @@ Every Notification is defined in the configuration files.
 
 **Configuration Spec:**
 
-For each connector you must set a configuration using the default name schema *NOTIFIER.ELASTIC_SEARCH.<NAME>*
+For each connector you must set a configuration using the default name schema *NOTIFIER.ELASTIC_SEARCH.<NAME\>*
 
 **Parameters:**
 
