@@ -1,13 +1,12 @@
 """Temp File Handle."""
 
-from typing import cast
-
 from datetime import datetime
+from typing import cast
 
 import pytz
 
-from TEx.models.database.temp_db_models import TempDataOrmEntity
 from TEx.database.db_manager import DbManager
+from TEx.models.database.temp_db_models import TempDataOrmEntity
 
 
 class TempFileHandler:
@@ -36,9 +35,9 @@ class TempFileHandler:
     def remove_expired_entries() -> int:
         """Remove all Expired Entries."""
         total: int = DbManager.SESSIONS['temp'].execute(
-            TempDataOrmEntity.__table__.delete().where(
-                TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp())
-                )
+            TempDataOrmEntity.__table__.delete().where(  # type: ignore
+                TempDataOrmEntity.valid_at <= int(datetime.now(tz=pytz.UTC).timestamp()),
+                ),
             ).rowcount
 
         DbManager.SESSIONS['temp'].flush()
@@ -48,7 +47,7 @@ class TempFileHandler:
     @staticmethod
     def purge() -> int:
         """Remove all Entries."""
-        total: int = DbManager.SESSIONS['temp'].execute(TempDataOrmEntity.__table__.delete()).rowcount
+        total: int = DbManager.SESSIONS['temp'].execute(TempDataOrmEntity.__table__.delete()).rowcount  # type: ignore
         DbManager.SESSIONS['temp'].flush()
         DbManager.SESSIONS['temp'].commit()
         return total
@@ -65,14 +64,14 @@ class TempFileHandler:
         """
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
-            TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path)
+            TempDataOrmEntity.__table__.delete().where(TempDataOrmEntity.path == path),  # type: ignore
             )
 
         entity: TempDataOrmEntity = TempDataOrmEntity(
             path=path,
             data=content,
             created_at=int(datetime.now(tz=pytz.UTC).timestamp()),
-            valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds
+            valid_at=int(datetime.now(tz=pytz.UTC).timestamp()) + validate_seconds,
             )
         DbManager.SESSIONS['temp'].add(entity)
 

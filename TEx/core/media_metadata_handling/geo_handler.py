@@ -1,8 +1,10 @@
 """Geo Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, Optional
 
-from telethon.tl.types import Message, MessageMediaGeo
+from telethon.tl.patched import Message
+from telethon.tl.types import MessageMediaGeo
 
 
 class GeoMediaHandler:
@@ -26,5 +28,5 @@ class GeoMediaHandler:
             'mime_type': 'application/vnd.geo',
             'size_bytes': None,
             'title': f'{geo.lat}|{geo.long}',
-            'name': None
+            'name': None,
             }

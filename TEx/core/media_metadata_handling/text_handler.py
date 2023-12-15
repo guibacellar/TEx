@@ -1,8 +1,10 @@
 """Plain Text Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, Message, MessageMediaDocument
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, MessageMediaDocument
 
 
 class TextPlainHandler:
@@ -24,5 +26,5 @@ class TextPlainHandler:
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
-            'name': None
+            'name': None,
             }

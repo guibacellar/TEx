@@ -11,6 +11,8 @@ import sys
 import types
 from configparser import ConfigParser
 from typing import Dict, List, Optional
+from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
 
 import toml
 
@@ -24,7 +26,7 @@ BANNER: str = f'''
 TEx - Telegram Explorer
 Version {VERSION}
 By: Th3 0bservator
-'''  # pylint: disable=R1732
+'''
 
 
 class TelegramMonitorRunner:
@@ -85,7 +87,7 @@ class TelegramMonitorRunner:
 
         if self.config is None:
             logger.fatal('[?] Unknown Config Parser')
-            raise Exception("Unknown Config Parser")  # pylint: disable=W0719
+            raise Exception("Unknown Config Parser")
 
         for pipeline_item in sequence_spec:
 
@@ -144,6 +146,7 @@ class TelegramMonitorRunner:
         """Setups Log Config."""
         logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.conf'))
         logging.getLogger('telethon').setLevel(level=logging.WARNING)
+        disable_warnings(InsecureRequestWarning)
 
     def __list_modules(self) -> None:
         """

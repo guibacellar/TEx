@@ -17,7 +17,7 @@ Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/
 
 !!! warning "BETA VERSION"
     
-    Please note that this project has been in beta for a few weeks, so it is possible that you may encounter bugs that have not yet been mapped out.
+    Please note that V0.3.0 are the latest beta version for this project, so it is possible that you may encounter bugs that have not yet been mapped out.
     I kindly ask you to report the bugs at: [https://github.com/guibacellar/TEx/issues](https://github.com/guibacellar/TEx/issues)
 
 <!-- REQUIREMENTS -->
@@ -27,17 +27,22 @@ Repository: [https://github.com/guibacellar/TEx](https://github.com/guibacellar/
 
 <!-- FEATURES -->
 ## Features
-- Connection Manager
+- Connection Manager (Handle Telegram Connection)
 - Group Information Scrapper
-- List Groups
+- List Groups (Scrap info for all groups, including members, members info and profile pic)
 - Automatic Group Information Sync
 - Automatic Users Information Sync
-- Messages Listener
-- Messages Scrapper
-- Download Media
+- Messages Listener (Listen all Incoming Messages)
+- Messages Scrapper (Scrap all Group Messages, since the first one)
+- Download Media (Including fine media settings like size, groups and/or media type)
 - HTML Report Generation
 - Export Downloaded Files
 - Export Messages
+- Message Finder System (Allow to Find, using terms or RegEx) patterns on messages
+- Message Notification System (Send alert's, finds, or all messages to Discord)
+- Elastic Search 8+ Native Integration
+- Image OCR using Tesseract
+- Signals for Helping Monitoring
 
 <!-- LIMITATIONS -->
 ## Know Limitations

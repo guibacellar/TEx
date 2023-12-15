@@ -1,8 +1,10 @@
 """Web Image Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, Message, MessageMediaDocument
+from telethon.tl.patched import Message
+from telethon.tl.types import DocumentAttributeFilename, DocumentAttributeImageSize, MessageMediaDocument
 
 
 class WebImageStickerHandler:
@@ -28,5 +30,5 @@ class WebImageStickerHandler:
             'mime_type': media.document.mime_type,
             'size_bytes': media.document.size,
             'title': None,
-            'name': None
+            'name': None,
             }

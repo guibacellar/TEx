@@ -1,14 +1,18 @@
 """Projects DB Models."""
+from __future__ import annotations
 
 import datetime
+import logging
 from typing import Optional
+
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+logger = logging.getLogger('TelegramExplorer')
 
-class TelegramDataBaseDeclarativeBase(DeclarativeBase):  # type: ignore
+
+class TelegramDataBaseDeclarativeBase(DeclarativeBase):
     """Global Telegram DB Declarative Base."""
-
 
 class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     """Telegram Group ORM Model."""
@@ -16,7 +20,7 @@ class TelegramGroupOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_group'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     constructor_id: Mapped[str] = mapped_column(String(255))
     access_hash: Mapped[str] = mapped_column(String(255))
     group_username: Mapped[str] = mapped_column(String(1024), index=True)
@@ -44,7 +48,7 @@ class TelegramMessageOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_message'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     group_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     media_id: Mapped[Optional[int]] = mapped_column(Integer, index=True)
 
@@ -66,7 +70,7 @@ class TelegramMediaOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_media'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)  # noqa: A003
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     group_id: Mapped[int] = mapped_column(Integer, index=True)
     telegram_id: Mapped[int] = mapped_column(Integer, index=True)
     file_name: Mapped[str] = mapped_column(String(1024))
@@ -90,7 +94,7 @@ class TelegramUserOrmEntity(TelegramDataBaseDeclarativeBase):
     __bind_key__ = 'data'
     __tablename__ = 'telegram_user'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)  # noqa: A003
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     is_bot: Mapped[bool] = mapped_column(Boolean)
     is_fake: Mapped[bool] = mapped_column(Boolean)

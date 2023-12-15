@@ -1,4 +1,6 @@
 """Telegram Report Generator."""
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -7,20 +9,14 @@ from configparser import ConfigParser
 from operator import attrgetter
 from typing import Dict, List, Optional, cast
 
+import aiofiles
+
 from TEx.core.base_module import BaseModule
 from TEx.core.dir_manager import DirectoryManagerUtils
-from TEx.database.telegram_group_database import (
-    TelegramGroupDatabaseManager,
-    TelegramMessageDatabaseManager
-    )
-from TEx.models.database.telegram_db_model import (
-    TelegramGroupOrmEntity,
-    TelegramMessageOrmEntity
-    )
-from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, \
-    TelegramGroupReportFacadeEntityMapper
-from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, \
-    TelegramMessageReportFacadeEntityMapper
+from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
+from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity, TelegramMessageOrmEntity
+from TEx.models.facade.telegram_group_report_facade_entity import TelegramGroupReportFacadeEntity, TelegramGroupReportFacadeEntityMapper
+from TEx.models.facade.telegram_message_report_facade_entity import TelegramMessageReportFacadeEntity, TelegramMessageReportFacadeEntityMapper
 
 logger = logging.getLogger('TelegramExplorer')
 
@@ -70,17 +66,21 @@ class TelegramExportTextGenerator(BaseModule):
         # Filter Groups
         groups = self.__filter_groups(
             args=args,
-            source=groups
+            source=groups,
             )
 
         # Process Each Group
-        for group in groups:
-            logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
-            await self.__export_data(
-                args=args,
-                group=group,
-                report_root_folder=report_root_folder
-                )
+        try:
+            for group in groups:
+                logger.info(f'\t\tProcessing "{group.title}" ({group.id})')
+                await self.__export_data(
+                    args=args,
+                    group=group,
+                    report_root_folder=report_root_folder,
+                    )
+        except re.error as _ex:
+            logger.warning(msg=f'\t\tInvalid RegEx: "{str(_ex.msg)}" - Pattern: {str(_ex.pattern)}')
+            data['internals']['panic'] = True
 
     def __filter_groups(self, args: Dict, source: List[TelegramGroupReportFacadeEntity]) -> List[TelegramGroupReportFacadeEntity]:
         """Apply Filter on Gropus."""
@@ -111,7 +111,7 @@ class TelegramExportTextGenerator(BaseModule):
         db_messages: List[TelegramMessageOrmEntity] = TelegramMessageDatabaseManager.get_all_messages_from_group(
             group_id=group.id,
             order_by_desc=args['order_desc'],
-            message_datetime_limit_seconds=limit_seconds
+            message_datetime_limit_seconds=limit_seconds,
             )
 
         # Convert Messages to Report Facade Entity
@@ -122,48 +122,55 @@ class TelegramExportTextGenerator(BaseModule):
 
         # Filter Messages
         logger.info('\t\t\tFiltering')
-        filter_regexs: Optional[List[str]] = args['regex'].split(',') if args['regex'] else None
-        filtered_messages: List[str] = self.filter_messages(messages=messages, filter_regexs=filter_regexs)
+        filter_regex: Optional[str] = args['regex'] if args['regex'] else None
+        filtered_messages: List[str] = self.filter_messages(messages=messages, filter_regex=filter_regex)
 
         # if Has 0 Messages, Get Out
         if len(filtered_messages) == 0:
             return
 
+        # Dedup Messages
+        filtered_messages = list(dict.fromkeys(filtered_messages))
+
         logger.info('\t\t\tRendering')
-        with open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
+        async with aiofiles.open(f'{report_root_folder}/result_{group.group_username}_{group.id}.txt', 'wb') as file:
 
             for message in filtered_messages:
-                file.write(message.encode('utf-8'))
-                file.write('\r\n'.encode('utf-8'))
+                if isinstance(message, str):
+                    await file.write(message.encode('utf-8'))
+                    await file.write(b'\r\n')
 
-            file.flush()
-            file.close()
+            await file.flush()
+            await file.close()
 
         # Add Meta in Group
         group.meta_message_count = len(filtered_messages)
 
-    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regexs: Optional[List[str]]) -> List[str]:
+    def filter_messages(self, messages: List[TelegramMessageReportFacadeEntity], filter_regex: Optional[str]) -> List[str]:
         """Filter Messages."""
-        if not filter_regexs or len(filter_regexs) == 0:
+        if not filter_regex or len(filter_regex) == 0:
             return [item.raw for item in messages]
 
         h_messages: List[str] = []
 
-        # Compile all Regex
-        compiled_regex = [re.compile(item, flags=re.IGNORECASE | re.MULTILINE) for item in filter_regexs]
+        # Compile Regex
+        compiled_regex = re.compile(filter_regex, flags=re.IGNORECASE | re.MULTILINE)
 
         # Loop on Messages
         for message in messages:
 
             # Process Each Filter
-            for rgx in compiled_regex:
-                matches = rgx.findall(message.raw)
+            matches = compiled_regex.findall(message.raw)
 
-                if len(matches) > 0:
-                    h_messages.extend(matches)
+            if len(matches) > 0:
+                for match in matches:
+                    if isinstance(match, str):
+                        h_messages.append(match)
+                    elif isinstance(match, tuple):
+                        h_messages.extend(list(match))
 
         return h_messages
 
     def ireplace(self, old: str, repl: str, text: str) -> str:
         """Case Insensitive Replace."""
-        return re.sub('(?i)' + re.escape(old), lambda m: repl, text)
+        return re.sub('(?i)' + re.escape(old), lambda _m: repl, text)

@@ -1,8 +1,10 @@
 """Photo Media Downloader."""
+from __future__ import annotations
+
 import os
 from typing import Dict
 
-from telethon.tl.types import Message
+from telethon.tl.patched import Message
 
 
 class PhotoMediaDownloader:

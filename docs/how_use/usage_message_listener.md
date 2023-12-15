@@ -24,8 +24,6 @@ python3 -m TEx listen --config CONFIGURATION_FILE_PATH
   * **group_id** > Optional - If present, Download the Messages only from Specified Groups ID's. Comma Separated
 
 
-> ⚠️ **IMPORTANT**⚠️ </br></br> Currently, the maximum download size allowed on TeX are 256 MB. Any media larger that size do not be downloaded.
-
 *Output Example:*
 ```bash
 TEx - Telegram Explorer

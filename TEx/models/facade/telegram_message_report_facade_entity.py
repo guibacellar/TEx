@@ -1,4 +1,5 @@
 """Facade Entity for Report Generation."""
+from __future__ import annotations
 
 import datetime
 from typing import Optional
@@ -6,10 +7,10 @@ from typing import Optional
 from TEx.models.database.telegram_db_model import TelegramMessageOrmEntity
 
 
-class TelegramMessageReportFacadeEntity:  # pylint: disable=R0902
+class TelegramMessageReportFacadeEntity:
     """Facade Entity for Report Generation."""
 
-    id: int  # noqa: A003
+    id: int
     group_id: int
     media_id: Optional[int]
 
@@ -17,9 +18,9 @@ class TelegramMessageReportFacadeEntity:  # pylint: disable=R0902
     message: str
     raw: str
 
-    from_id: int
-    from_type: str
-    to_id: int
+    from_id: Optional[int]
+    from_type: Optional[str]
+    to_id: Optional[int]
 
     meta_next: bool
     meta_previous: bool

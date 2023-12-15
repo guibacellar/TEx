@@ -1,12 +1,11 @@
 """State File Handle."""
-from typing import cast
-
 from datetime import datetime
+from typing import cast
 
 import pytz
 
-from TEx.models.database.temp_db_models import StateFileOrmEntity
 from TEx.database.db_manager import DbManager
+from TEx.models.database.temp_db_models import StateFileOrmEntity
 
 
 class StateFileHandler:
@@ -43,13 +42,13 @@ class StateFileHandler:
         """
         # Delete if Exists
         DbManager.SESSIONS['temp'].execute(
-            StateFileOrmEntity.__table__.delete().where(StateFileOrmEntity.path == path)
+            StateFileOrmEntity.__table__.delete().where(StateFileOrmEntity.path == path),  # type: ignore
             )
 
         entity: StateFileOrmEntity = StateFileOrmEntity(
             path=path,
             data=content,
-            created_at=int(datetime.now(tz=pytz.UTC).timestamp())
+            created_at=int(datetime.now(tz=pytz.UTC).timestamp()),
             )
         DbManager.SESSIONS['temp'].add(entity)
 

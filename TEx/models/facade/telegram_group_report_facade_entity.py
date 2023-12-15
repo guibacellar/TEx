@@ -1,12 +1,15 @@
 """Facade Entity for Report Generation."""
+from __future__ import annotations
+
+from typing import Optional
 
 from TEx.models.database.telegram_db_model import TelegramGroupOrmEntity
 
 
-class TelegramGroupReportFacadeEntity:  # pylint: disable=R0902
+class TelegramGroupReportFacadeEntity:
     """Facade Entity for Report Generation."""
 
-    id: int  # noqa: A003
+    id: int
     constructor_id: str
     access_hash: str
     group_username: str
@@ -19,11 +22,11 @@ class TelegramGroupReportFacadeEntity:  # pylint: disable=R0902
     scam: bool
     verified: bool
 
-    participants_count: int
+    participants_count: Optional[int]
 
-    photo_id: int
-    photo_base64: str
-    photo_name: str
+    photo_id: Optional[int]
+    photo_base64: Optional[str]
+    photo_name: Optional[str]
 
     source: str
 

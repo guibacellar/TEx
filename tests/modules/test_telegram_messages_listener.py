@@ -3,29 +3,26 @@
 import asyncio
 import datetime
 import logging
+import os
 import shutil
 import unittest
 from configparser import ConfigParser
 from typing import Dict
 from unittest import mock
 
-import pytz
 from sqlalchemy import select
 from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.events import NewMessage
-from telethon.tl.types import Channel, ChatBannedRights, ChatPhoto, User, UserStatusRecently
+from telethon.tl.types import User, UserStatusRecently
 
-from TEx.core.media_handler import UniversalTelegramMediaHandler
 from TEx.database import GROUPS_CACHE, USERS_CACHE
 from TEx.database.db_manager import DbManager
-from TEx.database.telegram_group_database import TelegramGroupDatabaseManager, TelegramMessageDatabaseManager
 from TEx.models.database.telegram_db_model import (
     TelegramMediaOrmEntity, TelegramMessageOrmEntity, TelegramGroupOrmEntity, TelegramUserOrmEntity)
 from TEx.modules.telegram_messages_listener import TelegramGroupMessageListener
-from TEx.modules.telegram_messages_scrapper import TelegramGroupMessageScrapper
+from tests.core.ocr.unitest_echo_ocr_engine import UnitTestEchoOcrEngine
 from tests.modules.common import TestsCommon
-from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data, \
-    channel_1_mocked
+from tests.modules.mockups_groups_mockup_data import base_groups_mockup_data, base_messages_mockup_data
 
 
 class TelegramGroupMessageListenerTest(unittest.TestCase):
@@ -42,11 +39,14 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
     def tearDown(self) -> None:
         DbManager.SESSIONS['data'].close()
 
-    def test_run_listen_messages(self):
+    @mock.patch('TEx.modules.telegram_messages_listener.SignalsEngineFactory')
+    @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
+    def test_run_listen_messages(self, mocked_ocr_engine_factory, mocked_signals_engine_factory):
         """Test Run Method for Listem Telegram Messages."""
 
         # Setup Mock
         telegram_client_mockup = mock.AsyncMock(side_effect=self.run_connect_side_effect)
+        mocked_ocr_engine_factory.get_instance = mock.Mock(return_value=UnitTestEchoOcrEngine(echo_message='brown dog jumped over the lazy fox.\n'))
 
         # Setup the IterParticipants Mockup
         async def async_generator_side_effect(items):
@@ -55,6 +55,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Mock the the Message Iterator Async Method
         telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.is_connected = mock.MagicMock(side_effect=[True, True, False, False])
 
         # Add the Async Mocks to Messages
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
@@ -64,6 +65,16 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
         [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
         [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+
+        # Setup the Signals Engine Mockup
+        mock_signals_engine = mock.MagicMock()
+        mock_signals_engine.keep_alive_interval = 1
+        mock_signals_engine.inc_messages_sent = mock.MagicMock()
+        mock_signals_engine.keep_alive = mock.AsyncMock()
+        mock_signals_engine.shutdown = mock.AsyncMock()
+        mock_signals_engine.init = mock.AsyncMock()
+        mock_signals_engine.new_group = mock.AsyncMock()
+        mocked_signals_engine_factory.get_instance = mock.MagicMock(return_value=mock_signals_engine)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -113,6 +124,7 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                 mocked_event = mock.AsyncMock()
                 mocked_event.chat = mocked_channel
                 mocked_event.get_chat = mock.AsyncMock(return_value=mocked_channel)
+                message.get_chat = mock.AsyncMock(return_value=mocked_channel)
 
                 if message.from_id:
                     mocked_event.from_id = mock.MagicMock()
@@ -138,29 +150,58 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         # Assert Call catch_up
         telegram_client_mockup.catch_up.assert_awaited_once()
 
-        # Asset Call run_until_disconnected
-        telegram_client_mockup.run_until_disconnected.assert_awaited_once()
+        # Asset Call disconnect
+        telegram_client_mockup.disconnect.assert_called_once()
+
+        # Check if calls OCR Engine Factory Correctly
+        mocked_ocr_engine_factory.get_instance.assert_called_once_with(config=self.config)
+
+        # Check if calls Signals Engine Correctly
+        mock_signals_engine.init.assert_awaited_once()
+        mock_signals_engine.new_group.assert_has_awaits([
+            mock.call(group_id='10981', group_title='Channel Title Alpha'),
+            mock.call(group_id='10984', group_title='Channel Title Echo'),
+            mock.call(group_id='12099', group_title='johnsnow55'),
+            mock.call(group_id='12000', group_title='Chat 12000'),
+        ])
+        mock_signals_engine.inc_messages_sent.assert_has_calls([
+            mock.call(), mock.call(), mock.call(),
+            mock.call(), mock.call(), mock.call(),
+            mock.call(), mock.call(), mock.call()
+        ])
+        mock_signals_engine.keep_alive.assert_has_awaits([
+            mock.call(),
+            mock.call()
+        ])
+        mock_signals_engine.shutdown.assert_awaited_once()
+
+        # Check if calls Signals Engine Factory Correctly
+        mocked_signals_engine_factory.get_instance.assert_called_once_with(
+            config=self.config,
+            notification_engine=target.notification_engine,
+            source='5526986587745'
+        )
 
         # Check Logs
-        self.assertEqual(18, len(captured.records))
+        self.assertEqual(20, len(captured.records))
         self.assertEqual('\t\tListening Past Messages...', captured.records[0].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[1].message)
         self.assertEqual('\t\tTelegram Client Disconnected...', captured.records[2].message)
-        self.assertEqual('\t\tGroup "10981" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[3].message)
-        self.assertEqual('\t\tUser "5566" was not found on DB. Performing automatic synchronization.', captured.records[4].message)
-        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[5].message)
-        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[6].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[7].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[8].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[9].message)
-        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[10].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[11].message)
-        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[12].message)
-        self.assertEqual('		Group "12099" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[13].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[14].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[15].message)
-        self.assertEqual('		Group "12000" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[16].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[17].message)
+        self.assertEqual('\t\tGroup "10981" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[5].message)
+        self.assertEqual('\t\tUser "5566" was not found on DB. Performing automatic synchronization.', captured.records[6].message)
+        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[7].message)
+        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[8].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[9].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[10].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[11].message)
+        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[12].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[13].message)
+        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[14].message)
+        self.assertEqual('		Group "12099" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[15].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[16].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[17].message)
+        self.assertEqual('		Group "12000" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[18].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[19].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
@@ -231,7 +272,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[1], message_id=183018, group_id=10984,
             datetime=datetime.datetime(2020, 5, 12, 21, 22, 35),
-            message_content='Message 2 - With Photo', raw_message_content='Message 2 - With Photo',
+            message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=5032983114749683815
         )
@@ -268,7 +310,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[4], message_id=183659, group_id=10984,
             datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
-            message_content='Message 5 - WebImage', raw_message_content='Message 5 - WebImage',
+            message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=771772508893348459
         )
@@ -335,7 +378,11 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
             group_id=12000
         )
 
-    def test_run_listen_messages_filtered(self):
+        # TODO: Check if calls OCR Engine Correctly
+
+    @mock.patch('TEx.modules.telegram_messages_listener.SignalsEngineFactory')
+    @mock.patch('TEx.modules.telegram_messages_listener.OcrEngineFactory')
+    def test_run_listen_messages_filtered(self, mocked_ocr_engine_factory, mocked_signals_engine_factory):
         """Test Run Method for Listem Filtered Messages."""
 
         # Setup Mock
@@ -348,6 +395,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Mock the the Message Iterator Async Method
         telegram_client_mockup.iter_messages = mock.MagicMock(return_value=async_generator_side_effect(base_messages_mockup_data))
+        telegram_client_mockup.is_connected = mock.MagicMock(side_effect=[True, True, False, False])
+        mocked_ocr_engine_factory.get_instance = mock.Mock(return_value=UnitTestEchoOcrEngine(echo_message='brown dog jumped over the lazy fox.\n'))
 
         # Add the Async Mocks to Messages
         [message for message in base_messages_mockup_data if message.id == 183018][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_photo)
@@ -357,6 +406,16 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         [message for message in base_messages_mockup_data if message.id == 192][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_mp4)
         [message for message in base_messages_mockup_data if message.id == 4622199][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_text_plain)
         [message for message in base_messages_mockup_data if message.id == 34357][0].download_media = mock.AsyncMock(side_effect=self.coroutine_download_pdf)
+
+        # Setup the Signals Engine Mockup
+        mock_signals_engine = mock.MagicMock()
+        mock_signals_engine.keep_alive_interval = 1
+        mock_signals_engine.inc_messages_sent = mock.MagicMock()
+        mock_signals_engine.keep_alive = mock.AsyncMock()
+        mock_signals_engine.shutdown = mock.AsyncMock()
+        mock_signals_engine.init = mock.AsyncMock()
+        mock_signals_engine.new_group = mock.AsyncMock()
+        mocked_signals_engine_factory.get_instance = mock.MagicMock(return_value=mock_signals_engine)
 
         # Call Test Target Method
         target: TelegramGroupMessageListener = TelegramGroupMessageListener()
@@ -413,35 +472,27 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
                     target._TelegramGroupMessageListener__handler(event=mocked_event)
                     )
 
-        # Assert Event Handler Added
-        telegram_client_mockup.add_event_handler.assert_called_once_with(mock.ANY, NewMessage)
-
-        # Assert Call catch_up
-        telegram_client_mockup.catch_up.assert_awaited_once()
-
-        # Asset Call run_until_disconnected
-        telegram_client_mockup.run_until_disconnected.assert_awaited_once()
-
         for message in captured.records:
             print(message.message)
 
         # Check Logs
-        self.assertEqual(15, len(captured.records))
+        self.assertEqual(18, len(captured.records))
         self.assertEqual('\t\tApplied Groups Filtering... 1 selected', captured.records[0].message)
         self.assertEqual('\t\tListening Past Messages...', captured.records[1].message)
         self.assertEqual('\t\tListening New Messages...', captured.records[2].message)
         self.assertEqual('\t\tTelegram Client Disconnected...', captured.records[3].message)
-        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[4].message)
-        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[5].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[6].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[7].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[8].message)
-        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[9].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[10].message)
-        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[11].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[12].message)
-        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[13].message)
-        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[14].message)
+        self.assertEqual('\t\tGroup "10984" not found on DB. Performing automatic synchronization. Consider execute "load_groups" command to perform a full group synchronization (Members and Group Cover Photo).', captured.records[6].message)
+        self.assertEqual('\t\t\tDownloading Photo from Message 183018 at 2020-05-12 21:22:35', captured.records[7].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183644 (12761.9 Kbytes) as application/vnd.android.package-archive at 2020-05-17 19:20:13', captured.records[8].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183659 (58.8613 Kbytes) as image/webp at 2020-05-17 21:29:30', captured.records[9].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 183771 (2258.64 Kbytes) as video/mp4 at 2020-05-18 19:41:47', captured.records[10].message)
+        self.assertEqual('\t\tUser "6699" was not found on DB. Performing automatic synchronization.', captured.records[11].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 192 (20.1279 Kbytes) as application/x-tgsticker at 2021-08-13 06:51:26', captured.records[12].message)
+        self.assertEqual('\t\tUser "1523754667" was not found on DB. Performing automatic synchronization.', captured.records[13].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 4622199 (11.3203 Kbytes) as text/plain at 2022-02-16 15:15:01', captured.records[14].message)
+        self.assertEqual('\t\t\t\tMedia Download is not Allowed, Ignoring...', captured.records[15].message)
+        self.assertEqual('\t\tUser "881571585" was not found on DB. Performing automatic synchronization.', captured.records[16].message)
+        self.assertEqual('\t\t\tDownloading Media from Message 34357 (2900.25 Kbytes) as application/pdf at 2022-02-16 16:05:17', captured.records[17].message)
 
         # Check Synchronized Groups
         all_groups = DbManager.SESSIONS['data'].execute(
@@ -484,7 +535,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[0], message_id=183018, group_id=10984,
             datetime=datetime.datetime(2020, 5, 12, 21, 22, 35),
-            message_content='Message 2 - With Photo', raw_message_content='Message 2 - With Photo',
+            message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 2 - With Photo\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=5032983114749683815
         )
@@ -521,7 +573,8 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         self.verify_single_message(
             message_obj=all_messages[3], message_id=183659, group_id=10984,
             datetime=datetime.datetime(2020, 5, 17, 21, 29, 30),
-            message_content='Message 5 - WebImage', raw_message_content='Message 5 - WebImage',
+            message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
+            raw_message_content='Message 5 - WebImage\n\n====OCR CONTENT====\nbrown dog jumped over the lazy fox.\n',
             to_id=1148953179, from_type=None, from_id=None,
             expected_media_id=771772508893348459
         )
@@ -559,18 +612,13 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
             size_bytes=20611, group_id=10984
         )
 
-        # Check Message 7 - With text/plain
+        # Check Message 7 - With text/plain (But, not Downloaded by Media Filter)
         self.verify_single_message(
             message_obj=all_messages[6], message_id=4622199, group_id=10984,
             datetime=datetime.datetime(2022, 2, 16, 15, 15, 1),
             message_content='Message 8 - With text/plain', raw_message_content='Message 8 - With text/plain',
             to_id=1287139915, from_type='User', from_id=881571585,
-            expected_media_id=4929432170046423539
-        )
-        self.verify_media_data(
-            expected_media_id=4929432170046423539, filename='4622199_1645024499642.txt',
-            extension='.txt', mime_type='text/plain', name=None, height=None, width=None, size_bytes=11592,
-            group_id=10984
+            expected_media_id=None
         )
 
         # Check Message 8 - With text/plain
@@ -731,6 +779,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
         shutil.copyfile('resources/122761750_387013276008970_8208112669996447119_n.jpg',
                         '_data/resources/test_run_connect.jpg')
 
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile('resources/122761750_387013276008970_8208112669996447119_n.jpg', path)
+
         # Return the Path
         return '_data/resources/test_run_connect.jpg'
 
@@ -746,6 +797,9 @@ class TelegramGroupMessageListenerTest(unittest.TestCase):
 
         # Copy Resources
         shutil.copyfile('resources/sticker.webp', '_data/resources/sticker.webp')
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile('resources/sticker.webp', path)
 
         # Return the Path
         return '_data/resources/sticker.webp'

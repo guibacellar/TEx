@@ -1,8 +1,10 @@
 """Photo Media Handler."""
+from __future__ import annotations
 
 from typing import Dict, Optional
 
-from telethon.tl.types import Message, MessageMediaPhoto
+from telethon.tl.patched import Message
+from telethon.tl.types import MessageMediaPhoto
 
 
 class PhotoMediaHandler:
@@ -23,5 +25,5 @@ class PhotoMediaHandler:
             'mime_type': message.file.mime_type,
             'size_bytes': message.file.size,
             'title': None,
-            'name': None
+            'name': None,
             }
