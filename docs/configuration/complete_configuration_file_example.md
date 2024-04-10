@@ -46,6 +46,11 @@ type=all
 notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
 exporter=EXPORTER.ROLLING_PANDAS.EXPORT_ALL_MESSAGES
 
+[FINDER.RULE.DefangsUrls]
+type=regex
+regex=/^hXXp:\/\/(?:[A-Za-z0-9_.-]+\[.\])+[A-Za-z]+\/?$/
+notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
+
 [NOTIFIER.DISCORD.MY_HOOK_1]
 webhook=https://discord.com/api/webhooks/1157896186751897357/o7foobar4txvAvKSdeadHiI-9XYeXaGlQtd-5PtrrX_eCE0XElWktpPqjrZ0KbeefPtQC
 prevent_duplication_for_minutes=240
