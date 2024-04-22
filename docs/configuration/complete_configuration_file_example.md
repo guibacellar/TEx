@@ -41,6 +41,11 @@ type=regex
 regex=^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$
 notifier=NOTIFIER.DISCORD.MY_HOOK_1,NOTIFIER.DISCORD.MY_HOOK_2
 
+[FINDER.RULE.OnionTorDoamins]
+type=regex
+regex=(?:www\.)?[a-z0-9]+(?:-[a-z0-9]+)*\.onion(?:\.[a-z]{2,})?(?!\w)
+notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
+
 [FINDER.RULE.CatchAll]
 type=all
 notifier=NOTIFIER.ELASTIC_SEARCH.GENERAL
