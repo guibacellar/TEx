@@ -73,13 +73,13 @@ class TelegramGroupMessageListener(BaseModule):
         # Get Message
         message: Message = event.message
 
+        if event and not event.chat:
+            return  # TO_DO: Need to Be Handled in Future Version
+        
         # Apply Filter (If group filtering are enabled)
         if len(self.group_ids) > 0 and event.chat.id not in self.group_ids:
             logger.debug(f'\t\tMessage Filtered (GroupID={event.chat.id}) ...')
             return
-
-        if event and not event.chat:
-            return  # TO_DO: Need to Be Handled in Future Version
 
         # Ensure Group Exists on DB
         await self.__ensure_group_exists(event=event)
