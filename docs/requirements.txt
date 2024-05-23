@@ -2,3 +2,4 @@
 tox==4.7.0
 poetry==1.5.1
 mkdocs-material==9.4.2
+requests>=2.32.0 # not directly required, pinned by Snyk to avoid a vulnerability
